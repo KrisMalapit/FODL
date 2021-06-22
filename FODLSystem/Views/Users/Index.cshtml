@@ -1,0 +1,216 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+<style>
+
+
+
+
+
+
+    #tbl a {
+        color: #007bff;
+        text-decoration: none;
+        background-color: transparent;
+    }
+</style>
+
+@*<link rel="stylesheet" type="text/css" href="~/Content/css/material-dashboard.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Content/css/css.css">*@
+
+<link href="~/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+
+
+
+<div class="col-lg-12">
+    <div class="ibox float-e-margins">
+        <div class="ibox-content">
+            <h2 class="card-title">User Masterlist</h2>
+
+
+            <div class="col-md-12" style="padding-left:0px!important;">
+                <div class="form-group">
+                    <label class="col-md-1" style="padding-left:0px!important;">Domain</label>
+                    <div class="col-md-2">
+                        @Html.DropDownList("Domain",
+                                 new SelectList(Enum.GetValues(typeof(SEMSystem.Models.Domain)), "SMCDACON"), new { @class = "form-control" })
+                    </div>
+                </div>
+
+            </div>
+
+            <table id="tbl" class="table table-striped table-no-bordered table-hover dataTable" style="width: 100%!important">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Domain</th>
+                        <th>Username</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+
+            </table>
+
+
+        </div>
+    </div>
+</div>
+<script src="~/js/plugins/sweetalert/sweetalert.min.js"></script>
+
+<script>
+
+    
+
+
+
+
+    $(function () {
+        loadDatatable("SEMCALACA");
+        $("div.dataTables_filter input").unbind();
+        $("div.dataTables_filter input").keyup(function (e) {
+            if (e.keyCode == 13) {
+
+                $('#tbl').DataTable().search(this.value).draw();
+            }
+        });
+
+    });
+
+
+
+    function loadDatatable(_domain) {
+
+        var data = [];
+
+         $.ajax({
+                        url: "@Url.Action("getData","Users")"
+                            , method: "POST"
+                            , dataType: 'json'
+                            , data: { domain: _domain }
+                            , success: function (responsedata) {
+                                console.log(responsedata);
+                                if (responsedata.status == "success") {
+
+
+                                    for (var i = 0; i < responsedata.data.length; i++) {
+
+                                        var $id = responsedata.data[i].id;
+                                        var linkDetails = "@Url.Action("Details", "PO")?id="+ $id;
+                                        var linkEdit = "@Url.Action("Edit", "PO")?id="+ $id;
+                                        var linkDelete = "@Url.Action("Delete", "PO")?id=" + $id;
+
+                                        var $stat = (responsedata.data[i].status == "Enabled") ? '<button class="btn btn-danger" title="Status" type="button" style="  font-size: 12px; width: 120px"  onclick="ChangeStatus(\'' + responsedata.data[i].username + '\',\'' + responsedata.data[i].mail + '\',\'' + responsedata.data[i].status + '\',\'' + responsedata.data[i].domain + '\',\'' + responsedata.data[i].name + '\')">' +
+                                            '<i class="mdi mdi-account-off"></i>Disable</button>' :
+                                            '<button class="btn btn-success" title="Status" type="button" style="  font-size: 12px; width: 120px" onclick="ChangeStatus(\'' + responsedata.data[i].username + '\',\'' + responsedata.data[i].mail + '\',\'' + responsedata.data[i].status + '\',\'' + responsedata.data[i].domain + '\',\'' + responsedata.data[i].name + '\')" >' +
+                                            '<i class="mdi mdi-account-check"></i> Enable</button>';
+
+                                        var $name = (responsedata.data[i].status == "Disabled") ? responsedata.data[i].name : '<a href="@Url.Action("Edit", "Users")?id=' + responsedata.data[i].id + '">' + responsedata.data[i].name + ' </a>';
+
+                                       
+
+                                        data.push([
+                                              responsedata.data[i].id
+                                            , $name
+                                            , responsedata.data[i].mail
+                                            , responsedata.data[i].domain
+                                            , responsedata.data[i].username
+
+                                            , $stat]);
+
+                                    }
+                                    if ($.fn.DataTable.isDataTable('#tbl')) {
+                                        $('#tbl').DataTable().destroy();
+                                    }
+                                    $('#tbl').DataTable({
+                                        "data" : data,
+                                        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                                        "columnDefs": [
+                                            //{ className: "td-actions text-right", targets: 1}
+                                            {
+                                                visible: false,
+                                                targets: [0]
+                                            },
+                                        ],
+                                    });
+                                } else {
+                                   swal("Error!" + responsedata.message, "Please try again", "error");
+                                }
+
+                            }
+        });
+
+
+
+
+
+    }
+
+            function ChangeStatus(Username,Email,Status,Domain,Name) {
+                swal({
+                    title: "Change Status",
+                    text: "Change status of this user?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Proceed",
+                    closeOnConfirm: false
+                }, function () {
+                        $.ajax({
+                            url: "@Url.Action("EnableDisableUser", "Users")",
+                            method: "POST",
+                            dataType: "json",
+                            data: {
+
+                                'UserName': Username,
+                                'Domain': Domain,
+                                'Status': Status,
+                                'Name': Name,
+                                'Email': Email,
+
+
+                            }
+                            , success: function (responsedata) {
+                                if (responsedata.status == "success") {
+                                    swal("Done!", "New status set for this particular user", "success");
+
+                                    loadDatatable($('#Domain').val());
+                                } else {
+
+                                    toastr["error"](responsedata.message)
+                                    toastr.options = {
+                                        "closeButton": true,
+                                        "showDuration": "3000",
+                                    }
+                                };
+                            }, error: function ($xhr, textStatus, errorThrown) {
+                                toastr["error"](errorThrown, "Error")
+                                toastr.options = {
+                                    "closeButton": true,
+                                    "showDuration": "3000",
+                                }
+                            }
+                        });
+                });
+            }
+
+
+
+
+
+    $('#Domain').change(function () {
+        loadDatatable($(this).val())
+    });
+
+
+
+
+
+</script>
+
+
+
+
+

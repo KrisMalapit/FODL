@@ -1,0 +1,207 @@
+﻿<style>
+    #loadingScreen {
+        display: block;
+        position: fixed;
+        top: 30%;
+        left: 50%;
+        left: 0;
+        margin: 0 auto;
+        right: 0;
+        text-align: center;
+        width: 100%;
+        z-index: 5000;
+    }
+
+    #loadingContent {
+        background: #000 none repeat scroll 0 0;
+        border-radius: 10px;
+        color: #fff;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        min-height: 110px;
+        opacity: 0.6;
+        padding: 0 15px 15px;
+        width: 260px;
+    }
+
+    .addButton {
+        font-weight: bold;
+        text-decoration: underline;
+    }
+    table{
+        font-size:13px!important;
+    }
+
+    .breadcrumb > li + li:before {
+        display: inline-block;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        color: #6c757d;
+        content: "/";
+      
+    }
+ 
+    div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+        margin: 2px 0 ;
+        white-space: nowrap ;
+        justify-content: flex-end ;
+    }
+   
+</style>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Equipment Monitoring System</title>
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/dataTables/datatables.min.css" rel="stylesheet">
+
+    <link href="~/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="~/css/plugins/toastr/toastr.min.css" rel="stylesheet">
+    <link href="~/css/animate.css" rel="stylesheet">
+    <link href="~/css/style.css" rel="stylesheet">
+    <link href="~/css/style2.css" rel="stylesheet">
+
+    <link href="~/css/plugins/daterangepicker/daterangepicker.css" rel="stylesheet">
+    <link href="~/css/plugins/datapicker/jquery.datetimepicker.css" rel="stylesheet">
+    <link href="~/css/plugins/dataTables/dataTables.checkboxes.css" rel="stylesheet">
+
+</head>
+<body class="top-navigation">
+    <script src="~/js/jquery-3.1.1.min.js"></script>
+    <script src="~/js/plugins/dataTables/jquery.dataTables.min.js"></script>
+    <script src="~/js/plugins/datapicker/jquery.datetimepicker.full.min.js"></script>
+    <script src="~/js/plugins/select2/select2.min.js"></script>
+    <script type="text/javascript" src="~/js/webcamjs/webcam.js"></script>
+    <div id="wrapper">
+        <div id="page-wrapper" class="gray-bg">
+            <div class="row border-bottom white-bg">
+                <nav class="navbar navbar-expand-lg navbar-static-top" role="navigation">
+                    <a href="#" class="navbar-brand">SEM System</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-label="Toggle navigation">
+                        <i class="fa fa-reorder"></i>
+                    </button>
+
+                    <div class="navbar-collapse collapse" id="navbar">
+                        <ul class="nav navbar-nav mr-auto">
+                            <li class="active">
+                                <a asp-area="" asp-controller="Home" asp-action="Index" class="simple-text logo-normal">
+                                    Home
+                                </a>
+                            </li>
+                            <li class="dropdown">
+                                <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown">Data Entry</a>
+                                <ul role="menu" class="dropdown-menu">
+                                    <li><a asp-area="" asp-controller="FireExtinguishers" asp-action="Index">Fire Extinguisher</a></li>
+                                    <li><a asp-area="" asp-controller="EmergencyLights" asp-action="Index">Emergency Light</a></li>
+                                    <li><a asp-area="" asp-controller="InergenTanks" asp-action="Index">Inergen Tanks</a></li>
+                                    <li><a asp-area="" asp-controller="FireHydrants" asp-action="Index">Fire Hydrant</a></li>
+                                    <li><a asp-area="" asp-controller="BicycleEntry" asp-action="Index">Bicycle Entry</a></li>
+
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown">Maintenance</a>
+                                <ul role="menu" class="dropdown-menu">
+                                    <li><a asp-area="" asp-controller="Companies" asp-action="Index">Company</a></li>
+                                    <li><a asp-area="" asp-controller="Departments" asp-action="Index">Department</a></li>
+                                    <li><a asp-area="" asp-controller="Users" asp-action="Index">User </a></li>
+                                    <li><a asp-area="" asp-controller="Areas" asp-action="Index">Area </a></li>
+                                    <li><a asp-area="" asp-controller="Items" asp-action="Index">Item </a></li>
+                                    <li><a asp-area="" asp-controller="Bicycles" asp-action="Index">Bicycle </a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a asp-area="" asp-controller="Reports" asp-action="Index" class="simple-text logo-normal">
+                                    Reports
+                                </a>
+                            </li>
+                        </ul>
+                        <ul class="nav navbar-top-links navbar-right">
+
+
+                            <li>
+                                @using (Html.BeginForm("LogOff", "Accounts", FormMethod.Post, new { id = "logoutForm" }))
+                                {
+                                    @Html.AntiForgeryToken()
+
+                                    <a href="javascript:document.getElementById('logoutForm').submit()" style="color: #676a6c;">
+
+                                        <i class="fa fa-sign-out"></i> Log off
+                                    </a>
+
+
+                                }
+                            </li>
+
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+            @*<div class="wrapper wrapper-content">*@
+            @*<div class="container">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="wrapper wrapper-content animated fadeInRight">
+
+                        </div>
+                    </div>
+                </div>
+
+                </div>*@
+            <div class="row wrapper border-bottom white-bg page-heading" style="margin-top:20px;">
+                <div class="col-lg-10">
+                    <h2>@ViewBag.Title</h2>
+
+                    <breadcrumb asp-homepage-title="Home"
+                                asp-homepage-url="@Url.Action("Index", "Home", values: new { area = "" })"
+                                asp-bootstrap-version="V3"></breadcrumb>
+                </div>
+
+
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="wrapper wrapper-content animated fadeInRight">
+                        <div id="loadingScreen" class="loadingWrapper" style="display:none;">
+                            <div id="loadingContent">
+                                <br>
+                                <img src="~/assets/big-spinner.gif"><br>
+                                Please wait
+                            </div>
+                        </div>
+                        @RenderBody()
+
+                    </div>
+
+                </div>
+            </div>
+
+            @*</div>  --- wrapper wrapper-content*@
+        </div>
+    </div>
+    <!-- Mainly scripts -->
+
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/plugins/datapicker/moment.min.js"></script>
+    <script src="~/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="~/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="~/js/plugins/daterangepicker/daterangepicker.min.js"></script>
+    <!-- Custom and plugin javascript -->
+    <script src="~/js/inspinia.js"></script>
+    <script src="~/js/plugins/toastr/toastr.min.js"></script>
+    <script src="~/js/plugins/dataTables/dataTables.checkboxes.min.js"></script>
+    <script>
+        $(document).ajaxStart(function () {
+            $("#loadingScreen").fadeIn();
+        }).ajaxStop(function () {
+            $("#loadingScreen").fadeOut();
+        });
+    </script>
+
+
+</body>
+</html>

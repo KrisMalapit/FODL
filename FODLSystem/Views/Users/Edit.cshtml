@@ -1,0 +1,175 @@
+﻿@model SEMSystem.Models.User
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<link href="~/css/plugins/select2/select2.min.css" rel="stylesheet">
+<form id="frm" asp-action="Edit">
+    <div class="ibox-content">
+        <div class="row">
+
+            <div class="col-md-4">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                <div class="form-group">
+                    <label asp-for="Domain" class="control-label"></label>
+                    <input asp-for="Domain" class="form-control" disabled />
+                    <span asp-validation-for="Domain" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Username" class="control-label"></label>
+                    <input asp-for="Username" class="form-control" disabled />
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+
+
+                <div class="form-group">
+                    <label asp-for="FirstName" class="control-label"></label>
+                    <input asp-for="FirstName" class="form-control" disabled />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="LastName" class="control-label"></label>
+                    <input asp-for="LastName" class="form-control" disabled />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" disabled />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Email" class="control-label"></label>
+                    <input asp-for="Email" class="form-control" disabled />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+
+
+
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="control-label">Company</label>
+                    @Html.DropDownList("CompanyId", (IEnumerable<SelectListItem>)ViewData["Company"], "Select Company", new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    <label asp-for="DepartmentId" class="control-label"></label>
+                    @Html.DropDownList("DepartmentId", (IEnumerable<SelectListItem>)ViewData["Department"], "Select Department", new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    <label asp-for="RoleId" class="control-label"></label>
+                    @Html.DropDownList("RoleId", (IEnumerable<SelectListItem>)ViewData["Roles"], "Select Role", new { @class = "form-control" })
+                    <span asp-validation-for="RoleId" class="text-danger"></span>
+                </div>
+                <div class="form-group" hidden>
+                    <label class="control-label">User Type</label>
+                    <select id="UserType"  name="UserType" class="form-control">
+                        <option value="SEMSystem">SEMSystem</option>
+                        <option value="TRADING">TRADING</option>
+                    </select>
+                </div>
+
+                <div class="form-group" >
+                    <label class="control-label">Company Access</label>
+                    <select id="CompanyAccess" style="width:400px" name="companytags[]" class="form-control">
+                        <option value="1">SOUTHWEST LUZON POWER GEN CORP</option>
+                        <option value="2">SEM CALACA AND POWER CORP</option>
+
+
+                    </select>
+
+                </div>
+
+
+
+            </div>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Save" class="btn btn-default" />
+        </div>
+    </div>
+</form>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+<script src="~/js/plugins/select2/select2.full.min.js"></script>
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>*@
+
+
+<script>
+   var compAccess = '@Model.CompanyAccess'
+   var selectedValuesTest = compAccess.split(',');
+    $(function () {
+        @*console.log(@Model.UserType);*@
+        $("#UserType").val('@Model.UserType');
+
+    });
+
+    $("#frm").submit(function (e) {
+
+        if ($('#DepartmentId').val() == "" || $('#DepartmentId').val() == null) {
+            toastr["error"]("Please fill Company and Department", "Error")
+            toastr.options = {
+                "closeButton": true,
+                "showDuration": "3000",
+            }
+            e.preventDefault();
+        }
+
+    });
+
+    $("#CompanyAccess").select2({
+        multiple: true,
+    });
+    $('#CompanyAccess').val(selectedValuesTest).trigger('change');
+
+
+    $('#CompanyId').change(function () {
+
+        $.ajax({
+            url: "@Url.Action("ReloadDepartment", "Users")"
+            , method: "POST"
+            , dataType: 'json'
+            , data: { id: $(this).val() }
+            , success: function (responsedata) {
+
+                console.log(responsedata);
+
+                $('#DepartmentId')
+                    .find('option')
+                    .remove()
+                    .end();
+
+                var $select = $('<select name="DepartmentId" style=" width:100% "></select>');
+
+
+                $.each(responsedata, function (k, v) {
+                    var $option = $("<option></option>", {
+                        "text": v["text"],
+                        "value": v["value"]
+                    });
+
+                    //if (d === parseInt(v["value"])) {
+                    //    $option.attr("selected", "selected")
+                    //}
+                    $('#DepartmentId').append($option);
+                });
+
+
+            }
+        })
+
+    });
+
+
+
+
+
+
+
+</script>
+

@@ -1,0 +1,133 @@
+﻿
+
+
+<style>
+    #tbl input {
+        border-color: #ccc;
+        font-weight: 400;
+        font-size: 14px;
+    }
+   
+</style>
+<div class="col-lg-12">
+    <div class="ibox float-e-margins">
+        <div class="ibox-content">
+            <h3>Filter By</h3>
+            <div class="row form-group">
+                <div class="col-md-3 row">
+                    <label class="col-md-2" style="padding-top:5px;">Area</label>
+                    <div class="col-md-10">
+                        <select id="cmbType" name="AreaId" class="form-control" asp-items="ViewBag.AreaId"></select>
+                    </div>
+                </div>
+                <div class="col-md-3 row">
+                    <label class="col-md-2" style="padding-top:5px;">Equipment</label>
+                    <div class="col-md-10">
+                        <select id="cmbEquipment" name="EquipmentId" class="form-control" asp-items="ViewBag.EquipmentId"></select>
+                    </div>
+                </div>
+                <div id="btnFilter" style="float:right;">
+                    <button id="btnPrint" class="btn btn-info"><i class="fa fa-print"></i>&nbsp;Print</button>
+                    <button id="btnExport" class="btn btn-primary"><i class="fa fa-file-excel-o"></i>&nbsp;Excel</button>
+                </div>
+             
+            </div>
+            <div class="row form-group">
+                <div class="col-md-3 row">
+                    <label class="col-md-2" style="padding-top:5px;">Date</label>
+                    <div  style="background: #fff; cursor: pointer; padding: 5px 10px 0px 10px ;margin-left:15px; border: 1px solid #ccc; float: right">
+                        <i class="fa fa-calendar"></i>&nbsp;
+                        <span></span>  <input id="reportrange" type="text" name="daterange" style="border:none;" />
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+            
+
+               
+                <br />
+            </div>
+    </div>
+</div>
+<script>
+
+    var sdate = "";
+    var edate = "";
+    $from = ""
+        $to = "";
+     //printReport
+    function print() {
+        $from = moment().subtract(0, 'days').format('MM/DD/YYYY');
+        $to = moment().subtract(0, 'days').format('MM/DD/YYYY');
+        $refid = $("#cmbType"), val();
+
+        window.open('@Url.Action("printReport", "Reports")?ReferenceId=' + $refid + '&fromDate=' + $from + '&toDate=' + $to + '&rptType=PDF' + '&Report=rptItemHistory');
+    }
+    $(function () {
+
+        var start = moment().subtract(0, 'days');
+        var end = moment();
+
+        function cb(start, end) {
+            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            sdate = start;
+            edate = end;
+        }
+        $('#reportrange').daterangepicker({
+            opens: 'left'
+        }, cb);
+        cb(start, end);
+
+     
+
+    })
+   
+   
+
+
+
+    
+     $("#btnPrint").click(function () {
+
+         
+   
+
+         $refid = $("#cmbType").val();
+         $from = sdate.format('MM/DD/YYYY');
+         $to = edate.format('MM/DD/YYYY');
+         $equipment = $("#cmbEquipment").val();
+         console.log('ref ' + $refid);
+         console.log('from ' + $from);
+         console.log('to ' + $to);
+         console.log('equipment ' + $equipment);
+         $rpt = '';
+
+         if ($equipment == 1) {
+             $rpt = 'rptFireExtinguisher_Consolidated';
+         } else if ($equipment == 2) {
+             $rpt = 'rptEmergencyLight_Consolidated';
+         } else if ($equipment == 3) {
+             $rpt = 'rptFireHydrant_Consolidated';
+         } else if ($equipment == 4) {
+             $rpt = 'rptInergenTank_Consolidated';
+         } else  {
+             $rpt = 'rptBicycle_Consolidated';
+         }
+        
+         window.open('@Url.Action("printReport", "Reports")?ReferenceId=' + $refid + '&fromDate=' + $from + '&toDate=' + $to + '&rptType=PDF' + '&Report=' + $rpt + '&Equipment=' + $equipment);
+        
+
+    })
+    $("#btnExport").click(function () {
+
+       window.open('@Url.Action("DownloadExcelDocument", "Reports")?sqlCommand=' + sqlCommand + '&Report=rptFinalPrice' + '&strStart=' + $from + '&end=' + $to);
+       // window.open('@Url.Action("DownloadExcelDocumentEPP", "Reports")?sqlCommand=' + sqlCommand + '&Report=rptFinalPrice' + '&strStart=' + $from + '&end=' + $to);
+
+    })
+
+</script>
+

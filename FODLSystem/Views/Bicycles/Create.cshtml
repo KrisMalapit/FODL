@@ -1,0 +1,69 @@
+﻿@model SEMSystem.Models.Bicycle
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+
+<div class="ibox-content">
+    <h1>Bicycle</h1>
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row form-group">
+
+                    <label class="col-md-2 col-form-label" style="padding-top:5px;" asp-for="NameOwner"></label>
+                    <div class="col-md-4">
+                        <input asp-for="NameOwner" class="form-control" />
+                        <span asp-validation-for="NameOwner" class="text-danger"></span>
+                    </div>
+                  
+
+                    <label class="col-md-2 col-form-label" style="padding-top:5px;" asp-for="DepartmentID"></label>
+                    <div class="col-md-4">
+                        <select asp-for="DepartmentID" class="form-control" asp-items="ViewBag.DepartmentID"></select>
+                    </div>
+                </div>
+                <div class="row form-group">
+
+                    <label class="col-md-2 col-form-label" style="padding-top:5px;" asp-for="ContactNo"></label>
+                    <div class="col-md-4">
+                        <input asp-for="ContactNo" class="form-control" />
+                        <span asp-validation-for="ContactNo" class="text-danger"></span>
+                    </div>
+                    <label class="col-md-2 col-form-label" style="padding-top:5px;" asp-for="BrandName"></label>
+                    <div class="col-md-4">
+                        <input asp-for="BrandName" class="form-control" />
+                        <span asp-validation-for="BrandName" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="row form-group">
+
+                    <label class="col-md-2 col-form-label" style="padding-top:5px;" asp-for="IdentificationNo"></label>
+                    <div class="col-md-4">
+                        <input asp-for="IdentificationNo" class="form-control" />
+                        <span asp-validation-for="IdentificationNo" class="text-danger"></span>
+                    </div>
+                   
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-default" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
+
+<script>
+     $("input[type=text]").keyup(function () {
+        $(this).val($(this).val().toUpperCase());
+    });
+</script>
+
+

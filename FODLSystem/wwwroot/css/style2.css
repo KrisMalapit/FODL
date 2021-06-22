@@ -1,0 +1,23 @@
+﻿.panel {
+    border-radius: 1px;
+}
+
+.panel-heading {
+    border-top-left-radius: 1px;
+    border-top-right-radius: 1px;
+}
+
+.ibox-title-primary {
+    background-color: #1ab394;
+    color: white;
+}
+
+.ibox-title-success {
+    background-color: #1c84c6;
+    color: white;
+}
+
+.ibox-title-warning {
+    background-color: #f8ac59;
+    color: white;
+}
