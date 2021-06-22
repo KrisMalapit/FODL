@@ -31,8 +31,7 @@ namespace FODLSystem.Models
         public string Status { get; set; }
         public virtual Role Roles { get; set; }
         public string Email { get; set; }
-        public int DepartmentId { get; set; }
-        public virtual Department Departments { get; set; }
+       
         public string Domain { get; set; }
         public string CompanyAccess { get; set; }
         public string UserType { get; set; }
