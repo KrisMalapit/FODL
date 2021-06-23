@@ -14,5 +14,6 @@ namespace FODLSystem.Models
         [Column(TypeName = "VARCHAR(100)")]
         [Required]
         public string Name { get; set; }
+        public string Status { get; set; } = "Active";
     }
 }

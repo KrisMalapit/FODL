@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FODLSystem.Controllers
 {
-    public class ItemsController : Controller
+    public class EquipmentsController : Controller
     {
         private readonly FODLSystemContext _context;
 
-        public ItemsController(FODLSystemContext context)
+        public EquipmentsController(FODLSystemContext context)
         {
             _context = context;
         }
@@ -22,20 +22,22 @@ namespace FODLSystem.Controllers
         [BreadCrumb(Title = "Index", Order = 1, IgnoreAjaxRequests = true)]
         public IActionResult Index()
         {
-            this.SetCurrentBreadCrumbTitle("Item");
+            this.SetCurrentBreadCrumbTitle("Equipment");
             return View();
         }
-        
         [HttpPost]
-        public ActionResult SaveItem(int id,string TypeFuel,string DescLiq)
+        public ActionResult SaveItem(int id, string DepartmentCode, string FuelCodeDiesel, string FuelCodeOil)
         {
             string status = "";
             string message = "";
             try
             {
-                var item = _context.Items.Find(id);
-                item.DescriptionLiquidation = DescLiq;
-                item.TypeFuel = TypeFuel;
+                var item = _context.Equipments.Find(id);
+                item.DepartmentCode = DepartmentCode;
+                item.FuelCodeDiesel = FuelCodeDiesel;
+                item.FuelCodeOil = FuelCodeOil;
+
+
                 _context.Entry(item).State = EntityState.Modified;
                 _context.SaveChanges();
 
@@ -62,7 +64,7 @@ namespace FODLSystem.Controllers
             string strFilter = "";
             try
             {
-                
+
 
                 var draw = Request.Form["draw"].FirstOrDefault();
                 var start = Request.Form["start"].FirstOrDefault();
@@ -75,7 +77,7 @@ namespace FODLSystem.Controllers
                 int recordsTotal = 0;
 
 
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 6; i++)
                 {
                     string colval = Request.Form["columns[" + i + "][search][value]"];
                     if (colval != "")
@@ -109,9 +111,9 @@ namespace FODLSystem.Controllers
 
                 int recCount =
 
-                _context.Items
+                _context.Equipments
                 .Where(a => a.Status == "Active")
-               
+
                 .Where(strFilter)
                 .Count();
 
@@ -122,27 +124,15 @@ namespace FODLSystem.Controllers
 
                 var v =
 
-               _context.Items
+               _context.Equipments
                 .Where(a => a.Status == "Active")
               .Where(strFilter)
-              
+
               //.OrderBy(a => a.FileDate).ThenBy(a => a.Hour)
-              .Skip(skip).Take(pageSize)
-              .Select(a => new
-              {
-                  a.No,
-                  a.Description,
-                  a.Description2,
-                  a.DescriptionLiquidation,
-                  a.TypeFuel,
-                  a.Id
+              .Skip(skip).Take(pageSize);
 
 
 
-              });
-
-
-               
 
                 bool desc = false;
                 if (sortColumnDirection == "desc")
@@ -151,7 +141,7 @@ namespace FODLSystem.Controllers
                 }
                 v = v.OrderBy(sortColumn + (desc ? " descending" : ""));
 
-               
+
 
                 if (pageSize < 0)
                 {
@@ -160,7 +150,7 @@ namespace FODLSystem.Controllers
 
 
                 var data = v;
-                var jsonData = new { draw = draw, recordsFiltered = recFilter, recordsTotal = recordsTotal, data = data};
+                var jsonData = new { draw = draw, recordsFiltered = recFilter, recordsTotal = recordsTotal, data = data };
                 return Ok(jsonData);
             }
             catch (Exception ex)
@@ -169,5 +159,4 @@ namespace FODLSystem.Controllers
             }
         }
     }
-    
 }

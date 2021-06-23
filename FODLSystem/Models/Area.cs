@@ -18,5 +18,6 @@ namespace FODLSystem.Models
         [Column(TypeName = "VARCHAR(10)")]
         [Required]
         public string OfficeCode { get; set; }
+        public string Status { get; set; } = "Active";
     }
 }

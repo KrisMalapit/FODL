@@ -1,4 +1,4 @@
-﻿@model IEnumerable<FODLSystem.Models.Item>
+﻿
 
 @{
     ViewData["Title"] = "Index";
@@ -12,7 +12,7 @@
                 <small class="font-bold">Modify details of this item</small>
             </div>
             <div class="modal-body">
-                <input id="itemId" />
+                <input id="itemId" type="hidden" />
 
                 <div class="form-group">
                     <label>No</label>
@@ -21,21 +21,40 @@
                 <div class="form-group">
 
                     <label>Description</label>
-                    <input class="form-control" id="itemDescription" disabled/>
+                    <input class="form-control" id="itemDescription" disabled />
                 </div>
                 <div class="form-group">
                     <label>Description 2</label>
-                    <input class="form-control" id="itemDescription2" disabled/>
+                    <input class="form-control" id="itemDescription2" disabled />
                 </div>
                 <div class="form-group">
                     <label>Type of Fuel</label>
-                    <input class="form-control" id="itemItemFuel" />
+                    @*<input class="form-control" id="itemItemFuel" />*@
+                    <select class="form-control" id="itemItemFuel">
+                        <option value="DIESEL">DIESEL</option>
+                        <option value="OIL-LUBE">OIL-LUBE</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Description in Liquidation</label>
-                    <input class="form-control" id="itemDescriptionLiquidation" />
+                    @*<input class="form-control" id="itemDescriptionLiquidation" />*@
+                    <select class="form-control" id="itemDescriptionLiquidation">
+                        <option value="DIESOLINE">DIESOLINE</option>
+                        <option value="15W40">15W40</option>
+                        <option value="3O PTT30">3O PTT30</option>
+                        <option value="10">10</option>
+                        <option value="68">68</option>
+                        <option value="PTT50">PTT50</option>
+                        <option value="140">140</option>
+                        <option value="EP 2">EP 2</option>
+                        <option value="COOLANT">COOLANT</option>
+                        <option value="OIL 90">OIL 90</option>
+                        <option value="OIL 150">OIL 150</option>
+                        <option value="OIL 220">OIL 220</option>
+                    </select>
                 </div>
-                <input type=button value="Close" data-dismiss="modal" class="btnCloseSnap">
+                <button  data-dismiss="modal" class="btn btn-default">Close</button> 
+                <button id="btnSave" class="btn btn-primary" onclick="saveItem();">Save</button>
 
 
             </div>
@@ -56,8 +75,9 @@
                         <th>Item No</th>
                         <th>Description</th>
                         <th>Description 2</th>
-                        <th>Type of Fuel</th>
                         <th>Description in Liquidation</th>
+                        <th>Type of Fuel</th>
+
                         <th>Action</th>
 
                     </tr>
@@ -65,8 +85,9 @@
                         <th>Item No</th>
                         <th>Description</th>
                         <th>Description 2</th>
-                        <th>Type of Fuel</th>
                         <th>Description in Liquidation</th>
+                        <th>Type of Fuel</th>
+
                         <th></th>
 
                     </tr>
@@ -76,8 +97,9 @@
                         <th>Item No</th>
                         <th>Description</th>
                         <th>Description 2</th>
-                        <th>Type of Fuel</th>
                         <th>Description in Liquidation</th>
+                        <th>Type of Fuel</th>
+
                         <th></th>
                     </tr>
                 </tfoot>
@@ -87,13 +109,41 @@
 </div>
 
 <script>
-    
+    function saveItem() {
+        $id = $("#itemId").val();
+        $typeFuel = $("#itemItemFuel").val();
+        $descLiq = $("#itemDescriptionLiquidation").val();
+
+        $.ajax({
+                url: "@Url.Action("SaveItem")"
+                    , method: "POST"
+                    , data: { id: $id, TypeFuel: $typeFuel, DescLiq: $descLiq }
+                    , dataType: 'json'
+                    , success: function (responsedata) {
+                        if (responsedata.status == "success") {
+                            toastr["success"]("Data saved!", "<b>Success</b> ")
+                            loadDatatable();
+                        } else {
+                            toastr["error"](responsedata.message)
+                            toastr.options = {
+                                "closeButton": true,
+                                "showDuration": "3000",
+                            }
+                        }
+                    }
+               })
+
+
+    }
     $(function () {
         $('#tbl thead tr:eq(1) th').each(function () {
            
             var title = $(this).text();
-            //console.log(title);
-            $(this).html('<input type="search" class="form-control form-control-sm" placeholder="Search ' + title + '" />');
+            if (title == "") {
+
+            } else {
+                $(this).html('<input type="search" class="form-control form-control-sm" placeholder="Search ' + title + '" />');
+            }
         });
 
         loadDatatable();
@@ -132,6 +182,7 @@
                 {
                     //data-no=' + row.no + ' data - desc=' + row.description + ' data - desc2=' + row.description2 + ' data - descliq=' + row.descriptionLiquidation + ' data - type=' + row.typeFuel + 
                     render: function (data, type, row) {
+                       
                         $desc = (row.description == "") ? null : row.description;
                         $desc2 = (row.description2 == "") ? null : row.description2;
                         $descliq = (row.descriptionLiquidation == "") ? null : row.descriptionLiquidation;
@@ -139,7 +190,8 @@
 
 
                         $actions =
-                            "<a title='Edit' data-id="+row.id+" data-no=" + row.no + " data-desc=" + $desc + " data-desc2=" + $desc2 + " data-descliq=" + $descliq + " data-type=" + $type + " onclick='showmodal(this);'>Edit</a>";
+                            "<a title='Edit' data-id="+row.id+" data-no=" + row.no + " data-desc='" + $desc + "' data-desc2='" + $desc2 + "' data-descliq='" + $descliq + "' data-type='" + $type + "' onclick='showmodal(this);'>Edit</a>";
+     
                         return $actions;
                     }
                 }
@@ -193,13 +245,13 @@
         $descliq = $(obj).attr('data-descliq') == "null" ? "" : $(obj).attr('data-descliq');
         $type = $(obj).attr('data-type') == "null" ? "" : $(obj).attr('data-type');
 
-       
+        console.log(obj);
         $("#itemId").val($id);
         $("#itemNo").val($no);
         $("#itemDescription").val($desc);
         $("#itemDescription2").val($desc2);
-        $("#itemItemFuel").val($descliq);
-        $("#itemDescriptionLiquidation").val($type);
+        $("#itemItemFuel").val($type);
+        $("#itemDescriptionLiquidation").val($descliq);
 
 
 
@@ -211,13 +263,6 @@
     }
 
 
-    $("#btnPrint").click(function () {
-
-        window.open('@Url.Action("printReport", "Reports")?sqlCommand=' + sqlCommand + '&Report=rptFinalGWAP' + '&rptType=PDF');
-    })
-    $("#btnExport").click(function () {
-
-       window.open('@Url.Action("DownloadExcelDocument", "Reports")?sqlCommand=' + sqlCommand + '&Report=rptFinalGWAP' + '&strStart='+ $from + '&end='+ $to );
-    })
+  
    
 </script>

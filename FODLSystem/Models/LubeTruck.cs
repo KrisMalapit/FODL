@@ -13,5 +13,6 @@ namespace FODLSystem.Models
         public string No { get; set; }
         public string OldId { get; set; }
         public string Description { get; set; }
+        public string Status { get; set; } = "Active";
     }
 }
