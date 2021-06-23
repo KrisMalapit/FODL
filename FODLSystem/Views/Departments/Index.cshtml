@@ -1,0 +1,77 @@
+﻿@model IEnumerable<FODLSystem.Models.Department>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <p>
+                    <a asp-action="Create">Create New</a>
+                </p>
+                <table id="tbl" class="table table-striped table-no-bordered table-hover dataTable" style="width: 100%!important">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+
+                            <th>Name</th>
+                            <th>Company</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+     $(document).ready(function () {
+        var data = [];
+
+         $.ajax({
+                        url: "@Url.Action("getData")"
+                            , method: "POST"
+                            , dataType: 'json'
+
+                            , success: function (responsedata) {
+                                console.log(responsedata);
+                                if (responsedata.status == "success") {
+
+
+                                    for (var i = 0; i < responsedata.data.length; i++) {
+
+                                        var $id = responsedata.data[i].id;
+                                        var linkDetails = "@Url.Action("Details", "Departments")?id="+ $id;
+                                        var linkEdit = "@Url.Action("Edit", "Departments")?id="+ $id;
+                                        var linkDelete = "@Url.Action("Delete", "Departments")?id=" + $id;
+
+                                        $actions =
+                                            '<a title="Edit" class="btn btn-white btn-bitbucket" href="' + linkEdit + '"><i class="fa fa-list"></i></a> ' +
+
+                                            '<a title="Delete" class="btn btn-danger btn-bitbucket" href="' + linkDelete + '"><i class="fa fa-trash"></i></a>';
+                                        data.push([responsedata.data[i].code
+                                            , responsedata.data[i].name
+                                            , responsedata.data[i].companyName
+                                            ,$actions]);
+
+                                    }
+
+                                    $('#tbl').DataTable({
+                                        "data" : data,
+                                        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                                        "columnDefs": [
+                                            //{ className: "td-actions text-right", targets: 1}
+                                        ],
+                                    });
+                                } else {
+                                   swal("Error!" + responsedata.message, "Please try again", "error");
+                                }
+
+                            }
+        });
+
+
+
+    });
+    </script>

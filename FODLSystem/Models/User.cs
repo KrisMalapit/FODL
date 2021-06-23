@@ -9,7 +9,7 @@ namespace FODLSystem.Models
 {
     public enum Domain
     {
-        SEMCALACA, SMCDACON, SEMIRARAMINING
+       SMCDACON, SEMIRARAMINING
     }
 
 
@@ -35,5 +35,7 @@ namespace FODLSystem.Models
         public string Domain { get; set; }
         public string CompanyAccess { get; set; }
         public string UserType { get; set; }
+        public int DepartmentId { get; set; }
+        public virtual Department Departments { get; set; }
     }
 }

@@ -24,9 +24,9 @@ namespace FODLSystem.Controllers
 {
     public class AccountsController : Controller
     {
-        private readonly SEMSystemContext _context;
+        private readonly FODLSystemContext _context;
 
-        public AccountsController(SEMSystemContext context)
+        public AccountsController(FODLSystemContext context)
         {
             _context = context;
         }

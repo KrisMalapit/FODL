@@ -19,9 +19,9 @@ namespace FODLSystem.Controllers
     public class UsersController : Controller
     {
         private void ResetContextState() => _context.ChangeTracker.Entries().Where(e => e.Entity != null).ToList().ForEach(e => e.State = EntityState.Detached);
-        private readonly SEMSystemContext _context;
+        private readonly FODLSystemContext _context;
 
-        public UsersController(SEMSystemContext context)
+        public UsersController(FODLSystemContext context)
         {
             _context = context;
         }
@@ -57,12 +57,12 @@ namespace FODLSystem.Controllers
                     ctx = new PrincipalContext(ContextType.Domain, domainName, "OU=SLPGC PLANT SITE,dc=semcalaca,dc=com", @"semcalaca\qmaster", "M@st3rQ###");
                     ctx2 = new PrincipalContext(ContextType.Domain, domainName, "OU=SCPC PLANT SITE,dc=semcalaca,dc=com", @"semcalaca\qmaster", "M@st3rQ###");
                 }
-                else if (domain == "SEMIRARAMINING")
+                else if (domain == "FODLIRARAMINING")
                 {
-                    domainName = "SEMIRARAMINING";
-                    domain = "SEMIRARAMINING";
+                    domainName = "FODLIRARAMINING";
+                    domain = "FODLIRARAMINING";
                     ctx = new PrincipalContext(ContextType.Domain, domainName,
-                                                    "OU=SEMIRARA MINESITE,DC=semiraramining,DC=net");
+                                                    "OU=FODLIRARA MINESITE,DC=semiraramining,DC=net");
                 }
                 else
                 {
@@ -106,9 +106,9 @@ namespace FODLSystem.Controllers
                     }
                 }
 
-                if (domain == "SEMCALACA")
+                if (domain == "SEMALACA")
                 {
-                    //FOR SEMCALACA USING 2ND OU
+                    //FOR SEMALACA USING 2ND OU
                     var userPrinciple2 = new UserPrincipal(ctx2);
                     using (var search2 = new PrincipalSearcher(userPrinciple2))
                     {
@@ -287,7 +287,7 @@ namespace FODLSystem.Controllers
             }
             string deptname = user.Departments.Name;
             ViewData["Department"] = new SelectList(_context.Departments.Where(a => a.Status == "Active").Where(a => a.CompanyId == user.Departments.CompanyId), "ID", "Name", user.DepartmentId);
-            ViewData["Company"] = new SelectList(_context.Companies.Where(a => a.Status == "Active"), "ID", "Name", user.Departments.CompanyId);
+            //ViewData["Company"] = new SelectList(_context.Companies.Where(a => a.Status == "Active"), "ID", "Name", user.Departments.CompanyId);
             ViewData["Roles"] = new SelectList(_context.Roles, "Id", "Name", user.RoleId);
 
 

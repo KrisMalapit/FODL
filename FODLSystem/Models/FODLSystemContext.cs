@@ -7,29 +7,45 @@ using FODLSystem.Models;
 
 namespace FODLSystem.Models
 {
-    public class SEMSystemContext : DbContext
+    public class FODLSystemContext : DbContext
     {
-        public SEMSystemContext(DbContextOptions<SEMSystemContext> options) : base(options)
+        public FODLSystemContext(DbContextOptions<FODLSystemContext> options) : base(options)
         {
 
         }
 
         public DbSet<User> Users { get; set; }
-       
+        public DbSet<Company> Companies { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Log> Logs { get; set; }
+        public DbSet<Department> Departments { get; set; }
 
-    
         public DbSet<NoSeries> NoSeries { get; set; }
-       
-     
+
+        public DbSet<Item> Items { get; set; }
+        public DbSet<Equipment> Equipments { get; set; }
+        public DbSet<Component> Components { get; set; }
+        public DbSet<LubeTruck> LubeTrucks { get; set; }
+        public DbSet<Dispenser> Dispensers { get; set; }
+        public DbSet<Area> Areas { get; set; }
+
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
                .HasIndex(p => new { p.Username, p.Status })
                .IsUnique();
-           
+
+            modelBuilder.Entity<Company>().HasData(
+               new { ID = 1, Code = "SMPC", Name = "Semirara Mining and Power Corporation", Status = "Active" }
+           );
+
+            modelBuilder.Entity<Department>().HasData(
+               new { ID = 1, Code = "NA", Name = "NOTSET", Status = "Deleted", CompanyId = 1 }
+           );
+
             modelBuilder.Entity<Role>().HasData(
                 new { Id = 1, Name = "Admin", Status = "Active" },
                 new { Id = 2, Name = "User", Status = "Active" }

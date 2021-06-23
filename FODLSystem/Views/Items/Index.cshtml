@@ -1,0 +1,223 @@
+﻿@model IEnumerable<FODLSystem.Models.Item>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="modal inmodal in " id="modalItem" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content animated fadeIn">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalSnapTitle">Item Information </h4>
+                <small class="font-bold">Modify details of this item</small>
+            </div>
+            <div class="modal-body">
+                <input id="itemId" />
+
+                <div class="form-group">
+                    <label>No</label>
+                    <input class="form-control" id="itemNo" disabled />
+                </div>
+                <div class="form-group">
+
+                    <label>Description</label>
+                    <input class="form-control" id="itemDescription" disabled/>
+                </div>
+                <div class="form-group">
+                    <label>Description 2</label>
+                    <input class="form-control" id="itemDescription2" disabled/>
+                </div>
+                <div class="form-group">
+                    <label>Type of Fuel</label>
+                    <input class="form-control" id="itemItemFuel" />
+                </div>
+                <div class="form-group">
+                    <label>Description in Liquidation</label>
+                    <input class="form-control" id="itemDescriptionLiquidation" />
+                </div>
+                <input type=button value="Close" data-dismiss="modal" class="btnCloseSnap">
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col-lg-12">
+    <div class="ibox float-e-margins">
+        <div class="ibox-content">
+           
+            <table id="tbl" class="table table-striped table-no-bordered table-hover dataTable" style="width: 100%!important">
+
+                <thead>
+                    <tr>
+                        <th>Item No</th>
+                        <th>Description</th>
+                        <th>Description 2</th>
+                        <th>Type of Fuel</th>
+                        <th>Description in Liquidation</th>
+                        <th>Action</th>
+
+                    </tr>
+                    <tr>
+                        <th>Item No</th>
+                        <th>Description</th>
+                        <th>Description 2</th>
+                        <th>Type of Fuel</th>
+                        <th>Description in Liquidation</th>
+                        <th></th>
+
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Item No</th>
+                        <th>Description</th>
+                        <th>Description 2</th>
+                        <th>Type of Fuel</th>
+                        <th>Description in Liquidation</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    
+    $(function () {
+        $('#tbl thead tr:eq(1) th').each(function () {
+           
+            var title = $(this).text();
+            //console.log(title);
+            $(this).html('<input type="search" class="form-control form-control-sm" placeholder="Search ' + title + '" />');
+        });
+
+        loadDatatable();
+    })
+   
+    function loadDatatable() {
+
+
+        if ($.fn.DataTable.isDataTable('#tbl')) {
+            $('#tbl').DataTable().destroy();
+        }
+
+        var table = $("#tbl").DataTable({
+            "processing": true,
+            "serverSide": true,
+            "searching": true,
+            "fixedHeader": true,
+            "ajax": {
+                "url": "@Url.Action("getData")",
+                "type": "POST", 
+                "datatype": "json"
+            },
+            "columns": [
+                //{
+                //    data: "fileDate",
+                //    name: "FileDate",
+                //    render: function (data, type, row) {
+                //        return moment(data).format("MM-DD-YYYY");
+                //    }
+                //},
+                { "data": "no", "name": "No", "autoWidth": true },
+                { "data": "description", "name": "Description", "autoWidth": true },
+                { "data": "description2", "name": "Description2", "autoWidth": true },
+                { "data": "descriptionLiquidation", "name": "DescriptionLiquidation", "autoWidth": true },
+                { "data": "typeFuel", "name": "TypeFuel", "autoWidth": true },
+                {
+                    //data-no=' + row.no + ' data - desc=' + row.description + ' data - desc2=' + row.description2 + ' data - descliq=' + row.descriptionLiquidation + ' data - type=' + row.typeFuel + 
+                    render: function (data, type, row) {
+                        $desc = (row.description == "") ? null : row.description;
+                        $desc2 = (row.description2 == "") ? null : row.description2;
+                        $descliq = (row.descriptionLiquidation == "") ? null : row.descriptionLiquidation;
+                        $type = (row.typeFuel == "") ? null : row.typeFuel;
+
+
+                        $actions =
+                            "<a title='Edit' data-id="+row.id+" data-no=" + row.no + " data-desc=" + $desc + " data-desc2=" + $desc2 + " data-descliq=" + $descliq + " data-type=" + $type + " onclick='showmodal(this);'>Edit</a>";
+                        return $actions;
+                    }
+                }
+
+
+            ]
+            //,
+            //"columnDefs": [{ "orderable": false, "targets": [1, 2, 3] }]
+
+
+        });
+
+
+        
+
+       
+        $('#tbl input').on('keyup change', function (e) {
+           
+            var keyCode = e.keyCode
+            if (keyCode >= 9 && keyCode <= 27) {
+
+            } else {
+                searchFunction(this);
+            }
+        });
+        function searchFunction(e) {
+
+            delay(function () {
+                console.log(e);
+                table.column($(e).parent().index() + ':visible')
+                    .search(e.value)
+                    .draw();
+            }, 1000);
+        }
+        $("#tbl_filter").hide();
+    }
+
+    var delay = (function () {
+        var timer = 0;
+        return function (callback, ms) {
+            clearTimeout(timer);
+            timer = setTimeout(callback, ms);
+        };
+    })();
+
+    function showmodal(obj) {
+        $id = $(obj).attr('data-id');
+        $no = $(obj).attr('data-no');
+        $desc = $(obj).attr('data-desc');
+        $desc2 = $(obj).attr('data-desc2') == "null" ? "" : $(obj).attr('data-desc2');
+        $descliq = $(obj).attr('data-descliq') == "null" ? "" : $(obj).attr('data-descliq');
+        $type = $(obj).attr('data-type') == "null" ? "" : $(obj).attr('data-type');
+
+       
+        $("#itemId").val($id);
+        $("#itemNo").val($no);
+        $("#itemDescription").val($desc);
+        $("#itemDescription2").val($desc2);
+        $("#itemItemFuel").val($descliq);
+        $("#itemDescriptionLiquidation").val($type);
+
+
+
+
+
+        $('#modalItem').modal('show');
+
+
+    }
+
+
+    $("#btnPrint").click(function () {
+
+        window.open('@Url.Action("printReport", "Reports")?sqlCommand=' + sqlCommand + '&Report=rptFinalGWAP' + '&rptType=PDF');
+    })
+    $("#btnExport").click(function () {
+
+       window.open('@Url.Action("DownloadExcelDocument", "Reports")?sqlCommand=' + sqlCommand + '&Report=rptFinalGWAP' + '&strStart='+ $from + '&end='+ $to );
+    })
+   
+</script>

@@ -1,6 +1,6 @@
 ﻿
 
-@using SEMSystem.Models.View_Model;
+@using FODLSystem.Models.View_Model;
 
 @model LoginViewModel
 @{
@@ -29,7 +29,7 @@
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" });
                 <div class="form-group">
                     @Html.DropDownList("Domain",
-                                new SelectList(Enum.GetValues(typeof(SEMSystem.Models.Domain)), "SMCDACON"), new { @class = "form-control" })
+                                new SelectList(Enum.GetValues(typeof(FODLSystem.Models.Domain)), "SMCDACON"), new { @class = "form-control" })
                 </div>
                 <div class="form-group">
                     <input type="text" class="form-control" name="Username" placeholder="Username" required="">
