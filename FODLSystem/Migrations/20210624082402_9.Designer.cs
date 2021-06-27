@@ -4,14 +4,16 @@ using FODLSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FODLSystem.Migrations
 {
     [DbContext(typeof(FODLSystemContext))]
-    partial class FODLSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20210624082402_9")]
+    partial class _9
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

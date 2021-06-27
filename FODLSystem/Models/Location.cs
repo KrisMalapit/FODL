@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FODLSystem.Models
 {
-    public class Area
+    public class Location
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

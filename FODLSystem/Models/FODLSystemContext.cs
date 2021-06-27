@@ -27,7 +27,11 @@ namespace FODLSystem.Models
         public DbSet<Component> Components { get; set; }
         public DbSet<LubeTruck> LubeTrucks { get; set; }
         public DbSet<Dispenser> Dispensers { get; set; }
-        public DbSet<Area> Areas { get; set; }
+        public DbSet<Location> Locations { get; set; }
+
+
+        public DbSet<FuelOil> FuelOils { get; set; }
+        public DbSet<FuelOilDetail> FuelOilDetails { get; set; }
 
 
 

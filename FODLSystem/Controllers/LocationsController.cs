@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FODLSystem.Controllers
 {
-    public class AreasController : Controller
+    public class LocationsController : Controller
     {
         private readonly FODLSystemContext _context;
 
-        public AreasController(FODLSystemContext context)
+        public LocationsController(FODLSystemContext context)
         {
             _context = context;
         }
@@ -22,7 +22,7 @@ namespace FODLSystem.Controllers
         [BreadCrumb(Title = "Index", Order = 1, IgnoreAjaxRequests = true)]
         public IActionResult Index()
         {
-            this.SetCurrentBreadCrumbTitle("Area");
+            this.SetCurrentBreadCrumbTitle("Location");
             return View();
         }
         [HttpPost]
@@ -32,7 +32,7 @@ namespace FODLSystem.Controllers
             string message = "";
             try
             {
-                var item = _context.Areas.Find(id);
+                var item = _context.Locations.Find(id);
                 item.No = No;
                 item.List = List;
                 item.OfficeCode = OfficeCode;
@@ -109,7 +109,7 @@ namespace FODLSystem.Controllers
 
                 int recCount =
 
-                _context.Areas
+                _context.Locations
                 .Where(a => a.Status == "Active")
 
                 .Where(strFilter)
@@ -122,7 +122,7 @@ namespace FODLSystem.Controllers
 
                 var v =
 
-               _context.Areas
+               _context.Locations
                 .Where(a => a.Status == "Active")
               .Where(strFilter)
 

@@ -4,14 +4,16 @@ using FODLSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FODLSystem.Migrations
 {
     [DbContext(typeof(FODLSystemContext))]
-    partial class FODLSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20210624065450_8")]
+    partial class _8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -158,8 +160,6 @@ namespace FODLSystem.Migrations
 
                     b.Property<string>("Signature");
 
-                    b.Property<string>("Status");
-
                     b.HasKey("Id");
 
                     b.HasIndex("EquipmentId");
@@ -180,8 +180,6 @@ namespace FODLSystem.Migrations
                     b.Property<int>("FuelOilId");
 
                     b.Property<int>("ItemId");
-
-                    b.Property<string>("Status");
 
                     b.Property<DateTime>("TimeInput");
 

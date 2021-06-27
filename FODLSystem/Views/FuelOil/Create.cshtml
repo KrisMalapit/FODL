@@ -1,0 +1,45 @@
+﻿@model FODLSystem.Models.FuelOil
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<div class="ibox-content">
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group row">
+                    <label asp-for="Shift" class="col-lg-2 col-form-label"></label>
+                    <div class="col-lg-10">
+                       
+                        <select asp-for="Shift" class="form-control">
+                            <option value="Day">Day</option>
+                            <option value="Night">Night</option>
+
+                        </select>
+                        <span asp-validation-for="Shift" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                        <label asp-for="EquipmentId" class="col-lg-2 col-form-label"></label>
+                        <div class="col-lg-10">
+                            <select asp-for="EquipmentId" class="form-control" asp-items="ViewBag.EquipmentId"></select>
+                            <span asp-validation-for="EquipmentId" class="text-danger"></span>
+                        </div>
+                    </div>
+                <div class="form-group row">
+                        <label asp-for="LocationId" class="col-lg-2 col-form-label"></label>
+                        <div class="col-lg-10">
+                           
+                            <select asp-for="LocationId" class="form-control" asp-items="ViewBag.LocationId"></select>
+                            <span asp-validation-for="LocationId" class="text-danger"></span>
+                        </div>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-default" />
+                </div>
+            </form>
+    </div>
+    </div>
+</div>
