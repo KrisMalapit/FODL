@@ -37,8 +37,63 @@ namespace FODLSystem.Controllers
             });
             ViewData["EquipmentId"] = new SelectList(_context.Equipments, "Id", "Name");
             ViewData["LocationId"] = new SelectList(_context.Locations, "Id", "List");
-            
+
+
+            //var itemlist = _context.Items;
+            //var lstarea = new List<Item>();
+            //foreach (var item in itemlist.ToList())
+            //{
+            //    var _area = new Item
+            //    {
+            //        Id = item.Id,
+            //        Description = item.No + "|" + item.Description
+            //    };
+            //    lstarea.Add(_area);
+            //}
+
+            //ViewData["ItemNo"] = new SelectList(lstarea.OrderBy(a => a.Description), "Id", "Description");
+
+
+
             return View();
+        }
+        public JsonResult SearchItem(string q)
+        {
+            var model = _context.Items
+                .Where(a => a.Status == "Active")
+                .Where(a => a.Description.ToUpper().Contains(q.ToUpper())).Select(b => new
+            {
+                id = b.Id,
+                text = b.No + " | " + b.Description,
+
+            });
+
+            var modelItem = new
+            {
+                total_count = model.Count(),
+                incomplete_results = false,
+                items = model.ToList(),
+            };
+            return Json(modelItem);
+        }
+        public JsonResult SearchComponent()
+        {
+            var model = _context.Components
+                .Where(a => a.Status == "Active")
+                .Select(b => new
+                {
+                    id = b.Id,
+                    text = b.Name,
+
+                });
+
+            var modelItem = new
+            {
+                total_count = model.Count(),
+                incomplete_results = false,
+                items = model.ToList(),
+            };
+            return Json(modelItem);
         }
         [HttpPost]
         public ActionResult getData()

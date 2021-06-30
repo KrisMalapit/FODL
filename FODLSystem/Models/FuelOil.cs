@@ -9,8 +9,10 @@ namespace FODLSystem.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+        [Display(Name = "Reference No")]
         public string ReferenceNo { get; set; }
         public string Shift { get; set; }
+        [Display(Name = "Created Date")]
         public DateTime CreatedDate { get; set; }
         public string CreatedBy { get; set; }
         [Display(Name = "Unit No")]
