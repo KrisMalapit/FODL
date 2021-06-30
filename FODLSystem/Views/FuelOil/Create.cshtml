@@ -4,15 +4,36 @@
     ViewData["Title"] = "Create";
 }
 
-<div class="ibox-content">
-    <div class="row">
-        <div class="col-md-6">
+<link href="~/css/plugins/select2/select2-bootstrap.min.css" rel="stylesheet">
+
+<div class="col-md-12">
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            Details
+        </div>
+        <div class="panel-body">
+
             <form asp-action="Create">
+
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group row">
+                    <label asp-for="ReferenceNo" class="col-lg-2 col-form-label"></label>
+                    <div class="col-lg-4">
+                        <input asp-for="ReferenceNo" class="form-control" disabled />
+                        <span asp-validation-for="Shift" class="text-danger"></span>
+                    </div>
+                    <label asp-for="CreatedDate" class="col-lg-2 col-form-label"></label>
+                    <div class="col-lg-4">
+
+                        <input asp-for="CreatedDate" class="form-control" disabled />
+                        <span asp-validation-for="CreatedDate" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row form-group">
                     <label asp-for="Shift" class="col-lg-2 col-form-label"></label>
-                    <div class="col-lg-10">
-                       
+                    <div class="col-lg-4">
+
                         <select asp-for="Shift" class="form-control">
                             <option value="Day">Day</option>
                             <option value="Night">Night</option>
@@ -20,26 +41,195 @@
                         </select>
                         <span asp-validation-for="Shift" class="text-danger"></span>
                     </div>
+                    <label asp-for="SMR" class="col-lg-2 col-form-label"></label>
+                    <div class="col-lg-4">
+
+                        <input asp-for="SMR" class="form-control" />
+                        <span asp-validation-for="SMR" class="text-danger"></span>
+                    </div>
                 </div>
                 <div class="form-group row">
-                        <label asp-for="EquipmentId" class="col-lg-2 col-form-label"></label>
-                        <div class="col-lg-10">
-                            <select asp-for="EquipmentId" class="form-control" asp-items="ViewBag.EquipmentId"></select>
-                            <span asp-validation-for="EquipmentId" class="text-danger"></span>
-                        </div>
+                    <label asp-for="EquipmentId" class="col-lg-2 col-form-label"></label>
+                    <div class="col-lg-4">
+                        <select asp-for="EquipmentId" class="form-control" asp-items="ViewBag.EquipmentId"></select>
+                        <span asp-validation-for="EquipmentId" class="text-danger"></span>
                     </div>
+                    <label asp-for="Signature" class="col-lg-2 col-form-label"></label>
+                    <div class="col-lg-4">
+
+                        <input asp-for="Signature" class="form-control" />
+                        <span asp-validation-for="Signature" class="text-danger"></span>
+                    </div>
+                </div>
                 <div class="form-group row">
-                        <label asp-for="LocationId" class="col-lg-2 col-form-label"></label>
-                        <div class="col-lg-10">
-                           
-                            <select asp-for="LocationId" class="form-control" asp-items="ViewBag.LocationId"></select>
-                            <span asp-validation-for="LocationId" class="text-danger"></span>
-                        </div>
+                    <label asp-for="LocationId" class="col-lg-2 col-form-label"></label>
+                    <div class="col-lg-4">
+
+                        <select asp-for="LocationId" class="form-control" asp-items="ViewBag.LocationId"></select>
+                        <span asp-validation-for="LocationId" class="text-danger"></span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <input type="submit" value="Create" class="btn btn-default" />
                 </div>
             </form>
-    </div>
+
+
+            <div class="form-group">
+                <script id="FEtemplate" type="text/template">
+                    <td>
+                        <input type="hidden" name="detail_id[]" />
+                        <select class="form-control input-sm cmbNo" name="no[]">
+                            <option>Select Item</option>
+                        </select>
+
+                    </td>
+                  
+                    <td>
+                        <select class="form-control input-sm cmbComponent" name="component[]">
+                            <option>Select Component</option>
+                        </select>
+
+                    </td>
+                    <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
+
+                    <td>
+                        <a class="remFE btn btn-danger "><span title="Delete" class="glyphicon glyphicon-remove"></span></a>
+
+                    </td>
+                </script>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th width="5%">#</th>
+                            <th width="40%">Item</th>
+                            <th width="30%">Component</th>
+                            <th>Volume / Qty</th>
+                            <th width="5%">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="p_FE">
+                        <tr>
+                            <td>1</td>
+                            <td>
+                                <input type="hidden" name="detail_id[]" />
+                                @*<select name="no[]" class="cmbNo form-control"></select>*@
+                                <select class="form-control input-sm cmbNo" name="no[]">
+                                    <option>Select Item</option>
+                                </select>
+                            </td>
+                          
+                            <td>
+                                @*<select name="component[]" class="cmbComponent form-control"></select>*@
+                                <select class="form-control input-sm cmbComponent" name="component[]">
+                                    <option>Select Component</option>
+                                </select>
+
+                            </td>
+                            <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
+
+                            <td>
+                                <button class="addFE btn btn-default" type="button"><i class="fa fa-plus"></i> </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>
+
+                <a href="#" onclick="saveLocation(this);">
+                    <i class="fa fa-check"></i>
+                    <span class="email-text">&nbsp;Save</span>
+                </a>
+
+
+
+            </p>
+
+
+
+        </div>
     </div>
 </div>
+
+<script>
+    $(function () {
+        $("#CreatedDate").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss"))
+        initiateSelect2();
+    })
+
+    var FEDiv = $('#p_FE');
+    $(document).on('click', '.addFE', function () {
+        var i = $('#p_FE tr').length + 1;
+        var $tr = $('<tr>').append('<td>' + i + '</td>' + $('#FEtemplate').html());
+        FEDiv.append($tr);
+        initiateSelect2()
+
+    })
+    $(document).on('click', '.remFE', function () {
+        var i = $('#p_FE tr').length;
+        if (i > 1) {
+            $(this).closest('tr').remove();
+        }
+        return false;
+    });
+    function initiateSelect2() {
+
+         $(".cmbNo").select2({
+        width: '100%',
+        theme: 'bootstrap',
+            ajax: {
+                url: "@Url.Action("SearchItem")",
+                dataType: 'json',
+                delay: 2000,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, page) {
+                    return {
+                        results: data.items,
+
+                    };
+                },
+
+                cache: false
+        },
+        minimumInputLength: 4,
+        });
+        $(".cmbComponent").select2({
+            width: '100%',
+            theme: 'bootstrap',
+                ajax: {
+                    url: "@Url.Action("SearchComponent")",
+                    dataType: 'json',
+                    delay: 2000,
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, page) {
+                        return {
+                            results: data.items,
+
+                        };
+                    },
+
+                    cache: false
+            },
+            //minimumInputLength: 4,
+        });
+    }
+   
+
+    //$(document).on('click', '.detailFE', function () {
+    //    showItemModal("FE", $(this).attr('data-id'), $(this).attr('data-location'))
+    //});
+
+
+</script>
