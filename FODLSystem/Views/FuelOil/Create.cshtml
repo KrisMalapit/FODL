@@ -3,23 +3,25 @@
 @{
     ViewData["Title"] = "Create";
 }
-
+<style>
+    .error-input {
+        border-color: hsl(0, 76%, 50%) !important;
+    }
+</style>
 <link href="~/css/plugins/select2/select2-bootstrap.min.css" rel="stylesheet">
 
 <div class="col-md-12">
     <div class="panel panel-success">
         <div class="panel-heading">
-            Details
+            Fuel Oil Liquidation Form
         </div>
         <div class="panel-body">
-
-            <form asp-action="Create">
-
+            <form asp-action="Create" id="frm">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group row">
                     <label asp-for="ReferenceNo" class="col-lg-2 col-form-label"></label>
                     <div class="col-lg-4">
-                        <input asp-for="ReferenceNo" class="form-control" disabled />
+                        <input asp-for="ReferenceNo" class="form-control" readonly />
                         <span asp-validation-for="Shift" class="text-danger"></span>
                     </div>
                     <label asp-for="CreatedDate" class="col-lg-2 col-form-label"></label>
@@ -44,14 +46,17 @@
                     <label asp-for="SMR" class="col-lg-2 col-form-label"></label>
                     <div class="col-lg-4">
 
-                        <input asp-for="SMR" class="form-control" />
+                        <input asp-for="SMR" class="form-control" required />
                         <span asp-validation-for="SMR" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="form-group row">
                     <label asp-for="EquipmentId" class="col-lg-2 col-form-label"></label>
                     <div class="col-lg-4">
-                        <select asp-for="EquipmentId" class="form-control" asp-items="ViewBag.EquipmentId"></select>
+                        @*<select asp-for="EquipmentId" class="form-control" asp-items="ViewBag.EquipmentId"></select>*@
+                        <select class="form-control input-sm" id="EquipmentId" name="EquipmentId">
+                            <option>Select Unit</option>
+                        </select>
                         <span asp-validation-for="EquipmentId" class="text-danger"></span>
                     </div>
                     <label asp-for="Signature" class="col-lg-2 col-form-label"></label>
@@ -69,97 +74,130 @@
                         <span asp-validation-for="LocationId" class="text-danger"></span>
                     </div>
                 </div>
+                
+
+
+
                 <div class="form-group">
-                    <input type="submit" value="Create" class="btn btn-default" />
+                    <script id="FEtemplate" type="text/template">
+                        <td>
+                            <select class="form-control input-sm cmbNo" name="no[]">
+                                <option>Select Item</option>
+                            </select>
+                        </td>
+
+                        <td>
+                            <select class="form-control input-sm cmbComponent" name="component[]">
+                                <option>Select Component</option>
+                            </select>
+
+                        </td>
+                        <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
+
+                        <td>
+                            <a class="remFE btn btn-danger "><span title="Delete" class="glyphicon glyphicon-remove"></span></a>
+                        </td>
+                    </script>
+                    <table class="table table-bordered table-hover" id="tblFuel">
+                        <thead>
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="40%">Item</th>
+                                <th width="30%">Component</th>
+                                <th>Volume / Qty</th>
+                                <th width="10%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="p_FE">
+                            <tr>
+                                <td>1</td>
+                                <td>
+                                    @*<input type="hidden" name="detail_id[]" />*@
+                                    @*<select name="no[]" class="cmbNo form-control"></select>*@
+                                    <select class="form-control input-sm cmbNo" name="no[]">
+                                        <option>Select Item</option>
+                                    </select>
+                                </td>
+
+                                <td>
+                                    @*<select name="component[]" class="cmbComponent form-control"></select>*@
+                                    <select class="form-control input-sm cmbComponent" name="component[]">
+                                        <option>Select Component</option>
+                                    </select>
+
+                                </td>
+                                <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
+
+                                <td>
+                                    <button class="addFE btn btn-default" type="button"><i class="fa fa-plus"></i> </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
+
+                <p>
+
+                    <a href="#" onclick="saveForm(this);">
+                        <i class="fa fa-check"></i>
+                        <span class="email-text">&nbsp;Save</span>
+                    </a>
+
+
+
+                </p>
+
             </form>
-
-
-            <div class="form-group">
-                <script id="FEtemplate" type="text/template">
-                    <td>
-                        <input type="hidden" name="detail_id[]" />
-                        <select class="form-control input-sm cmbNo" name="no[]">
-                            <option>Select Item</option>
-                        </select>
-
-                    </td>
-                  
-                    <td>
-                        <select class="form-control input-sm cmbComponent" name="component[]">
-                            <option>Select Component</option>
-                        </select>
-
-                    </td>
-                    <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
-
-                    <td>
-                        <a class="remFE btn btn-danger "><span title="Delete" class="glyphicon glyphicon-remove"></span></a>
-
-                    </td>
-                </script>
-                <table class="table table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th width="5%">#</th>
-                            <th width="40%">Item</th>
-                            <th width="30%">Component</th>
-                            <th>Volume / Qty</th>
-                            <th width="5%">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="p_FE">
-                        <tr>
-                            <td>1</td>
-                            <td>
-                                <input type="hidden" name="detail_id[]" />
-                                @*<select name="no[]" class="cmbNo form-control"></select>*@
-                                <select class="form-control input-sm cmbNo" name="no[]">
-                                    <option>Select Item</option>
-                                </select>
-                            </td>
-                          
-                            <td>
-                                @*<select name="component[]" class="cmbComponent form-control"></select>*@
-                                <select class="form-control input-sm cmbComponent" name="component[]">
-                                    <option>Select Component</option>
-                                </select>
-
-                            </td>
-                            <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
-
-                            <td>
-                                <button class="addFE btn btn-default" type="button"><i class="fa fa-plus"></i> </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <p>
-
-                <a href="#" onclick="saveLocation(this);">
-                    <i class="fa fa-check"></i>
-                    <span class="email-text">&nbsp;Save</span>
-                </a>
-
-
-
-            </p>
-
-
 
         </div>
     </div>
 </div>
 
 <script>
+    var FEDiv = $('#p_FE');
+
     $(function () {
-        $("#CreatedDate").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss"))
-        initiateSelect2();
+        $("#CreatedDate").val(moment('@ViewBag.CreatedDate').format("YYYY-MM-DD HH:mm:ss"))
+
+
+        if ($("#ReferenceNo").val() == "") {
+            initiateSelect2();
+        } else {
+
+            $("#EquipmentId").append(new Option("", ""));
+            $("#EquipmentId").append(new Option('@ViewBag.EquipmentName', '@ViewBag.EquipmentId'));
+            $("#EquipmentId").select2({
+                width: '100%',
+                theme: 'bootstrap',
+                    ajax: {
+                        url: "@Url.Action("SearchEquipment", "Equipments")",
+                        dataType: 'json',
+                        delay: 300,
+                        data: function (params) {
+                            return {
+                                q: params.term, // search term
+                                page: params.page
+                            };
+                        },
+                        processResults: function (data, page) {
+                            return {
+                                results: data.items,
+
+                            };
+                        },
+
+                        cache: false
+                },
+
+            }).val('@ViewBag.EquipmentId').trigger('change');
+
+            loadDetails();
+        }
+
+
     })
 
-    var FEDiv = $('#p_FE');
+
     $(document).on('click', '.addFE', function () {
         var i = $('#p_FE tr').length + 1;
         var $tr = $('<tr>').append('<td>' + i + '</td>' + $('#FEtemplate').html());
@@ -174,9 +212,187 @@
         }
         return false;
     });
+
+    function loadDetails() {
+
+
+        $.ajax({
+            url: "@Url.Action("getDataDetails", "FuelOil")"
+            , method: "POST"
+            , dataType: 'json'
+            , data: { id: @ViewBag.Id }
+            , async: false
+            , success: function (responsedata) {
+
+                var $trr = '';
+                $('#p_FE > tr:nth-child(1)').remove();
+
+                for (var i = 0; i < responsedata.data.length; i++) {
+                    $trr =
+                        '<td><select class="form-control input-sm cmbNo" id=cmbNo' + i +' name="no[]"><option>Select Item</option></select></td>'+
+                    '<td><select class="form-control input-sm cmbComponent" id=cmbComponent' + i +' name="component[]"><option>Select Component</option></select></td>' +
+                        '<td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required value="' + responsedata.data[i].volumeQty + '"/></td>'
+
+                    $tdCtr = i == 0 ? '<td><button class="addFE btn btn-default" type = "button"><i class="fa fa-plus"></i></button>&nbsp; <a class="remFE btn btn-danger "><span title="Delete" class="glyphicon glyphicon-remove"></span></a></td>':
+                                      '<td><a class="remFE btn btn-danger "><span title="Delete" class="glyphicon glyphicon-remove"></span></a></td>'
+
+                    $trr = $trr + $tdCtr;
+                    var $tr = $('<tr>').append('<td>' + (i+1) + '</td>' + $trr);
+                    FEDiv.append($tr);
+
+                   //Item
+                    $('#cmbNo'+ i).append(new Option("", ""));
+                    $('#cmbNo' + i).append(new Option(responsedata.data[i].itemName, responsedata.data[i].itemId));
+                    $('#cmbNo' + i).select2({
+                        width: '100%',
+                        theme: 'bootstrap',
+                        ajax: {
+                            url: "@Url.Action("SearchItem")",
+                            dataType: 'json',
+                            delay: 2000,
+                            data: function (params) {
+                                return {
+                                    q: params.term, // search term
+                                    page: params.page
+                                };
+                            },
+                            processResults: function (data, page) {
+                                return {
+                                    results: data.items,
+
+                                };
+                            },
+
+                            cache: false
+                        },
+
+                        minimumInputLength: 4,
+
+                    }).val(responsedata.data[i].itemId).trigger('change');
+
+
+                     //Component
+                    
+                    $('#cmbComponent' + i).append(new Option(responsedata.data[i].componentName, responsedata.data[i].componentId));
+                    $('#cmbComponent' + i).select2({
+                        width: '100%',
+                        theme: 'bootstrap',
+                        ajax: {
+                            url: "@Url.Action("SearchComponent")",
+                            dataType: 'json',
+                            delay: 2000,
+                            data: function (params) {
+                                return {
+                                    q: params.term, // search term
+                                    page: params.page
+                                };
+                            },
+                            processResults: function (data, page) {
+                                return {
+                                    results: data.items,
+
+                                };
+                            },
+
+                            cache: false
+                        },
+
+                       
+
+                    }).val(responsedata.data[i].componentId).trigger('change');
+
+                }
+
+
+
+            }
+        })
+        
+        //initiateSelect2();
+
+
+
+    }
+     function saveForm() {
+        var cnt = 0;
+
+         $('#frm').find('input').each(function () {
+            if ($(this).prop('required')) {
+                if (!$(this).val()) {
+                    cnt = 1;
+                    $(this).addClass("error-input");
+                } else {
+                    $(this).removeClass("error-input");
+                }
+            }
+        });
+
+        if (cnt > 0) {
+            toastr["error"]("Fill all required fields", "Error")
+            toastr.options = {
+                "closeButton": true,
+                "showDuration": "3000",
+            }
+            return false;
+        }
+        var data = $("#frm").serializeArray();
+
+        $.ajax({
+            url: "@Url.Action("SaveForm")"
+            , method: "POST"
+            , data: data
+            , dataType: 'json'
+             , success: function (responsedata) {
+                if (responsedata.status == "success") {
+                    toastr["success"]("Form saved!", "<b>Success</b> ")
+                    $("#ReferenceNo").val(responsedata.message);
+                    $("#CreatedDate").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss"))
+                } else {
+                    toastr["error"](responsedata.message)
+                    toastr.options = {
+                        "closeButton": true
+                    }
+                }
+            }
+        })
+
+
+    }
+    $("#Shift").select2({
+        width: '100%',
+        theme: 'bootstrap'
+    });
+    $("#LocationId").select2({
+        width: '100%',
+        theme: 'bootstrap'
+    });
+    $("#EquipmentId").select2({
+            width: '100%',
+            theme: 'bootstrap',
+                ajax: {
+                    url: "@Url.Action("SearchEquipment", "Equipments")",
+                    dataType: 'json',
+                    delay: 2000,
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, page) {
+                        return {
+                            results: data.items,
+
+                        };
+                    },
+
+                    cache: false
+            },
+            minimumInputLength: 4,
+        });
     function initiateSelect2() {
 
-         $(".cmbNo").select2({
+        $(".cmbNo").select2({
         width: '100%',
         theme: 'bootstrap',
             ajax: {
@@ -200,6 +416,7 @@
         },
         minimumInputLength: 4,
         });
+
         $(".cmbComponent").select2({
             width: '100%',
             theme: 'bootstrap',
@@ -225,7 +442,7 @@
             //minimumInputLength: 4,
         });
     }
-   
+
 
     //$(document).on('click', '.detailFE', function () {
     //    showItemModal("FE", $(this).attr('data-id'), $(this).attr('data-location'))

@@ -88,17 +88,29 @@
                 "datatype": "json"
             },
             "columns": [
-              
-                { "data": "createdDate", "name": "CreatedDate", "autoWidth": true },
+                {
+                    data: "createdDate",
+                    name: "CreatedDate",
+                    render: function (data, type, row) {
+
+                        return moment(data).format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+               
                 { "data": "shift", "name": "Shift", "autoWidth": true },
                 { "data": "unitNo", "name": "UnitNo", "autoWidth": true },
                 { "data": "location", "name": "UnitNo", "autoWidth": true },
                 { "data": "smr", "name": "SMR", "autoWidth": true },
                 {
                      render: function (data, type, row) {
+                         var linkEdit = "@Url.Action("Edit", "FuelOil")?id=" + row.id;
+                         var linkDelete = "@Url.Action("Delete", "FuelOil")?id=" + row.id;
+                         $actions =
+                             '<a title="Edit" class="btn btn-white btn-bitbucket" href="' + linkEdit + '"><i class="fa fa-list"></i></a> ' +
+
+                             '<a title="Delete" class="btn btn-danger btn-bitbucket" href="' + linkDelete + '"><i class="fa fa-trash"></i></a>';
+
                        
-                        $actions =
-                            "<a title='Edit' data-id='" + row.id + "'>Edit</a>";
                       
                         return $actions;
                     }

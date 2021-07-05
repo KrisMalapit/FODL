@@ -25,6 +25,25 @@ namespace FODLSystem.Controllers
             this.SetCurrentBreadCrumbTitle("Equipment");
             return View();
         }
+        public JsonResult SearchEquipment(string q)
+        {
+            var model = _context.Equipments
+                .Where(a => a.Status == "Active")
+                .Where(a => a.Name.ToUpper().Contains(q.ToUpper())).Select(b => new
+                {
+                    id = b.Id,
+                    text = b.No + " | " + b.Name,
+
+                });
+
+            var modelItem = new
+            {
+                total_count = model.Count(),
+                incomplete_results = false,
+                items = model.ToList(),
+            };
+            return Json(modelItem);
+        }
         [HttpPost]
         public ActionResult SaveItem(int id, string DepartmentCode, string FuelCodeDiesel, string FuelCodeOil)
         {
