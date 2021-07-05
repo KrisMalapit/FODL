@@ -22,6 +22,7 @@
                         <th>Unit No</th>
                         <th>Location</th>
                         <th>SMR</th>
+                        <th>Status</th>
                         <th>Action</th>
 
                     </tr>
@@ -31,7 +32,7 @@
                         <th>Unit No</th>
                         <th>Location</th>
                         <th>SMR</th>
-
+                        <th>Status</th>
 
                         <th></th>
 
@@ -45,7 +46,7 @@
                         <th>Location</th>
                         <th>SMR</th>
 
-
+                        <th>Status</th>
                         <th></th>
                     </tr>
                 </tfoot>
@@ -101,6 +102,7 @@
                 { "data": "unitNo", "name": "UnitNo", "autoWidth": true },
                 { "data": "location", "name": "UnitNo", "autoWidth": true },
                 { "data": "smr", "name": "SMR", "autoWidth": true },
+                { "data": "status", "name": "Status", "autoWidth": true },
                 {
                      render: function (data, type, row) {
                          var linkEdit = "@Url.Action("Edit", "FuelOil")?id=" + row.id;

@@ -16,7 +16,7 @@
             Fuel Oil Liquidation Form
         </div>
         <div class="panel-body">
-            <form asp-action="Create" id="frm">
+            <form asp-action="Create" id="frm" >
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group row">
                     <label asp-for="ReferenceNo" class="col-lg-2 col-form-label"></label>
@@ -36,7 +36,7 @@
                     <label asp-for="Shift" class="col-lg-2 col-form-label"></label>
                     <div class="col-lg-4">
 
-                        <select asp-for="Shift" class="form-control">
+                        <select asp-for="Shift" class="form-control" >
                             <option value="Day">Day</option>
                             <option value="Night">Night</option>
 
@@ -95,7 +95,8 @@
                         <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
 
                         <td>
-                            <a class="remFE btn btn-danger "><span title="Delete" class="glyphicon glyphicon-remove"></span></a>
+                            @*<a class="remFE btn btn-danger "><span title="Delete" class="glyphicon glyphicon-remove"></span></a>*@
+                            <button class="remFE btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i></button>
                         </td>
                     </script>
                     <table class="table table-bordered table-hover" id="tblFuel">
@@ -138,12 +139,15 @@
 
                 <p>
 
-                    <a href="#" onclick="saveForm(this);">
+                    <a href="#" onclick="saveForm(this);" class="anchorAction">
                         <i class="fa fa-check"></i>
                         <span class="email-text">&nbsp;Save</span>
                     </a>
-
-
+                    |
+                    <a href="#" onclick="postForm(this);" class="anchorAction">
+                        <i class="fa fa-book"></i>
+                        <span class="email-text">&nbsp;Post</span>
+                    </a>
 
                 </p>
 
@@ -214,7 +218,7 @@
     });
 
     function loadDetails() {
-
+        
 
         $.ajax({
             url: "@Url.Action("getDataDetails", "FuelOil")"
@@ -233,8 +237,8 @@
                     '<td><select class="form-control input-sm cmbComponent" id=cmbComponent' + i +' name="component[]"><option>Select Component</option></select></td>' +
                         '<td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required value="' + responsedata.data[i].volumeQty + '"/></td>'
 
-                    $tdCtr = i == 0 ? '<td><button class="addFE btn btn-default" type = "button"><i class="fa fa-plus"></i></button>&nbsp; <a class="remFE btn btn-danger "><span title="Delete" class="glyphicon glyphicon-remove"></span></a></td>':
-                                      '<td><a class="remFE btn btn-danger "><span title="Delete" class="glyphicon glyphicon-remove"></span></a></td>'
+                    $tdCtr = i == 0 ? '<td><button class="addFE btn btn-default" type = "button"><i class="fa fa-plus"></i></button>&nbsp; <button class="remFE btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i></button></td>':
+                                      '<td><button class="remFE btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i></button></td>'
 
                     $trr = $trr + $tdCtr;
                     var $tr = $('<tr>').append('<td>' + (i+1) + '</td>' + $trr);
@@ -301,6 +305,12 @@
 
                     }).val(responsedata.data[i].componentId).trigger('change');
 
+
+
+                    if ('@ViewBag.Status' == "Posted") {
+                        disableForm();
+                    }
+
                 }
 
 
@@ -356,6 +366,71 @@
             }
         })
 
+
+    }
+    function postForm() {
+        var cnt = 0;
+        if ($('#ReferenceNo').val() == '') {
+            toastr["error"]("Save Form First", "Error")
+            toastr.options = {
+                "closeButton": true
+
+            }
+            return false;
+        }
+
+         $('#frm').find('input').each(function () {
+            if ($(this).prop('required')) {
+                if (!$(this).val()) {
+                    cnt = 1;
+                    $(this).addClass("error-input");
+                } else {
+                    $(this).removeClass("error-input");
+                }
+            }
+        });
+
+        if (cnt > 0) {
+            toastr["error"]("Fill all required fields", "Error")
+            toastr.options = {
+                "closeButton": true,
+                "showDuration": "3000",
+            }
+            return false;
+        }
+       
+        
+       
+        var data = $('#ReferenceNo').val();
+
+        $.ajax({
+            url: "@Url.Action("PostForm")"
+            , method: "POST"
+            , data: { referenceNo: data}
+            , dataType: 'json'
+             , success: function (responsedata) {
+                if (responsedata.status == "success") {
+                    toastr["success"]("Form saved!", "<b>Success</b> ")
+                } else {
+                    toastr["error"](responsedata.message)
+                    toastr.options = {
+                        "closeButton": true
+                    }
+                }
+            }
+        })
+
+        disableForm();
+    }
+    function disableForm() {
+        $('#frm').find('input, select, button').each(function () {
+            console.log(this);
+            $(this).prop("disabled", "disabled");  
+        });
+
+        $(".remFE").prop("disabled", "disabled");  
+        $(".anchorAction").attr("style", "pointer-events: none");  
+        
 
     }
     $("#Shift").select2({

@@ -57,6 +57,7 @@ namespace FODLSystem.Controllers
             ViewData["EquipmentName"] = model.Equipments.Name;
             ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List", model.LocationId);
             ViewData["Id"] = model.Id;
+            ViewData["Status"] = model.Status;
             return View("Create", model);
         }
         public JsonResult SearchItem(string q)
@@ -220,6 +221,38 @@ namespace FODLSystem.Controllers
             return Json(modelItem);
         }
         [HttpPost]
+        public IActionResult PostForm(string referenceNo)
+        {
+            string status = "";
+            string message = "";
+            string series = "";
+            string refno = "";
+            try
+            {
+                
+                    var fo = _context.FuelOils.Where(a => a.ReferenceNo == referenceNo).FirstOrDefault();
+                    fo.Status = "Posted";
+                    _context.Update(fo);
+                    _context.SaveChanges();
+
+                    status = "success";
+                    message = fo.ReferenceNo;
+
+            }
+            catch (Exception ex)
+            {
+                status = "fail";
+                message = ex.Message;
+            }
+
+            var modelItem = new
+            {
+                status,
+                message
+            };
+            return Json(modelItem);
+        }
+        [HttpPost]
         public ActionResult getData()
         {
             string strFilter = "";
@@ -273,7 +306,7 @@ namespace FODLSystem.Controllers
                 int recCount =
 
                 _context.FuelOils
-                .Where(a => a.Status == "Active")
+                .Where(a => a.Status == "Deleted")
 
                 .Where(strFilter)
                 .Count();
@@ -286,7 +319,7 @@ namespace FODLSystem.Controllers
                 var v =
 
                _context.FuelOils
-                .Where(a => a.Status == "Active")
+                .Where(a => a.Status != "Deleted")
               .Where(strFilter)
               //.OrderBy(a => a.FileDate).ThenBy(a => a.Hour)
               .Skip(skip).Take(pageSize)
@@ -297,7 +330,8 @@ namespace FODLSystem.Controllers
                   UnitNo = a.Equipments.Name,
                   Location = a.Locations.List,
                   a.SMR,
-                  a.Id
+                  a.Id,
+                  a.Status
               });
 
 
