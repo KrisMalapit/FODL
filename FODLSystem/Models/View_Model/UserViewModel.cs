@@ -45,12 +45,13 @@ namespace FODLSystem.Models.View_Model
         //[Required]
         [Display(Name = "Domain")]
         public string Domain { get; set; }
-        [Required]
+        //[Required]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; }
 
         [Display(Name = "Remember me?")]
         public bool RememberMe { get; set; }
+        public string LogInType { get; set; }
     }
 }

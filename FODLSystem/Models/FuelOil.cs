@@ -26,6 +26,12 @@ namespace FODLSystem.Models
        
         public string Signature { get; set; }
         public string Status { get; set; } = "Active";
-
+        [Display(Name = "Dispenser")]
+        public int DispenserId { get; set; }
+        public virtual Dispenser Dispensers { get; set; }
+        [Display(Name = "Lube Truck")]
+        public int LubeTruckId { get; set; }
+        public virtual LubeTruck LubeTrucks { get; set; }
+        public DateTime TransactionDate { get; set; }
     }
 }

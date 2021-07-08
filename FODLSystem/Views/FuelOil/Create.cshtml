@@ -7,8 +7,51 @@
     .error-input {
         border-color: hsl(0, 76%, 50%) !important;
     }
+
+    .modal-sm {
+        width: 30% !important
+    }
+
+    .modal-dialog {
+        max-width: 100%;
+        margin: 1.75rem auto;
+    }
 </style>
 <link href="~/css/plugins/select2/select2-bootstrap.min.css" rel="stylesheet">
+
+<div class="modal inmodal in " id="modalSignature" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content animated fadeIn">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalSnapTitle">Capture Signature</h4>
+                <small class="font-bold">Take snapshot of signature</small>
+            </div>
+            <div class="modal-body">
+      
+                <p>
+                    <canvas class="signValue" width="500" height="400" id="signature"
+                            style="border:1px solid black"></canvas>
+
+                    <img width="500" height="400" id="savetarget"
+                         style="border:1px solid black" src="@ViewBag.Signature">   <br>    <br>                                                
+                    <button type="button" id="clear" class="btn btn-primary">Clear</button>
+
+                    <button id="save"
+                            class="btn btn-primary signValue">
+                        Save
+                    </button>
+                    <button id="save" data-dismiss="modal"
+                            class="btn btn-primary">
+                        Close
+                    </button>
+                    
+                </p>
+             
+
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="col-md-12">
     <div class="panel panel-success">
@@ -16,7 +59,7 @@
             Fuel Oil Liquidation Form
         </div>
         <div class="panel-body">
-            <form asp-action="Create" id="frm" >
+            <form asp-action="Create" id="frm">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group row">
                     <label asp-for="ReferenceNo" class="col-lg-2 col-form-label"></label>
@@ -36,10 +79,28 @@
                     <label asp-for="Shift" class="col-lg-2 col-form-label"></label>
                     <div class="col-lg-4">
 
-                        <select asp-for="Shift" class="form-control" >
+                        <select asp-for="Shift" class="form-control">
                             <option value="Day">Day</option>
                             <option value="Night">Night</option>
 
+                        </select>
+                        <span asp-validation-for="Shift" class="text-danger"></span>
+                    </div>
+
+                    <label asp-for="LubeTruckId" class="col-lg-2 col-form-label"></label>
+                    <div class="col-lg-4">
+                        <select class="form-control input-sm" id="LubeTruckId" name="LubeTruckId">
+                            <option>Select Lube</option>
+                        </select>
+                        <span asp-validation-for="LubeTruckId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <label asp-for="DispenserId" class="col-lg-2 col-form-label"></label>
+                    <div class="col-lg-4">
+                        <select class="form-control input-sm" id="DispenserId" name="DispenserId">
+                            <option>Select Dispenser</option>
                         </select>
                         <span asp-validation-for="Shift" class="text-danger"></span>
                     </div>
@@ -50,6 +111,7 @@
                         <span asp-validation-for="SMR" class="text-danger"></span>
                     </div>
                 </div>
+
                 <div class="form-group row">
                     <label asp-for="EquipmentId" class="col-lg-2 col-form-label"></label>
                     <div class="col-lg-4">
@@ -61,11 +123,10 @@
                     </div>
                     <label asp-for="Signature" class="col-lg-2 col-form-label"></label>
                     <div class="col-lg-4">
-
-                        <input asp-for="Signature" class="form-control" />
-                        <span asp-validation-for="Signature" class="text-danger"></span>
+                        <input id="btnSignature" type="button" class="btn btn-outline-warning" value="Signature" />
                     </div>
                 </div>
+
                 <div class="form-group row">
                     <label asp-for="LocationId" class="col-lg-2 col-form-label"></label>
                     <div class="col-lg-4">
@@ -74,7 +135,7 @@
                         <span asp-validation-for="LocationId" class="text-danger"></span>
                     </div>
                 </div>
-                
+
 
 
 
@@ -156,10 +217,98 @@
         </div>
     </div>
 </div>
+<script src="~/js/plugins/signature/signature_pad.min.js"></script>
+@*<script type="text/javascript" src="https://unpkg.com/signature_pad@3.0.0-beta.3/dist/signature_pad.min.js"></script>*@
 
+<script>
+
+
+    $(function () {
+
+        var canvas = document.querySelector('#signature');
+        var pad = new SignaturePad(canvas);
+
+        document.getElementById('clear').addEventListener('click', function () {
+            canvas = document.querySelector('#signature');
+            pad = new SignaturePad(canvas);
+            $(".signValue").show();
+            $("#savetarget").hide();
+            pad.clear();
+        });
+
+        $('#accept').click(function () {
+            var data = pad.toDataURL();
+            $('#savetarget').attr('src', data);
+            pad.off();
+        });
+
+        $('#save').click(function () {
+            var data = pad.toDataURL();
+            pad.off();
+           
+
+                $.ajax({
+                    url: "@Url.Action("saveSnapShot")?referenceNo=" + $("#ReferenceNo").val()
+                    , dataType: "json"
+                    , type: "POST"
+                    , data: { imgData: data }
+                    , success: function (responsedata) {
+                        if (responsedata.status == "success") {
+                            toastr["success"]("Signature saved!", "<b>Success</b> ") 
+                            $('#savetarget').attr('src', data);
+                        } else {
+                            toastr["error"](responsedata.message)
+                            toastr.options = {
+                                "closeButton": true
+                            }
+                        }
+                    }
+                })
+
+             })
+
+    });
+</script>
 <script>
     var FEDiv = $('#p_FE');
 
+
+    //var makeblob = function (dataURL) {
+    //    var BASE64_MARKER = ';base64,';
+    //    if (dataURL.indexOf(BASE64_MARKER) == -1) {
+    //        var parts = dataURL.split(',');
+    //        var contentType = parts[0].split(':')[1];
+    //        var raw = decodeURIComponent(parts[1]);
+    //        return new Blob([raw], { type: contentType });
+    //    }
+    //    var parts = dataURL.split(BASE64_MARKER);
+    //    var contentType = parts[0].split(':')[1];
+    //    var raw = window.atob(parts[1]);
+    //    var rawLength = raw.length;
+
+    //    var uInt8Array = new Uint8Array(rawLength);
+
+    //    for (var i = 0; i < rawLength; ++i) {
+    //        uInt8Array[i] = raw.charCodeAt(i);
+    //    }
+    //    console.log(new Blob([uInt8Array], { type: contentType }));
+    //    return new Blob([uInt8Array], { type: contentType });
+    //}
+    $("#btnSignature").click(function () {
+        if ($('#ReferenceNo').val() == '') {
+            toastr["error"]("Save Form First", "Error")
+            toastr.options = {
+                "closeButton": true
+
+            }
+            return false;
+        }
+        $(".signValue").hide();
+        $("#savetarget").show();
+
+        $("#modalSignature").modal("show");
+
+    })
     $(function () {
         $("#CreatedDate").val(moment('@ViewBag.CreatedDate').format("YYYY-MM-DD HH:mm:ss"))
 
@@ -218,7 +367,7 @@
     });
 
     function loadDetails() {
-        
+
 
         $.ajax({
             url: "@Url.Action("getDataDetails", "FuelOil")"
@@ -276,7 +425,7 @@
 
 
                      //Component
-                    
+
                     $('#cmbComponent' + i).append(new Option(responsedata.data[i].componentName, responsedata.data[i].componentId));
                     $('#cmbComponent' + i).select2({
                         width: '100%',
@@ -301,7 +450,7 @@
                             cache: false
                         },
 
-                       
+
 
                     }).val(responsedata.data[i].componentId).trigger('change');
 
@@ -317,7 +466,7 @@
 
             }
         })
-        
+
         //initiateSelect2();
 
 
@@ -398,9 +547,9 @@
             }
             return false;
         }
-       
-        
-       
+
+
+
         var data = $('#ReferenceNo').val();
 
         $.ajax({
@@ -425,12 +574,12 @@
     function disableForm() {
         $('#frm').find('input, select, button').each(function () {
             console.log(this);
-            $(this).prop("disabled", "disabled");  
+            $(this).prop("disabled", "disabled");
         });
 
-        $(".remFE").prop("disabled", "disabled");  
-        $(".anchorAction").attr("style", "pointer-events: none");  
-        
+        $(".remFE").prop("disabled", "disabled");
+        $(".anchorAction").attr("style", "pointer-events: none");
+
 
     }
     $("#Shift").select2({
@@ -464,6 +613,54 @@
                     cache: false
             },
             minimumInputLength: 4,
+    });
+    $("#LubeTruckId").select2({
+            width: '100%',
+            theme: 'bootstrap',
+                ajax: {
+                    url: "@Url.Action("SearchLubeTruck", "LubeTrucks")",
+                    dataType: 'json',
+                    delay: 2000,
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, page) {
+                        return {
+                            results: data.items,
+
+                        };
+                    },
+
+                    cache: false
+            },
+            minimumInputLength: 2,
+        });
+    $("#DispenserId").select2({
+            width: '100%',
+            theme: 'bootstrap',
+                ajax: {
+                    url: "@Url.Action("SearchDispenser", "Dispensers")",
+                    dataType: 'json',
+                    delay: 2000,
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, page) {
+                        return {
+                            results: data.items,
+
+                        };
+                    },
+
+                    cache: false
+            },
+            minimumInputLength: 2,
         });
     function initiateSelect2() {
 

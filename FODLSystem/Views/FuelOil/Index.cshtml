@@ -17,16 +17,18 @@
 
                 <thead>
                     <tr>
+                        <th>Reference No</th>
                         <th>Date Created</th>
                         <th>Shift</th>
                         <th>Unit No</th>
                         <th>Location</th>
                         <th>SMR</th>
                         <th>Status</th>
-                        <th>Action</th>
+                        <th style="width:8%">Action</th>
 
                     </tr>
                     <tr>
+                        <th>Reference No</th>
                         <th>Date Created</th>
                         <th>Shift</th>
                         <th>Unit No</th>
@@ -40,6 +42,7 @@
                 </thead>
                 <tfoot>
                     <tr>
+                        <th>Reference No</th>
                         <th>Date Created</th>
                         <th>Shift</th>
                         <th>Unit No</th>
@@ -89,6 +92,7 @@
                 "datatype": "json"
             },
             "columns": [
+                { "data": "referenceNo", "name": "ReferenceNo", "autoWidth": true },
                 {
                     data: "createdDate",
                     name: "CreatedDate",
@@ -107,14 +111,25 @@
                      render: function (data, type, row) {
                          var linkEdit = "@Url.Action("Edit", "FuelOil")?id=" + row.id;
                          var linkDelete = "@Url.Action("Delete", "FuelOil")?id=" + row.id;
-                         $actions =
-                             '<a title="Edit" class="btn btn-white btn-bitbucket" href="' + linkEdit + '"><i class="fa fa-list"></i></a> ' +
 
-                             '<a title="Delete" class="btn btn-danger btn-bitbucket" href="' + linkDelete + '"><i class="fa fa-trash"></i></a>';
+                         if (row.status == "Active") {
+                             $actions =
+                                 '<a title="Edit" class="btn btn-white btn-bitbucket" href="' + linkEdit + '"><i class="fa fa-list"></i></a> ' +
 
-                       
-                      
-                        return $actions;
+                             '<a title="Delete" onclick="deleteItem(' + row.id + ')" class="btn btn-danger btn-bitbucket" href="#"><i class="fa fa-trash"></i></a>';
+
+
+
+                             return $actions;
+                         } else {
+                             $actions =
+                                 '<a title="Edit" class="btn btn-white btn-bitbucket" href="' + linkEdit + '"><i class="fa fa-list"></i></a> ';
+
+
+
+                             return $actions;
+                         }
+                        
                     }
                 }
 
@@ -159,7 +174,34 @@
         };
     })();
 
-    
+
+    function deleteItem(id) {
+         if (confirm('This will delete list. Continue?')) {
+            $.ajax({
+            url: "@Url.Action("Delete")"
+            , method: "POST"
+            , data: { id: id }
+            , dataType: 'json'
+            , success: function (responsedata) {
+               if (responsedata.status == "success") {
+
+                   toastr["success"]("Item Deleted","<b>Success</b> ")
+                   loadDatatable();
+
+
+                } else {
+
+                    toastr["error"](responsedata.message)
+                    toastr.options = {
+                        "closeButton": true,
+                        "showDuration": "3000",
+                    }
+                }
+            }
+        })
+
+        }
+    }
 
 
     

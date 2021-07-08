@@ -4,14 +4,16 @@ using FODLSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FODLSystem.Migrations
 {
     [DbContext(typeof(FODLSystemContext))]
-    partial class FODLSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20210706233035_11")]
+    partial class _11
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -175,10 +177,6 @@ namespace FODLSystem.Migrations
                     b.HasIndex("LocationId");
 
                     b.HasIndex("LubeTruckId");
-
-                    b.HasIndex("TransactionDate", "Shift", "Status")
-                        .IsUnique()
-                        .HasFilter("[Shift] IS NOT NULL AND [Status] IS NOT NULL");
 
                     b.ToTable("FuelOils");
                 });

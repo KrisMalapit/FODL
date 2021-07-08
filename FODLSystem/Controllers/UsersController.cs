@@ -57,12 +57,12 @@ namespace FODLSystem.Controllers
                     ctx = new PrincipalContext(ContextType.Domain, domainName, "OU=SLPGC PLANT SITE,dc=semcalaca,dc=com", @"semcalaca\qmaster", "M@st3rQ###");
                     ctx2 = new PrincipalContext(ContextType.Domain, domainName, "OU=SCPC PLANT SITE,dc=semcalaca,dc=com", @"semcalaca\qmaster", "M@st3rQ###");
                 }
-                else if (domain == "FODLIRARAMINING")
+                else if (domain == "SEMIRARAMINING")
                 {
-                    domainName = "FODLIRARAMINING";
-                    domain = "FODLIRARAMINING";
+                    domainName = "SEMIRARAMINING";
+                    domain = "SEMIRARAMINING";
                     ctx = new PrincipalContext(ContextType.Domain, domainName,
-                                                    "OU=FODLIRARA MINESITE,DC=semiraramining,DC=net");
+                                                    "OU=SEMIRARA MINESITE,DC=semiraramining,DC=net");
                 }
                 else
                 {

@@ -4,14 +4,16 @@ using FODLSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FODLSystem.Migrations
 {
     [DbContext(typeof(FODLSystemContext))]
-    partial class FODLSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20210706012807_10")]
+    partial class _10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -164,8 +166,6 @@ namespace FODLSystem.Migrations
 
                     b.Property<string>("Status");
 
-                    b.Property<DateTime>("TransactionDate");
-
                     b.HasKey("Id");
 
                     b.HasIndex("DispenserId");
@@ -175,10 +175,6 @@ namespace FODLSystem.Migrations
                     b.HasIndex("LocationId");
 
                     b.HasIndex("LubeTruckId");
-
-                    b.HasIndex("TransactionDate", "Shift", "Status")
-                        .IsUnique()
-                        .HasFilter("[Shift] IS NOT NULL AND [Status] IS NOT NULL");
 
                     b.ToTable("FuelOils");
                 });
@@ -263,7 +259,7 @@ namespace FODLSystem.Migrations
                     b.ToTable("Locations");
 
                     b.HasData(
-                        new { Id = 1, List = "N/A", No = "na", OfficeCode = "000", Status = "Default" }
+                        new { Id = 1, List = "N/A", No = "na", OfficeCode = "000", Status = "Deleted" }
                     );
                 });
 
@@ -309,7 +305,7 @@ namespace FODLSystem.Migrations
                     b.ToTable("LubeTrucks");
 
                     b.HasData(
-                        new { Id = 1, Description = "N/A", No = "na", OldId = "0", Status = "Default" }
+                        new { Id = 1, Description = "N/A", No = "na", OldId = "0", Status = "Deleted" }
                     );
                 });
 

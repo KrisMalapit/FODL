@@ -41,12 +41,15 @@ namespace FODLSystem.Models
             modelBuilder.Entity<User>()
                .HasIndex(p => new { p.Username, p.Status })
                .IsUnique();
+            modelBuilder.Entity<FuelOil>()
+             .HasIndex(p => new { p.TransactionDate,p.Shift, p.Status })
+             .IsUnique();
 
             modelBuilder.Entity<Company>().HasData(
                new { ID = 1, Code = "SMPC", Name = "Semirara Mining and Power Corporation", Status = "Active" }
            );
 
-            modelBuilder.Entity<Department>().HasData(
+           modelBuilder.Entity<Department>().HasData(
                new { ID = 1, Code = "NA", Name = "NOTSET", Status = "Deleted", CompanyId = 1 }
            );
 
@@ -56,8 +59,14 @@ namespace FODLSystem.Models
 
            );
 
-            modelBuilder.Entity<User>().HasData(
+           modelBuilder.Entity<User>().HasData(
                new { Id = 1,Username = "kcmalapit",RoleId = 1,Password = "",FirstName = "Kristoffer", LastName = "Malapit",Status = "1", Email = "kcmalapit@semirarampc.com", DepartmentId = 1, Name = "Kristoffer Malapit", Domain = "SMCDACON", CompanyAccess = "1"}
+           );
+           modelBuilder.Entity<LubeTruck>().HasData(
+               new { Id = 1, No = "na", OldId = "0", Description = "N/A", Status = "Default"}
+           );
+            modelBuilder.Entity<Location>().HasData(
+               new { Id = 1, No = "na", List = "N/A", OfficeCode = "000", Status = "Default" }
            );
 
         }

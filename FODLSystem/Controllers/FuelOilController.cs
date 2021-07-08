@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DNTBreadCrumb.Core;
 using FODLSystem.Models;
 using FODLSystem.Models.View_Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -20,12 +21,55 @@ namespace FODLSystem.Controllers
         {
             _context = context;
         }
-
+       
         [BreadCrumb(Title = "Index", Order = 1, IgnoreAjaxRequests = true)]
         public IActionResult Index()
         {
             this.SetCurrentBreadCrumbTitle("Fuel Oil Liquidation");
             return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> saveSnapShot(string referenceNo,string imgData)
+        {
+
+            string filename = "";
+            string status = "";
+            string message = "";
+            string imageurl = "";
+
+
+            try
+            {
+
+                var fueloil = _context.FuelOils.Where(a => a.ReferenceNo == referenceNo).FirstOrDefault();
+                fueloil.Signature = imgData;
+                _context.Update(fueloil);
+                _context.SaveChanges();
+
+
+
+
+                imageurl = imgData;
+                status = "success";
+            }
+            catch (Exception e)
+            {
+
+                status = "fail";
+                message = e.Message;
+                e.Message.WriteLog();
+
+            }
+
+            var model = new
+            {
+
+                message,
+                status,
+                imageurl
+            };
+
+            return Json(model);
         }
         [BreadCrumb(Title = "Create", Order = 2, IgnoreAjaxRequests = true)]
         // GET: Companies/Create
@@ -38,6 +82,7 @@ namespace FODLSystem.Controllers
                 Order = 1
             });
             ViewData["CreatedDate"] = DateTime.Now;
+            ViewData["Signature"] = "";
             ViewData["EquipmentId"] = 0;
             ViewData["Id"] = 0;
             ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List");
@@ -58,6 +103,7 @@ namespace FODLSystem.Controllers
             ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List", model.LocationId);
             ViewData["Id"] = model.Id;
             ViewData["Status"] = model.Status;
+            ViewData["Signature"] = model.Signature;
             return View("Create", model);
         }
         public JsonResult SearchItem(string q)
@@ -101,6 +147,15 @@ namespace FODLSystem.Controllers
         [HttpPost]
         public IActionResult SaveForm(FuelOilViewModel fvm)
         {
+            if (fvm.LubeTruckId == 0)
+            {
+                fvm.LubeTruckId = 1;
+            }
+            if (fvm.DispenserId == 0)
+            {
+                fvm.DispenserId = 1;
+            }
+
             string status = "";
             string message = "";
             string series = "";
@@ -122,6 +177,10 @@ namespace FODLSystem.Controllers
                         SMR = fvm.SMR,
                         CreatedDate = DateTime.Now,
                         CreatedBy = User.Identity.GetFullName(),
+                        TransactionDate = DateTime.Now.Date
+                        ,DispenserId = fvm.DispenserId
+                        ,LubeTruckId = fvm.LubeTruckId
+                        ,Signature = fvm.Signature
 
                     };
                     _context.Add(fo);
@@ -158,6 +217,9 @@ namespace FODLSystem.Controllers
                     fo.SMR = fvm.SMR;
                     fo.CreatedDate = DateTime.Now;
                     fo.CreatedBy = User.Identity.GetFullName();
+                    fo.DispenserId = fvm.DispenserId;
+                    fo.LubeTruckId = fvm.LubeTruckId;
+                    
                     _context.Update(fo);
 
                     _context.FuelOilDetails
@@ -210,7 +272,7 @@ namespace FODLSystem.Controllers
             {
 
                 status = "fail";
-                message = ex.Message;
+                message = ex.InnerException.Message;
             }
 
             var modelItem = new
@@ -219,6 +281,58 @@ namespace FODLSystem.Controllers
                 message
             };
             return Json(modelItem);
+        }
+        public IActionResult Delete(int id)
+        {
+            string status = "";
+            string message = "";
+            try
+            {
+                var items = _context.FuelOils.Find(id);
+                items.Status = "Delete_" + DateTime.Now.Date.Ticks;
+                _context.Entry(items).State = EntityState.Modified;
+                _context.SaveChanges();
+
+
+
+
+
+                Log log = new Log
+                {
+                    Descriptions = "Delete FuelOil - " + id,
+                    Action = "Delete"  ,
+                    Status = "success",
+                    UserId = User.Identity.GetUserName()
+                };
+                _context.Add(log);
+
+
+                _context.SaveChangesAsync();
+
+
+                status = "success";
+            }
+            catch (Exception e)
+            {
+
+                message = e.InnerException.ToString();
+
+            }
+
+            var model = new
+            {
+
+                status,
+                message
+            };
+            return Json(model);
+
+
+
+
+
+
+
         }
         [HttpPost]
         public IActionResult PostForm(string referenceNo)
@@ -231,6 +345,20 @@ namespace FODLSystem.Controllers
             {
                 
                     var fo = _context.FuelOils.Where(a => a.ReferenceNo == referenceNo).FirstOrDefault();
+
+                    if (string.IsNullOrEmpty(fo.Signature))
+                    {
+                       
+
+                        var model = new
+                        {
+                            status = "fail",
+                            message = "Cannot post until form has been signed"
+                         };
+                        return Json(model);
+
+                    };
+
                     fo.Status = "Posted";
                     _context.Update(fo);
                     _context.SaveChanges();
@@ -306,7 +434,7 @@ namespace FODLSystem.Controllers
                 int recCount =
 
                 _context.FuelOils
-                .Where(a => a.Status == "Deleted")
+                .Where(a => a.Status == "Active")
 
                 .Where(strFilter)
                 .Count();
@@ -319,12 +447,13 @@ namespace FODLSystem.Controllers
                 var v =
 
                _context.FuelOils
-                .Where(a => a.Status != "Deleted")
+              .Where(a => a.Status == "Active")
               .Where(strFilter)
               //.OrderBy(a => a.FileDate).ThenBy(a => a.Hour)
               .Skip(skip).Take(pageSize)
               .Select(a => new
               {
+                  a.ReferenceNo,
                   a.CreatedDate,
                   a.Shift,
                   UnitNo = a.Equipments.Name,

@@ -56,7 +56,25 @@ namespace FODLSystem.Controllers
 
             return Json(model);
         }
+        public JsonResult SearchLubeTruck(string q)
+        {
+            var model = _context.LubeTrucks
+                .Where(a => a.Status != "Deleted")
+                .Where(a => a.Description.ToUpper().Contains(q.ToUpper())).Select(b => new
+                {
+                    id = b.Id,
+                    text = b.No + " | " + b.Description,
 
+                });
+
+            var modelItem = new
+            {
+                total_count = model.Count(),
+                incomplete_results = false,
+                items = model.ToList(),
+            };
+            return Json(modelItem);
+        }
         [HttpPost]
         public ActionResult getData()
         {
