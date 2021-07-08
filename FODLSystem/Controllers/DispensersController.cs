@@ -25,6 +25,25 @@ namespace FODLSystem.Controllers
             this.SetCurrentBreadCrumbTitle("Dispenser");
             return View();
         }
+        public JsonResult SearchDispenser(string q)
+        {
+            var model = _context.Dispensers
+                .Where(a => a.Status != "Deleted")
+                .Where(a => a.Name.ToUpper().Contains(q.ToUpper())).Select(b => new
+                {
+                    id = b.Id,
+                    text =  b.Name,
+
+                });
+
+            var modelItem = new
+            {
+                total_count = model.Count(),
+                incomplete_results = false,
+                items = model.ToList(),
+            };
+            return Json(modelItem);
+        }
         [HttpPost]
         public ActionResult SaveItem(int id, string No, string Name, string OfficeCode)
         {

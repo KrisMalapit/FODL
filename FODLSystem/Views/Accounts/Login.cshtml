@@ -33,10 +33,11 @@
                         <div role="tabpanel" id="tab-1" class="tab-pane active">
                             <div class="panel-body">
 
-                                @using (Html.BeginForm("Login", "Accounts", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                                @using (Html.BeginForm("Login", "Accounts", FormMethod.Post, new { @class = "form-horizontal", role = "form"}))
                                 {
                                     @Html.AntiForgeryToken()
                                     @Html.ValidationSummary(true, "", new { @class = "text-danger" });
+                                    <input type="hidden" name="LogInType" value="AD"/>
                                     <div class="form-group">
                                         @Html.DropDownList("Domain",
                                                     new SelectList(Enum.GetValues(typeof(FODLSystem.Models.Domain)), "SMCDACON"), new { @class = "form-control" })
@@ -55,17 +56,23 @@
                         </div>
                         <div role="tabpanel" id="tab-2" class="tab-pane">
                             <div class="panel-body">
-                                <strong>Donec quam felis</strong>
+                                @using (Html.BeginForm("Login", "Accounts", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary(true, "", new { @class = "text-danger" });
+                                    <input type="hidden" name="LogInType" value="LOCAL" />
+                                    <div class="form-group">
+                                        @Html.DropDownList("Domain",
+                                                    new SelectList(Enum.GetValues(typeof(FODLSystem.Models.Domain)), "SEMIRARAMINING"), new { @class = "form-control" })
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="Username" placeholder="Username" required="">
+                                    </div>
 
-                                <p>
-                                    Thousand unknown plants are noticed by me: when I hear the buzz of the little world among the stalks, and grow familiar with the countless indescribable forms of the insects
-                                    and flies, then I feel the presence of the Almighty, who formed us in his own image, and the breath
-                                </p>
+                                    <button type="submit" class="btn btn-primary block full-width m-b">Login</button>
 
-                                <p>
-                                    I am alone, and feel the charm of existence in this spot, which was created for the bliss of souls like mine. I am so happy, my dear friend, so absorbed in the exquisite
-                                    sense of mere tranquil existence, that I neglect my talents. I should be incapable of drawing a single stroke at the present moment; and yet.
-                                </p>
+
+                                }
                             </div>
                         </div>
                     </div>

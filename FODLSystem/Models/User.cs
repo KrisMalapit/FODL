@@ -9,7 +9,7 @@ namespace FODLSystem.Models
 {
     public enum Domain
     {
-       SMCDACON, SEMIRARAMINING
+       SEMIRARAMINING, SMCDACON
     }
 
 
