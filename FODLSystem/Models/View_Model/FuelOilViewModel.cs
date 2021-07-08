@@ -9,7 +9,7 @@ namespace FODLSystem.Models.View_Model
     {
         public string ReferenceNo { get; set; }
         public string Shift { get; set; }
-        
+        public string Signature { get; set; }
         public int EquipmentId { get; set; }
         public int LocationId { get; set; }
         public string SMR { get; set; }

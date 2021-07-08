@@ -271,7 +271,7 @@ namespace FODLSystem.Controllers
                 int recordsTotal = 0;
 
 
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 6; i++)
                 {
                     string colval = Request.Form["columns[" + i + "][search][value]"];
                     if (colval != "")
