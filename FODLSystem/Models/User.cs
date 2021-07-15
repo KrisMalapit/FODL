@@ -37,5 +37,9 @@ namespace FODLSystem.Models
         public string UserType { get; set; }
         public int DepartmentId { get; set; }
         public virtual Department Departments { get; set; }
+
+        public string LubeAccess { get; set; }
+        public string DispenserAccess { get; set; }
+
     }
 }

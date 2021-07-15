@@ -65,25 +65,26 @@
                     @Html.DropDownList("RoleId", (IEnumerable<SelectListItem>)ViewData["Roles"], "Select Role", new { @class = "form-control" })
                     <span asp-validation-for="RoleId" class="text-danger"></span>
                 </div>
-                <div class="form-group" hidden>
-                    <label class="control-label">User Type</label>
-                    <select id="UserType"  name="UserType" class="form-control">
-                        <option value="FODLSystem">FODLSystem</option>
-                        <option value="TRADING">TRADING</option>
-                    </select>
-                </div>
 
-                <div class="form-group" >
+
+                <div class="form-group">
                     <label class="control-label">Company Access</label>
                     <select id="CompanyAccess" style="width:400px" name="companytags[]" class="form-control">
-                        <option value="1">SOUTHWEST LUZON POWER GEN CORP</option>
-                        <option value="2">FODL CALACA AND POWER CORP</option>
-
-
+                        <option value="1">SEMIRARA MINING AND POWER CORPORATION</option>
                     </select>
-
                 </div>
-
+                <div class="form-group">
+                    <label class="control-label">Lube Access</label>
+                    <select id="LubeAccess" style="width:400px" name="lubetags[]" class="form-control">
+                        <option value="0">N/A</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Dispenser Access</label>
+                    <select id="DispenserAccess" style="width:400px" name="dispensertags[]" class="form-control">
+                        <option value="0">N/A</option>
+                    </select>
+                </div>
 
 
             </div>
@@ -125,6 +126,15 @@
     $("#CompanyAccess").select2({
         multiple: true,
     });
+    $("#LubeAccess").select2({
+        multiple: true,
+    });
+    $("#DispenserAccess").select2({
+        multiple: true,
+    });
+    
+    
+
     $('#CompanyAccess').val(selectedValuesTest).trigger('change');
 
 

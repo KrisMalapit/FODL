@@ -4,14 +4,16 @@ using FODLSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FODLSystem.Migrations
 {
     [DbContext(typeof(FODLSystemContext))]
-    partial class FODLSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20210709032109_13")]
+    partial class _13
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,10 +109,6 @@ namespace FODLSystem.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Dispensers");
-
-                    b.HasData(
-                        new { Id = 1, Name = "N/A", No = "na", Status = "Default" }
-                    );
                 });
 
             modelBuilder.Entity("FODLSystem.Models.Equipment", b =>
@@ -152,11 +150,19 @@ namespace FODLSystem.Migrations
 
                     b.Property<int>("DispenserId");
 
+                    b.Property<int>("EquipmentId");
+
+                    b.Property<int>("LocationId");
+
                     b.Property<int>("LubeTruckId");
 
                     b.Property<string>("ReferenceNo");
 
+                    b.Property<string>("SMR");
+
                     b.Property<string>("Shift");
+
+                    b.Property<string>("Signature");
 
                     b.Property<string>("Status");
 
@@ -165,6 +171,10 @@ namespace FODLSystem.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DispenserId");
+
+                    b.HasIndex("EquipmentId");
+
+                    b.HasIndex("LocationId");
 
                     b.HasIndex("LubeTruckId");
 
@@ -181,40 +191,9 @@ namespace FODLSystem.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("CreatedDate");
-
-                    b.Property<int>("EquipmentId");
-
-                    b.Property<int>("FuelOilId");
-
-                    b.Property<int>("LocationId");
-
-                    b.Property<string>("SMR");
-
-                    b.Property<string>("Signature");
-
-                    b.Property<string>("Status");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EquipmentId");
-
-                    b.HasIndex("FuelOilId");
-
-                    b.HasIndex("LocationId");
-
-                    b.ToTable("FuelOilDetails");
-                });
-
-            modelBuilder.Entity("FODLSystem.Models.FuelOilSubDetail", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
                     b.Property<int>("ComponentId");
 
-                    b.Property<int>("FuelOilDetailId");
+                    b.Property<int>("FuelOilId");
 
                     b.Property<int>("ItemId");
 
@@ -228,11 +207,11 @@ namespace FODLSystem.Migrations
 
                     b.HasIndex("ComponentId");
 
-                    b.HasIndex("FuelOilDetailId");
+                    b.HasIndex("FuelOilId");
 
                     b.HasIndex("ItemId");
 
-                    b.ToTable("FuelOilSubDetails");
+                    b.ToTable("FuelOilDetails");
                 });
 
             modelBuilder.Entity("FODLSystem.Models.Item", b =>
@@ -328,10 +307,6 @@ namespace FODLSystem.Migrations
                     b.Property<string>("Status");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("No", "Status")
-                        .IsUnique()
-                        .HasFilter("[Status] IS NOT NULL");
 
                     b.ToTable("LubeTrucks");
 
@@ -446,6 +421,16 @@ namespace FODLSystem.Migrations
                         .HasForeignKey("DispenserId")
                         .OnDelete(DeleteBehavior.Cascade);
 
+                    b.HasOne("FODLSystem.Models.Equipment", "Equipments")
+                        .WithMany()
+                        .HasForeignKey("EquipmentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("FODLSystem.Models.Location", "Locations")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("FODLSystem.Models.LubeTruck", "LubeTrucks")
                         .WithMany()
                         .HasForeignKey("LubeTruckId")
@@ -454,32 +439,14 @@ namespace FODLSystem.Migrations
 
             modelBuilder.Entity("FODLSystem.Models.FuelOilDetail", b =>
                 {
-                    b.HasOne("FODLSystem.Models.Equipment", "Equipments")
-                        .WithMany()
-                        .HasForeignKey("EquipmentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("FODLSystem.Models.FuelOil", "FuelOils")
-                        .WithMany()
-                        .HasForeignKey("FuelOilId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("FODLSystem.Models.Location", "Locations")
-                        .WithMany()
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("FODLSystem.Models.FuelOilSubDetail", b =>
-                {
                     b.HasOne("FODLSystem.Models.Component", "Components")
                         .WithMany()
                         .HasForeignKey("ComponentId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("FODLSystem.Models.FuelOilDetail", "FuelOilDetails")
+                    b.HasOne("FODLSystem.Models.FuelOil", "FuelOils")
                         .WithMany()
-                        .HasForeignKey("FuelOilDetailId")
+                        .HasForeignKey("FuelOilId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("FODLSystem.Models.Item", "Items")

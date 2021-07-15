@@ -29,7 +29,8 @@ namespace FODLSystem.Controllers
         {
             var model = _context.Equipments
                 .Where(a => a.Status == "Active")
-                .Where(a => a.Name.ToUpper().Contains(q.ToUpper())).Select(b => new
+                .Where(a => a.Name.ToUpper().Contains(q.ToUpper()))
+                .Select(b => new
                 {
                     id = b.Id,
                     text = b.No + " | " + b.Name,

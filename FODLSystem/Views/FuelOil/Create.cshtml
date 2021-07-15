@@ -12,12 +12,63 @@
         width: 30% !important
     }
 
+    .modal-md {
+        width: 60% !important
+    }
+
     .modal-dialog {
         max-width: 100%;
         margin: 1.75rem auto;
     }
+    /*.select2-drop {
+        z-index: 99999;
+    }*/
 </style>
 <link href="~/css/plugins/select2/select2-bootstrap.min.css" rel="stylesheet">
+
+<div class="modal inmodal in " id="modalItem" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content animated fadeIn">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalSnapTitle">Equipment Information </h4>
+                <small class="font-bold">Modify details of this dispenser</small>
+            </div>
+            <div class="modal-body">
+                <form id="frmEquipment">
+                    <input id="FuelOilId" name="FuelOilId" value="@ViewBag.Id" type="hidden" />
+                    <input id="DetailId" name="Id" type="hidden" />
+
+                    <div class="form-group">
+                        <label>Time</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input id="CreatedDate" name="CreatedDate" type="text" class="form-control datepicker">
+                        </div>
+                    </div>
+
+                    <div class="form-group ">
+                        <label>Equipment</label>
+                        <select class="form-control input-sm" id="EquipmentId" name="EquipmentId">
+                            <option>Select Unit</option>
+                        </select>
+                    </div>
+                    <div class="form-group ">
+                        <label>Location</label>
+                        @Html.DropDownList("LocationId")
+                    </div>
+
+                    <div class="form-group ">
+                        <label>SMR</label>
+                        <input type="text" id="SMR" name="SMR" class="form-control" />
+                    </div>
+
+                </form>
+                <button data-dismiss="modal" class="btn btn-default">Close</button>
+                <button id="btnSave" class="btn btn-primary" onclick="saveEquipment();">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal inmodal in " id="modalSignature" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-sm">
@@ -27,26 +78,18 @@
                 <small class="font-bold">Take snapshot of signature</small>
             </div>
             <div class="modal-body">
-      
+
                 <p>
                     <canvas class="signValue" width="500" height="400" id="signature"
                             style="border:1px solid black"></canvas>
 
                     <img width="500" height="400" id="savetarget"
-                         style="border:1px solid black" src="@ViewBag.Signature">   <br>    <br>                                                
-                    <button type="button" id="clear" class="btn btn-primary">Clear</button>
+                         style="border:1px solid black" src="@ViewBag.Signature"><br><br>
+                    <button id="clear" class="btn btn-primary">New/Clear</button>
+                    <button id="save" class="btn btn-primary signValue">Save</button>
+                    <button id="close" data-dismiss="modal" class="btn btn-primary">Close</button>
 
-                    <button id="save"
-                            class="btn btn-primary signValue">
-                        Save
-                    </button>
-                    <button id="save" data-dismiss="modal"
-                            class="btn btn-primary">
-                        Close
-                    </button>
-                    
                 </p>
-             
 
             </div>
         </div>
@@ -89,114 +132,152 @@
 
                     <label asp-for="LubeTruckId" class="col-lg-2 col-form-label"></label>
                     <div class="col-lg-4">
-                        <select class="form-control input-sm" id="LubeTruckId" name="LubeTruckId">
-                            <option>Select Lube</option>
-                        </select>
-                        <span asp-validation-for="LubeTruckId" class="text-danger"></span>
+                        <select asp-for="LubeTruckId" class="form-control" asp-items="ViewBag.LubeTruckId"></select>
+
+
                     </div>
                 </div>
 
                 <div class="row form-group">
                     <label asp-for="DispenserId" class="col-lg-2 col-form-label"></label>
                     <div class="col-lg-4">
-                        <select class="form-control input-sm" id="DispenserId" name="DispenserId">
-                            <option>Select Dispenser</option>
-                        </select>
-                        <span asp-validation-for="Shift" class="text-danger"></span>
-                    </div>
-                    <label asp-for="SMR" class="col-lg-2 col-form-label"></label>
-                    <div class="col-lg-4">
+                        <select asp-for="DispenserId" class="form-control" asp-items="ViewBag.DispenserId"></select>
 
-                        <input asp-for="SMR" class="form-control" required />
-                        <span asp-validation-for="SMR" class="text-danger"></span>
                     </div>
+
                 </div>
 
-                <div class="form-group row">
-                    <label asp-for="EquipmentId" class="col-lg-2 col-form-label"></label>
-                    <div class="col-lg-4">
-                        @*<select asp-for="EquipmentId" class="form-control" asp-items="ViewBag.EquipmentId"></select>*@
-                        <select class="form-control input-sm" id="EquipmentId" name="EquipmentId">
-                            <option>Select Unit</option>
-                        </select>
-                        <span asp-validation-for="EquipmentId" class="text-danger"></span>
-                    </div>
-                    <label asp-for="Signature" class="col-lg-2 col-form-label"></label>
-                    <div class="col-lg-4">
-                        <input id="btnSignature" type="button" class="btn btn-outline-warning" value="Signature" />
-                    </div>
-                </div>
-
-                <div class="form-group row">
-                    <label asp-for="LocationId" class="col-lg-2 col-form-label"></label>
-                    <div class="col-lg-4">
-
-                        <select asp-for="LocationId" class="form-control" asp-items="ViewBag.LocationId"></select>
-                        <span asp-validation-for="LocationId" class="text-danger"></span>
-                    </div>
-                </div>
-
-
-
-
-                <div class="form-group">
-                    <script id="FEtemplate" type="text/template">
-                        <td>
-                            <select class="form-control input-sm cmbNo" name="no[]">
-                                <option>Select Item</option>
+                @*<div class="form-group row">
+                        <label asp-for="EquipmentId" class="col-lg-2 col-form-label"></label>
+                        <div class="col-lg-4">
+                            <select class="form-control input-sm" id="EquipmentId" name="EquipmentId">
+                                <option>Select Unit</option>
                             </select>
-                        </td>
+                            <span asp-validation-for="EquipmentId" class="text-danger"></span>
+                        </div>
+                        <label asp-for="Signature" class="col-lg-2 col-form-label"></label>
+                        <div class="col-lg-4">
+                            <input id="btnSignature" type="button" class="btn btn-outline-warning" value="Signature" />
+                        </div>
+                    </div>*@
 
-                        <td>
-                            <select class="form-control input-sm cmbComponent" name="component[]">
-                                <option>Select Component</option>
-                            </select>
+                @*<div class="form-group row">
+                        <label asp-for="LocationId" class="col-lg-2 col-form-label"></label>
+                        <div class="col-lg-4">
 
-                        </td>
-                        <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
+                            <select asp-for="LocationId" class="form-control" asp-items="ViewBag.LocationId"></select>
+                            <span asp-validation-for="LocationId" class="text-danger"></span>
+                        </div>
+                    </div>*@
 
-                        <td>
-                            @*<a class="remFE btn btn-danger "><span title="Delete" class="glyphicon glyphicon-remove"></span></a>*@
-                            <button class="remFE btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i></button>
-                        </td>
-                    </script>
-                    <table class="table table-bordered table-hover" id="tblFuel">
-                        <thead>
-                            <tr>
-                                <th width="5%">#</th>
-                                <th width="40%">Item</th>
-                                <th width="30%">Component</th>
-                                <th>Volume / Qty</th>
-                                <th width="10%">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="p_FE">
-                            <tr>
-                                <td>1</td>
-                                <td>
-                                    @*<input type="hidden" name="detail_id[]" />*@
-                                    @*<select name="no[]" class="cmbNo form-control"></select>*@
-                                    <select class="form-control input-sm cmbNo" name="no[]">
-                                        <option>Select Item</option>
-                                    </select>
-                                </td>
 
-                                <td>
-                                    @*<select name="component[]" class="cmbComponent form-control"></select>*@
-                                    <select class="form-control input-sm cmbComponent" name="component[]">
-                                        <option>Select Component</option>
-                                    </select>
 
-                                </td>
-                                <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
 
-                                <td>
-                                    <button class="addFE btn btn-default" type="button"><i class="fa fa-plus"></i> </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                @*<div class="form-group">
+                        <script id="ITEMtemplate" type="text/template">
+                            <td>
+                                <select class="form-control input-sm cmbNo" name="no[]">
+                                    <option>Select Item</option>
+                                </select>
+                            </td>
+
+                            <td>
+                                <select class="form-control input-sm cmbComponent" name="component[]">
+                                    <option>Select Component</option>
+                                </select>
+
+                            </td>
+                            <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
+
+                            <td>
+
+                                <button class="remITEM btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i></button>
+                            </td>
+                        </script>
+                        <table class="table table-bordered table-hover" id="tblItem">
+                            <thead>
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="40%">Item</th>
+                                    <th width="30%">Component</th>
+                                    <th>Volume / Qty</th>
+                                    <th width="10%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="p_Item">
+                                <tr>
+                                    <td>1</td>
+                                    <td>
+
+                                        <select class="form-control input-sm cmbNo" name="no[]">
+                                            <option>Select Item</option>
+                                        </select>
+                                    </td>
+
+                                    <td>
+
+                                        <select class="form-control input-sm cmbComponent" name="component[]">
+                                            <option>Select Component</option>
+                                        </select>
+
+                                    </td>
+                                    <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
+
+                                    <td>
+                                        <button class="addFE btn btn-default" type="button"><i class="fa fa-plus"></i> </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>*@
+
+                <p>
+                    <a href="#" onclick="createNew(this);" title="Add" data-action='Add'>Create New</a>
+                </p>
+
+                @*<div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-content">*@
+
+                <table id="tbl" class="table table-striped table-no-bordered table-hover dataTable" style="width: 100%!important">
+
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Equipment</th>
+                            <th>Location</th>
+                            <th>SMR</th>
+
+                            <th>Action</th>
+
+                        </tr>
+                        <tr>
+                            <th>Time</th>
+                            <th>Equipment</th>
+                            <th>Location</th>
+                            <th>SMR</th>
+
+                            <th></th>
+
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Time</th>
+                            <th>Equipment</th>
+                            <th>Location</th>
+                            <th>SMR</th>
+
+
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+                @*</div>
+                        </div>
+                    </div>*@
+
+
 
                 <p>
 
@@ -218,7 +299,28 @@
     </div>
 </div>
 <script src="~/js/plugins/signature/signature_pad.min.js"></script>
-@*<script type="text/javascript" src="https://unpkg.com/signature_pad@3.0.0-beta.3/dist/signature_pad.min.js"></script>*@
+<script>
+
+
+
+
+
+    $('.datepicker').datetimepicker({
+        format: 'm/d/Y H:i',
+        step: 5
+    });
+    //$('.datepickerDate').datetimepicker({
+    //    format: 'm/d/Y',
+    //    timepicker: false,
+    //});
+
+    //$("input[type=text]").keyup(function () {
+    //    $(this).val($(this).val().toUpperCase());
+    //});
+
+
+</script>
+
 
 <script>
 
@@ -245,7 +347,7 @@
         $('#save').click(function () {
             var data = pad.toDataURL();
             pad.off();
-           
+
 
                 $.ajax({
                     url: "@Url.Action("saveSnapShot")?referenceNo=" + $("#ReferenceNo").val()
@@ -254,7 +356,7 @@
                     , data: { imgData: data }
                     , success: function (responsedata) {
                         if (responsedata.status == "success") {
-                            toastr["success"]("Signature saved!", "<b>Success</b> ") 
+                            toastr["success"]("Signature saved!", "<b>Success</b> ")
                             $('#savetarget').attr('src', data);
                         } else {
                             toastr["error"](responsedata.message)
@@ -270,30 +372,130 @@
     });
 </script>
 <script>
-    var FEDiv = $('#p_FE');
+    var FEDiv = $('#p_Item');
+
+    $(function () {
+        $('#tbl thead tr:eq(1) th').each(function () {
+
+            var title = $(this).text();
+            if (title == "") {
+
+            } else {
+                $(this).html('<input type="search" class="form-control form-control-sm" placeholder="Search ' + title + '" />');
+            }
+        });
+
+        loadDatatable('@ViewBag.Id');
+    })
+    function saveEquipment() {
+        var cnt = 0;
+        var data = $("#frmEquipment").serializeArray();
+
+        $.ajax({
+            url: "@Url.Action("SaveFormDetail")"
+            , method: "POST"
+            , data: data
+            , dataType: 'json'
+             , success: function (responsedata) {
+                if (responsedata.status == "success") {
+                    toastr["success"]("Form saved!", "<b>Success</b> ")
+                    $("#DetailId").val(responsedata.message);
+                    loadDatatable($("#FuelOilId").val());
+                } else {
+                    toastr["error"](responsedata.message)
+                    toastr.options = {
+                        "closeButton": true
+                    }
+                }
+            }
+        })
+    }
+    function createNew(obj) {
+        console.log(obj);
+        if ($('#ReferenceNo').val() == '') {
+            toastr["error"]("Save Form First", "Error")
+            toastr.options = {
+                "closeButton": true
+            }
+            return false;
+        }
+
+        $action = String($(obj).attr('title'));
+        if ($action==='Add') {
+            $('#DetailId').val(0)
+            $("#CreatedDate").val(moment('@DateTime.Now').format("MM/DD/YYYY HH:mm"))
+            $("#EquipmentId").select2({
+                dropdownParent: $('#modalItem .modal-content'),
+                placeholder: '',
+                allowClear: true,
+                width: '100%',
+                theme: 'bootstrap',
+                    ajax: {
+                        url: "@Url.Action("SearchEquipment", "Equipments")",
+                        dataType: 'json',
+                        delay: 2000,
+                        data: function (params) {
+                            return {
+                                q: params.term, // search term
+                                page: params.page
+                            };
+                        },
+                        processResults: function (data, page) {
+                            return {
+                                results: data.items,
+
+                            };
+                        },
+
+                        cache: false
+                },
+                minimumInputLength: 4,
+            });
+        } else {
+
+            $cdate = moment($(obj).attr('data-time')).format("MM/DD/YYYY HH:mm");
+            $('#DetailId').val($(obj).attr('data-id'))
+            $('#CreatedDate').val($cdate)
 
 
-    //var makeblob = function (dataURL) {
-    //    var BASE64_MARKER = ';base64,';
-    //    if (dataURL.indexOf(BASE64_MARKER) == -1) {
-    //        var parts = dataURL.split(',');
-    //        var contentType = parts[0].split(':')[1];
-    //        var raw = decodeURIComponent(parts[1]);
-    //        return new Blob([raw], { type: contentType });
-    //    }
-    //    var parts = dataURL.split(BASE64_MARKER);
-    //    var contentType = parts[0].split(':')[1];
-    //    var raw = window.atob(parts[1]);
-    //    var rawLength = raw.length;
+            $('#LocationId').val($(obj).attr('data-location')).trigger('change')
+            $('#SMR').val($(obj).attr('data-smr'))
 
-    //    var uInt8Array = new Uint8Array(rawLength);
+            $equipid = $(obj).attr('data-equipment');
+            $equipname = $(obj).attr('data-equipmentname');
 
-    //    for (var i = 0; i < rawLength; ++i) {
-    //        uInt8Array[i] = raw.charCodeAt(i);
-    //    }
-    //    console.log(new Blob([uInt8Array], { type: contentType }));
-    //    return new Blob([uInt8Array], { type: contentType });
-    //}
+            $("#EquipmentId").append(new Option("", ""));
+            $("#EquipmentId").append(new Option($equipname, $equipid));
+            $("#EquipmentId").select2({
+                dropdownParent: $('#modalItem .modal-content'),
+                width: '100%',
+                theme: 'bootstrap',
+                placeholder: '',
+                allowClear: true,
+                ajax: {
+                    url: "@Url.Action("SearchEquipment", "Equipments")",
+                    dataType: 'json',
+                    delay: 300,
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, page) {
+                        return {
+                            results: data.items,
+                        };
+                    },
+                    cache: false
+                },
+                minimumInputLength: 4,
+
+            }).val($equipid).trigger('change');
+        }
+
+        $("#modalItem").modal("show");
+    }
     $("#btnSignature").click(function () {
         if ($('#ReferenceNo').val() == '') {
             toastr["error"]("Save Form First", "Error")
@@ -310,14 +512,14 @@
 
     })
     $(function () {
-        $("#CreatedDate").val(moment('@ViewBag.CreatedDate').format("YYYY-MM-DD HH:mm:ss"))
+
+        //$("#CreatedDate").val(moment('@DateTime.Now').format("MM/DD/YYYY HH:mm"))
 
 
         if ($("#ReferenceNo").val() == "") {
-            initiateSelect2();
+            //initiateSelect2();
         } else {
-
-            $("#EquipmentId").append(new Option("", ""));
+            @*$("#EquipmentId").append(new Option("", ""));
             $("#EquipmentId").append(new Option('@ViewBag.EquipmentName', '@ViewBag.EquipmentId'));
             $("#EquipmentId").select2({
                 width: '100%',
@@ -335,16 +537,14 @@
                         processResults: function (data, page) {
                             return {
                                 results: data.items,
-
                             };
                         },
-
                         cache: false
                 },
 
-            }).val('@ViewBag.EquipmentId').trigger('change');
+            }).val('@ViewBag.EquipmentId').trigger('change');*@
 
-            loadDetails();
+            //loadDetails();
         }
 
 
@@ -352,21 +552,128 @@
 
 
     $(document).on('click', '.addFE', function () {
-        var i = $('#p_FE tr').length + 1;
-        var $tr = $('<tr>').append('<td>' + i + '</td>' + $('#FEtemplate').html());
+        var i = $('#p_Item tr').length + 1;
+        var $tr = $('<tr>').append('<td>' + i + '</td>' + $('#ITEMtemplate').html());
         FEDiv.append($tr);
         initiateSelect2()
 
     })
-    $(document).on('click', '.remFE', function () {
-        var i = $('#p_FE tr').length;
+    $(document).on('click', '.remITEM', function () {
+        var i = $('#p_Item tr').length;
         if (i > 1) {
             $(this).closest('tr').remove();
         }
         return false;
     });
 
-    function loadDetails() {
+    function loadDatatable($id) {
+
+
+        if ($.fn.DataTable.isDataTable('#tbl')) {
+            $('#tbl').DataTable().destroy();
+        }
+
+        var table = $("#tbl").DataTable({
+            "processing": true,
+            "serverSide": true,
+            "searching": true,
+            "fixedHeader": true,
+            "ajax": {
+                "url": "@Url.Action("getDataDetails")?id="+ $id,
+                "type": "POST",
+                "datatype": "json"
+            },
+            "columns": [
+
+                //{ "data": "createdDate", "name": "CreatedDate", "autoWidth": true },
+                {
+                    data: "createdDate",
+                    name: "CreatedDate",
+                    render: function (data, type, row) {
+
+                        return moment(data).format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                { "data": "equipmentName", "name": "EquipmentName", "autoWidth": true },
+                { "data": "locationName", "name": "LocationName", "autoWidth": true },
+                { "data": "smr", "name": "SMR", "autoWidth": true },
+                {
+                    render: function (data, type, row) {
+                        $no = (row.no == "") ? null : row.no;
+                        $name = (row.name == "") ? null : row.name;
+                        $actions =
+                            "<a title='Edit' data-time=" + row.createdDate + " data-id=" + row.id + " data-equipment='" + row.equipmentId + "' data-equipmentname='" + row.equipmentName +
+                            "' data-location='" + row.locationId + "' data-locationname='" + row.locationName + "' data-smr='" + row.smr +
+                            "' onclick='createNew(this);' >Edit</a> | " +
+                            '<a title="Details" onclick="showItem(' + row.id + ')">Details</a> |' + 
+                            '<a title="Delete" onclick="deleteItem(\'' + row.id + '\',\'' + row.equipmentName + '\')">Delete</a>'  ;
+                        return $actions;
+                    }
+                }
+
+
+            ]
+            //,
+            //"columnDefs": [{ "orderable": false, "targets": [1, 2, 3] }]
+
+
+        });
+
+
+
+
+
+        $('#tbl input').on('keyup change', function (e) {
+
+            var keyCode = e.keyCode
+            if (keyCode >= 9 && keyCode <= 27) {
+
+            } else {
+                searchFunction(this);
+            }
+        });
+        function searchFunction(e) {
+
+            delay(function () {
+                console.log(e);
+                table.column($(e).parent().index() + ':visible')
+                    .search(e.value)
+                    .draw();
+            }, 1000);
+        }
+        $("#tbl_filter").hide();
+    }
+
+     function deleteItem(id, desc) {
+
+        if (confirm('This will delete item ' + desc + '. Continue?')) {
+            $.ajax({
+            url: "@Url.Action("DeleteEquipment")"
+            , method: "POST"
+            , data: { id: id }
+            , dataType: 'json'
+            , success: function (responsedata) {
+               if (responsedata.status == "success") {
+                   toastr["success"]("Item Deleted","<b>Success</b> ")
+                   loadDatatable('@ViewBag.Id');
+
+
+                } else {
+
+                    toastr["error"](responsedata.message)
+                    toastr.options = {
+                        "closeButton": true,
+                        "showDuration": "3000",
+                    }
+                }
+            }
+        })
+
+        }
+    }
+
+
+    @*function loadDetails() {
 
 
         $.ajax({
@@ -378,7 +685,7 @@
             , success: function (responsedata) {
 
                 var $trr = '';
-                $('#p_FE > tr:nth-child(1)').remove();
+                $('#p_Item > tr:nth-child(1)').remove();
 
                 for (var i = 0; i < responsedata.data.length; i++) {
                     $trr =
@@ -386,8 +693,8 @@
                     '<td><select class="form-control input-sm cmbComponent" id=cmbComponent' + i +' name="component[]"><option>Select Component</option></select></td>' +
                         '<td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required value="' + responsedata.data[i].volumeQty + '"/></td>'
 
-                    $tdCtr = i == 0 ? '<td><button class="addFE btn btn-default" type = "button"><i class="fa fa-plus"></i></button>&nbsp; <button class="remFE btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i></button></td>':
-                                      '<td><button class="remFE btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i></button></td>'
+                    $tdCtr = i == 0 ? '<td><button class="addFE btn btn-default" type = "button"><i class="fa fa-plus"></i></button>&nbsp; <button class="remITEM btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i></button></td>':
+                                      '<td><button class="remITEM btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i></button></td>'
 
                     $trr = $trr + $tdCtr;
                     var $tr = $('<tr>').append('<td>' + (i+1) + '</td>' + $trr);
@@ -471,29 +778,9 @@
 
 
 
-    }
+    }*@
      function saveForm() {
         var cnt = 0;
-
-         $('#frm').find('input').each(function () {
-            if ($(this).prop('required')) {
-                if (!$(this).val()) {
-                    cnt = 1;
-                    $(this).addClass("error-input");
-                } else {
-                    $(this).removeClass("error-input");
-                }
-            }
-        });
-
-        if (cnt > 0) {
-            toastr["error"]("Fill all required fields", "Error")
-            toastr.options = {
-                "closeButton": true,
-                "showDuration": "3000",
-            }
-            return false;
-        }
         var data = $("#frm").serializeArray();
 
         $.ajax({
@@ -506,6 +793,8 @@
                     toastr["success"]("Form saved!", "<b>Success</b> ")
                     $("#ReferenceNo").val(responsedata.message);
                     $("#CreatedDate").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss"))
+                    $("#FuelOilId").val(responsedata.refid);
+
                 } else {
                     toastr["error"](responsedata.message)
                     toastr.options = {
@@ -577,7 +866,7 @@
             $(this).prop("disabled", "disabled");
         });
 
-        $(".remFE").prop("disabled", "disabled");
+        $(".remITEM").prop("disabled", "disabled");
         $(".anchorAction").attr("style", "pointer-events: none");
 
 
@@ -586,35 +875,26 @@
         width: '100%',
         theme: 'bootstrap'
     });
-    $("#LocationId").select2({
+    $("#DispenserId").select2({
         width: '100%',
         theme: 'bootstrap'
     });
-    $("#EquipmentId").select2({
-            width: '100%',
-            theme: 'bootstrap',
-                ajax: {
-                    url: "@Url.Action("SearchEquipment", "Equipments")",
-                    dataType: 'json',
-                    delay: 2000,
-                    data: function (params) {
-                        return {
-                            q: params.term, // search term
-                            page: params.page
-                        };
-                    },
-                    processResults: function (data, page) {
-                        return {
-                            results: data.items,
 
-                        };
-                    },
-
-                    cache: false
-            },
-            minimumInputLength: 4,
-    });
     $("#LubeTruckId").select2({
+        width: '100%',
+        theme: 'bootstrap'
+    });
+
+    $("#LocationId").select2({
+        dropdownParent: $('#modalItem .modal-content'),
+        width: '100%',
+        theme: 'bootstrap'
+    });
+
+
+
+
+    @*$("#LubeTruckId").select2({
             width: '100%',
             theme: 'bootstrap',
                 ajax: {
@@ -637,8 +917,11 @@
                     cache: false
             },
             minimumInputLength: 2,
-        });
-    $("#DispenserId").select2({
+    });*@
+
+
+
+    @*$("#DispenserId").select2({
             width: '100%',
             theme: 'bootstrap',
                 ajax: {
@@ -661,7 +944,7 @@
                     cache: false
             },
             minimumInputLength: 2,
-        });
+        });*@
     function initiateSelect2() {
 
         $(".cmbNo").select2({
@@ -716,9 +999,7 @@
     }
 
 
-    //$(document).on('click', '.detailFE', function () {
-    //    showItemModal("FE", $(this).attr('data-id'), $(this).attr('data-location'))
-    //});
+
 
 
 </script>

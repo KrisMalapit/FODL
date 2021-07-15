@@ -12,7 +12,7 @@
                 <small class="font-bold">Modify details of this lube truck</small>
             </div>
             <div class="modal-body">
-                <input id="itemId" type="hidden" />
+                <input id="itemId" type="hidden"/>
 
                 <div class="form-group">
                     <label>No</label>
@@ -45,7 +45,9 @@
 <div class="col-lg-12">
     <div class="ibox float-e-margins">
         <div class="ibox-content">
-           
+            <p>
+                <a href="#" onclick="addmodal();">Create New</a>
+            </p>
             <table id="tbl" class="table table-striped table-no-bordered table-hover dataTable" style="width: 100%!important">
 
                 <thead>
@@ -156,11 +158,12 @@
                        
                         $no = (row.no == "") ? null : row.no;
                         $description = (row.description == "") ? null : row.description;
-                        $oldid = (row.oldid == "") ? null : row.oldid;
+                        $oldid = (row.oldId == "") ? null : row.oldId;
 
 
                         $actions =
-                            "<a title='Edit' data-id=" + row.id + " data-no='" + $no + "' data-description='" + $description + "' data-oldid='" + $oldid + "' onclick='showmodal(this);'>Edit</a>";
+                            "<a title='Edit' data-id=" + row.id + " data-no='" + $no + "' data-description='" + $description + "' data-oldid='" + $oldid + "' onclick='showmodal(this);'>Edit</a>  " + 
+                            '<a title="Delete" onclick="deleteItem(\'' + row.id + '\',\'' + $description + '\')">Delete</a>';
                       
                         return $actions;
                     }
@@ -207,6 +210,18 @@
         };
     })();
 
+    function addmodal() {
+       
+        $("#itemId").val(0);
+        $("#itemNo").val("");
+        $("#itemNo").removeAttr('disabled');
+        $("#itemDescription").val("");
+        $("#itemOldId").val("");
+        $('#modalItem').modal('show');
+
+
+    }
+
     function showmodal(obj) {
         $id = $(obj).attr('data-id');
         $no = $(obj).attr('data-no') == "null" ? "" : $(obj).attr('data-no');
@@ -216,15 +231,43 @@
         console.log(obj);
 
         $("#itemId").val($id);
+        $("#itemNo").attr('disabled', 'disabled');
         $("#itemNo").val($no);
         $("#itemDescription").val($description);
         $("#itemOldId").val($oldid);
 
-        $('#modalItem').modal('show');
+      
 
+        $('#modalItem').modal('show');
 
     }
 
 
-    
+    function deleteItem(id, desc) {
+      
+        if (confirm('This will delete item ' + desc + '. Continue?')) {
+            $.ajax({
+            url: "@Url.Action("Delete")"
+            , method: "POST"
+            , data: { id: id }
+            , dataType: 'json'
+            , success: function (responsedata) {
+               if (responsedata.status == "success") {
+                   toastr["success"]("Item Deleted","<b>Success</b> ")
+                   loadDatatable();
+
+
+                } else {
+
+                    toastr["error"](responsedata.message)
+                    toastr.options = {
+                        "closeButton": true,
+                        "showDuration": "3000",
+                    }
+                }
+            }
+        })
+
+        }
+    }
 </script>

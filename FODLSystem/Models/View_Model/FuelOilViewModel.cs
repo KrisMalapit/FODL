@@ -7,6 +7,8 @@ namespace FODLSystem.Models.View_Model
 {
     public class FuelOilViewModel
     {
+        public int Id { get; set; }
+        public int FuelOilId { get; set; }
         public string ReferenceNo { get; set; }
         public string Shift { get; set; }
        
@@ -21,6 +23,7 @@ namespace FODLSystem.Models.View_Model
         public string[] component { get; set; }
         public string[] volume { get; set; }
         public string Signature { get; set; }
+        public DateTime CreatedDate { get; set; }
 
     }
 }

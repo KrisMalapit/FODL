@@ -32,20 +32,39 @@ namespace FODLSystem.Controllers
             string message = "";
             try
             {
-                var item = _context.LubeTrucks.Find(id);
-                item.No = No;
-                item.OldId = OldId;
-                item.Description = Description;
 
-                _context.Entry(item).State = EntityState.Modified;
-                _context.SaveChanges();
+                if (id == 0)
+                {
+
+                    var item = new LubeTruck
+                    {
+                        No = No,
+                        OldId = OldId,
+                        Description = Description,
+                       
+                    };
+
+                    _context.Add(item);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    var item = _context.LubeTrucks.Find(id);
+                    item.No = No;
+                    item.OldId = OldId;
+                    item.Description = Description;
+
+                    _context.Entry(item).State = EntityState.Modified;
+                    _context.SaveChanges();
+                }
+               
 
                 status = "success";
             }
             catch (Exception ex)
             {
                 status = "fail";
-                message = ex.Message;
+                message = ex.InnerException.Message;
             }
 
             var model = new
@@ -74,6 +93,35 @@ namespace FODLSystem.Controllers
                 items = model.ToList(),
             };
             return Json(modelItem);
+        }
+        [HttpPost]
+
+        public ActionResult Delete(int id)
+        {
+            string message = "";
+            string status = "";
+            try
+            {
+                LubeTruck item = _context.LubeTrucks.Find(id);
+                item.Status = "Deleted_" + DateTime.Now.Date.Ticks;
+                _context.Entry(item).State = EntityState.Modified;
+                _context.SaveChanges();
+
+                status = "success";
+            }
+            catch (Exception e)
+            {
+
+                status = "fail";
+                message = e.InnerException.Message;
+            }
+
+            var res = new
+            {
+                message,
+                status
+            };
+            return Json(res);
         }
         [HttpPost]
         public ActionResult getData()
