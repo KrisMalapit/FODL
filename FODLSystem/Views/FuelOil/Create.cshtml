@@ -26,7 +26,7 @@
 </style>
 <link href="~/css/plugins/select2/select2-bootstrap.min.css" rel="stylesheet">
 
-<div class="modal inmodal in " id="modalItem" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal inmodal in " id="modalEquipment" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <div class="modal-content animated fadeIn">
             <div class="modal-header">
@@ -69,6 +69,90 @@
         </div>
     </div>
 </div>
+
+<div class="modal inmodal in " id="modalItem" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content animated fadeIn">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalSnapTitle">Item Information </h4>
+                <small class="font-bold">Modify details of this Item</small>
+            </div>
+            <div class="modal-body">
+                <form id="frmItem">
+                    @* <input id="FuelOilDetailId" name="FuelOilId" value="@ViewBag.Id" type="hidden" />*@
+                    <input id="SubDetailId" name="Id" />
+
+
+
+
+                    <div class="form-group">
+                        <script id="ITEMtemplate" type="text/template">
+                            <td>
+                                <select class="form-control input-sm cmbNo" name="no[]">
+                                    <option>Select Item</option>
+                                </select>
+                            </td>
+
+                            <td>
+                                <select class="form-control input-sm cmbComponent" name="component[]">
+                                    <option>Select Component</option>
+                                </select>
+
+                            </td>
+                            <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
+
+                            <td>
+
+                                <button class="remITEM btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i></button>
+                            </td>
+                        </script>
+                        <table class="table table-bordered table-hover" id="tblItem">
+                            <thead>
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="40%">Item</th>
+                                    <th width="30%">Component</th>
+                                    <th>Volume / Qty</th>
+                                    <th width="10%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="p_Item">
+                                <tr>
+                                    <td>1</td>
+                                    <td>
+
+                                        <select class="form-control input-sm cmbNo" name="no[]">
+                                            <option>Select Item</option>
+                                        </select>
+                                    </td>
+
+                                    <td>
+
+                                        <select class="form-control input-sm cmbComponent" name="component[]">
+                                            <option>Select Component</option>
+                                        </select>
+
+                                    </td>
+                                    <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
+
+                                    <td>
+                                        <button class="addFE btn btn-default" type="button"><i class="fa fa-plus"></i> </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </form>
+                    <button data-dismiss="modal" class="btn btn-default">Close</button>
+                    <button id="btnSave" class="btn btn-primary" onclick="saveItem();">Save</button>
+</div>
+        </div>
+    </div>
+</div>
+
+
+
 
 <div class="modal inmodal in " id="modalSignature" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-sm">
@@ -248,7 +332,7 @@
                             <th>Location</th>
                             <th>SMR</th>
 
-                            <th>Action</th>
+                            <th style="width:10%;">Action</th>
 
                         </tr>
                         <tr>
@@ -410,8 +494,13 @@
             }
         })
     }
+    function showItem(id) {
+        loadDetails();
+        $("#SubDetailId").val(id);
+        $("#modalItem").modal("show");
+    }
     function createNew(obj) {
-        console.log(obj);
+       
         if ($('#ReferenceNo').val() == '') {
             toastr["error"]("Save Form First", "Error")
             toastr.options = {
@@ -425,7 +514,7 @@
             $('#DetailId').val(0)
             $("#CreatedDate").val(moment('@DateTime.Now').format("MM/DD/YYYY HH:mm"))
             $("#EquipmentId").select2({
-                dropdownParent: $('#modalItem .modal-content'),
+                dropdownParent: $('#modalEquipment .modal-content'),
                 placeholder: '',
                 allowClear: true,
                 width: '100%',
@@ -467,7 +556,7 @@
             $("#EquipmentId").append(new Option("", ""));
             $("#EquipmentId").append(new Option($equipname, $equipid));
             $("#EquipmentId").select2({
-                dropdownParent: $('#modalItem .modal-content'),
+                dropdownParent: $('#modalEquipment .modal-content'),
                 width: '100%',
                 theme: 'bootstrap',
                 placeholder: '',
@@ -494,7 +583,7 @@
             }).val($equipid).trigger('change');
         }
 
-        $("#modalItem").modal("show");
+        $("#modalEquipment").modal("show");
     }
     $("#btnSignature").click(function () {
         if ($('#ReferenceNo').val() == '') {
@@ -673,14 +762,14 @@
     }
 
 
-    @*function loadDetails() {
+    function loadDetails() {
 
 
         $.ajax({
             url: "@Url.Action("getDataDetails", "FuelOil")"
             , method: "POST"
             , dataType: 'json'
-            , data: { id: @ViewBag.Id }
+            , data: { id: $("#SubDetailId").val() }
             , async: false
             , success: function (responsedata) {
 
@@ -690,7 +779,7 @@
                 for (var i = 0; i < responsedata.data.length; i++) {
                     $trr =
                         '<td><select class="form-control input-sm cmbNo" id=cmbNo' + i +' name="no[]"><option>Select Item</option></select></td>'+
-                    '<td><select class="form-control input-sm cmbComponent" id=cmbComponent' + i +' name="component[]"><option>Select Component</option></select></td>' +
+                        
                         '<td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required value="' + responsedata.data[i].volumeQty + '"/></td>'
 
                     $tdCtr = i == 0 ? '<td><button class="addFE btn btn-default" type = "button"><i class="fa fa-plus"></i></button>&nbsp; <button class="remITEM btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i></button></td>':
@@ -704,6 +793,7 @@
                     $('#cmbNo'+ i).append(new Option("", ""));
                     $('#cmbNo' + i).append(new Option(responsedata.data[i].itemName, responsedata.data[i].itemId));
                     $('#cmbNo' + i).select2({
+                        dropdownParent: $('#modalItem .modal-content'),
                         width: '100%',
                         theme: 'bootstrap',
                         ajax: {
@@ -735,6 +825,7 @@
 
                     $('#cmbComponent' + i).append(new Option(responsedata.data[i].componentName, responsedata.data[i].componentId));
                     $('#cmbComponent' + i).select2({
+                        dropdownParent: $('#modalItem .modal-content'),
                         width: '100%',
                         theme: 'bootstrap',
                         ajax: {
@@ -778,7 +869,7 @@
 
 
 
-    }*@
+    }
      function saveForm() {
         var cnt = 0;
         var data = $("#frm").serializeArray();
@@ -794,6 +885,33 @@
                     $("#ReferenceNo").val(responsedata.message);
                     $("#CreatedDate").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss"))
                     $("#FuelOilId").val(responsedata.refid);
+
+                } else {
+                    toastr["error"](responsedata.message)
+                    toastr.options = {
+                        "closeButton": true
+                    }
+                }
+            }
+        })
+
+
+    }
+    function saveItem() {
+        var cnt = 0;
+        var data = $("#frmItem").serializeArray();
+
+        $.ajax({
+            url: "@Url.Action("SaveFormSubDetail")"
+            , method: "POST"
+            , data: data
+            , dataType: 'json'
+             , success: function (responsedata) {
+                if (responsedata.status == "success") {
+                    toastr["success"]("Form saved!", "<b>Success</b> ")
+                    //$("#ReferenceNo").val(responsedata.message);
+                    //$("#CreatedDate").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss"))
+                    $("#SubDetailId").val(responsedata.refid);
 
                 } else {
                     toastr["error"](responsedata.message)
@@ -886,13 +1004,12 @@
     });
 
     $("#LocationId").select2({
-        dropdownParent: $('#modalItem .modal-content'),
+        dropdownParent: $('#modalEquipment .modal-content'),
         width: '100%',
         theme: 'bootstrap'
     });
 
-
-
+   
 
     @*$("#LubeTruckId").select2({
             width: '100%',
@@ -948,6 +1065,7 @@
     function initiateSelect2() {
 
         $(".cmbNo").select2({
+        dropdownParent: $('#modalItem .modal-content'),
         width: '100%',
         theme: 'bootstrap',
             ajax: {
@@ -973,6 +1091,7 @@
         });
 
         $(".cmbComponent").select2({
+            dropdownParent: $('#modalItem .modal-content'),
             width: '100%',
             theme: 'bootstrap',
                 ajax: {
