@@ -1,4 +1,5 @@
-﻿@model FODLSystem.Models.FuelOil
+﻿
+@model FODLSystem.Models.FuelOil
 
 @{
     ViewData["Title"] = "Create";
@@ -161,7 +162,7 @@
                 <input id="imageReferenceId" type="hidden" />
                 <p>
 
-                    <canvas class="signValue" height="400"  id="signature"
+                    <canvas class="signValue" height="400" id="signature"
                             style="border:1px solid black"></canvas>
 
                     <img width="100%" height="400" id="savetarget"
@@ -516,7 +517,7 @@
         })
     }
     function showItem(id) {
-       
+
         $("#SubDetailId").val(id);
         $("#modalItem").modal("show");
         loadDetails(id);
@@ -720,7 +721,7 @@
                             '<a title="Details" onclick="showItem(' + row.id + ')">Details</a> | ' +
                             '<a title="Sign" onclick="signItem(' + row.id + ')">Sign</a> | ' +
                             '<a title="Delete" onclick="deleteItem(\'' + row.id + '\',\'' + row.equipmentName + '\')">Delete</a>';
-                           
+
                         return $actions;
                     }
                 }
@@ -792,10 +793,10 @@
             , type: "POST"
             , data: { id: id }
             , success: function (responsedata) {
-               
-                   
+
+
                 $('#savetarget').attr('src', responsedata.imagedata);
-              
+
             }
         })
         $("#imageReferenceId").val(id);
@@ -818,8 +819,8 @@
                 var $trr = '';
                 $('#p_Item > tr').remove();
                 if (responsedata.data.length > 0) {
-                   
-                
+
+
                     for (var i = 0; i < responsedata.data.length; i++) {
                     $trr =
                         '<td><select class="form-control input-sm cmbNo" id=cmbNo' + i +' name="no[]"><option>Select Item</option></select></td>'+
@@ -903,12 +904,12 @@
                     }
 
                     }
-                   
+
                 } else {
-                  
+
                     var i = $('#p_Item tr').length + 1;
-                    
-                    var x = 
+
+                    var x =
                         '<td>' +
                         '<select class="form-control input-sm cmbNo" name="no[]"><option>Select Item</option></select>' +
                         '</td>' +
@@ -922,13 +923,13 @@
                     var $tr = $('<tr>').append('<td>' + i + '</td>' + x);
                     FEDiv.append($tr);
                     initiateSelect2()
-                    
+
                 }
-                
+
 
                 initiateSelect2();
 
-                
+
 
 
 
