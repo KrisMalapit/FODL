@@ -24,6 +24,9 @@
     /*.select2-drop {
         z-index: 99999;
     }*/
+    .disable-click {
+        pointer-events: none;
+    }
 </style>
 <link href="~/css/plugins/select2/select2-bootstrap.min.css" rel="stylesheet">
 
@@ -65,8 +68,11 @@
 
                 </form>
                 <button data-dismiss="modal" class="btn btn-default">Close</button>
-                <button id="btnSave" class="btn btn-primary" onclick="saveEquipment();">Save</button>
-            </div>
+                @if (Model.Status != "Posted")
+                {
+                    <button id="btnSave" class="btn btn-primary" onclick="saveEquipment();">Save</button>
+                }
+                </div>
         </div>
     </div>
 </div>
@@ -142,7 +148,11 @@
 
                 </form>
                 <button data-dismiss="modal" class="btn btn-default">Close</button>
-                <button id="btnSave" class="btn btn-primary" onclick="saveItem();">Save</button>
+                @if (Model.Status != "Posted")
+                {
+                    <button id="btnSave" class="btn btn-primary" onclick="saveItem();">Save</button>
+                }
+
             </div>
         </div>
     </div>
@@ -368,7 +378,7 @@
                         <span class="email-text">&nbsp;Save</span>
                     </a>
                     |
-                    <a href="#" onclick="printForm('@ViewBag.Id','rptLiquidation');" class="anchorAction">
+                    <a href="#" id="aPrint" onclick="printForm('@ViewBag.Id','rptLiquidation');" class="anchorAction">
                         <i class="fa fa-print"></i>
                         <span class="email-text">&nbsp;Print</span>
                     </a>
@@ -388,10 +398,12 @@
 <script src="~/js/plugins/signature/signature_pad.min.js"></script>
 <script>
 
-
-
-
-
+    $(function () {
+        if ('@Model.Status' == 'Posted') {
+            disableForm();
+        }
+    })
+   
     $('.datepicker').datetimepicker({
         format: 'm/d/Y H:i',
         step: 5
@@ -422,10 +434,6 @@
     window.addEventListener('resize', windowResize);
 
     $(function () {
-
-
-
-
 
         var canvas = document.querySelector('#signature');
         var pad = new SignaturePad(canvas);
@@ -719,8 +727,12 @@
                             "' data-location='" + row.locationId + "' data-locationname='" + row.locationName + "' data-smr='" + row.smr +
                             "' onclick='createNew(this);' >Edit</a> | " +
                             '<a title="Details" onclick="showItem(' + row.id + ')">Details</a> | ' +
-                            '<a title="Sign" onclick="signItem(' + row.id + ')">Sign</a> | ' +
-                            '<a title="Delete" onclick="deleteItem(\'' + row.id + '\',\'' + row.equipmentName + '\')">Delete</a>';
+                            '<a title="Sign" onclick="signItem(' + row.id + ')">Sign</a> '; 
+
+                        if ('@Model.Status' != 'Posted') {
+                            $actions = $actions + '| <a class="anchorAction" title="Delete" onclick="deleteItem(\'' + row.id + '\',\'' + row.equipmentName + '\')">Delete</a>'
+                        }
+                            //'| <a class="anchorAction" title="Delete" onclick="deleteItem(\'' + row.id + '\',\'' + row.equipmentName + '\')">Delete</a>';
 
                         return $actions;
                     }
@@ -757,6 +769,8 @@
             }, 1000);
         }
         $("#tbl_filter").hide();
+
+       
     }
 
      function deleteItem(id, desc) {
@@ -1005,7 +1019,14 @@
             }
             return false;
         }
+        if ($('#tbl tr').length == 0) {
+            toastr["error"]("No details encoded", "Error")
+            toastr.options = {
+                "closeButton": true
 
+            }
+            return false;
+        }
          $('#frm').find('input').each(function () {
             if ($(this).prop('required')) {
                 if (!$(this).val()) {
@@ -1057,8 +1078,21 @@
 
         $(".remITEM").prop("disabled", "disabled");
         $(".anchorAction").attr("style", "pointer-events: none");
-
-
+        $("#aPrint").attr("style", "pointer-events: true");
+        @*console.log('@Model.Status');
+        $("#frm select").each(
+            function (index) {
+                var sel = $(this);
+                sel.prop('disabled','disabled')
+            }
+        );
+        $("#frm a").each(
+            function (index) {
+                var a = $(this);
+                a.addClass("disable-click");
+                $("#aPrint").removeClass("disable-click");
+            }
+        );*@
     }
     $("#Shift").select2({
         width: '100%',

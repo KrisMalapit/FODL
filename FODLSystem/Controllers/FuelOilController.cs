@@ -471,37 +471,44 @@ namespace FODLSystem.Controllers
             string message = "";
             string series = "";
             string refno = "";
-            //try
-            //{
-
-            //        var fo = _context.FuelOils.Where(a => a.ReferenceNo == referenceNo).FirstOrDefault();
-
-            //        if (string.IsNullOrEmpty(fo.Signature))
-            //        {
+            bool noSign = false;
+            try
+            {
 
 
-            //            var model = new
-            //            {
-            //                status = "fail",
-            //                message = "Cannot post until form has been signed"
-            //             };
-            //            return Json(model);
+                var fdetail = _context.FuelOilDetails.Where(a => a.FuelOils.ReferenceNo == referenceNo);
+                foreach (var item in fdetail)
+                {
+                    if (string.IsNullOrEmpty(item.Signature))
+                    {
+                        var model = new
+                        {
+                            status = "fail",
+                            message = "Cannot post until all form has been signed"
+                        };
+                        return Json(model);
 
-            //        };
+                    };
+                }
 
-            //        fo.Status = "Posted";
-            //        _context.Update(fo);
-            //        _context.SaveChanges();
+               
 
-            //        status = "success";
-            //        message = fo.ReferenceNo;
 
-            //}
-            //catch (Exception ex)
-            //{
-            //    status = "fail";
-            //    message = ex.Message;
-            //}
+                var fo = _context.FuelOils.Where(a => a.ReferenceNo == referenceNo)
+                    .FirstOrDefault();
+                fo.Status = "Posted";
+                _context.Update(fo);
+                _context.SaveChanges();
+
+                status = "success";
+                message = fo.ReferenceNo;
+
+            }
+            catch (Exception ex)
+            {
+                status = "fail";
+                message = ex.Message;
+            }
 
             var modelItem = new
             {
@@ -697,24 +704,25 @@ namespace FODLSystem.Controllers
                 var v =
 
                _context.FuelOilDetails
-               .Where(a => a.FuelOilId == id)
-              .Where(a => a.Status != "Deleted")
-              .Where(strFilter)
-              .Skip(skip).Take(pageSize)
-              .Select(a => new
-              {
+                  .Where(a => a.FuelOilId == id)
+                  .Where(a => a.Status != "Deleted")
+                  .Where(strFilter)
+                  .Skip(skip).Take(pageSize)
+                  .Select(a => new
+                  {
 
-                  EquipmentName = a.Equipments.No + " | " + a.Equipments.Name,
-                  LocationName = a.Locations.List,
-                  a.SMR,
-                  a.CreatedDate,
-                  a.Status,
-                  a.Id,
-                  a.LocationId,
-                  a.EquipmentId,
-                  SignStatus = string.IsNullOrEmpty(a.Signature) ? "" : "Signed",
+                      EquipmentName = a.Equipments.No + " | " + a.Equipments.Name,
+                      LocationName = a.Locations.List,
+                      a.SMR,
+                      a.CreatedDate,
+                      a.Status,
+                      a.Id,
+                      a.LocationId,
+                      a.EquipmentId,
+                      SignStatus = string.IsNullOrEmpty(a.Signature) ? "" : "Signed",
+                      DocumentStatus = a.FuelOils.Status
 
-              });
+                  });
 
 
 
