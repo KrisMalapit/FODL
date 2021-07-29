@@ -29,6 +29,30 @@ namespace FODLSystem.Controllers
             this.SetCurrentBreadCrumbTitle("Fuel Oil Liquidation");
             return View();
         }
+        public IActionResult signUrl(int id)
+        {
+            string imagedata = "";
+
+            var fueloil = _context.FuelOilDetails.Where(a => a.Id == id).FirstOrDefault().Signature;
+            if (string.IsNullOrEmpty(fueloil))
+            {
+                imagedata = "";
+            }
+            else
+            {
+                imagedata = fueloil;
+            }
+            var model = new
+            {
+
+                imagedata
+            };
+
+            return Json(model);
+
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> saveSnapShot(int id,string imgData)
         {
@@ -118,7 +142,9 @@ namespace FODLSystem.Controllers
         {
             var model = _context.Items
                 .Where(a => a.Status == "Active")
-                .Where(a => a.Description.ToUpper().Contains(q.ToUpper())).Select(b => new
+                .Where(a => a.Description.ToUpper().Contains(q.ToUpper()) 
+                || a.DescriptionLiquidation.ToUpper().Contains(q.ToUpper())
+                || a.No.ToUpper().Contains(q.ToUpper())).Select(b => new
                 {
                     id = b.Id,
                     text = b.No + " | " + b.Description,
@@ -249,7 +275,7 @@ namespace FODLSystem.Controllers
                 {
                     string series_code = "FuelOil";
                     series = new NoSeriesController(_context).GetNoSeries(series_code);
-                    refno = "FO" + series;
+                    refno = "FLCR" + series;
 
                     var fo = new FuelOil
                     {
@@ -610,7 +636,7 @@ namespace FODLSystem.Controllers
                 int recordsTotal = 0;
 
 
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < 5; i++)
                 {
                     string colval = Request.Form["columns[" + i + "][search][value]"];
                     if (colval != "")
@@ -654,6 +680,7 @@ namespace FODLSystem.Controllers
                     a.SMR,
                     a.CreatedDate,
                     a.Status,
+                    SignStatus = a.Signature == "" ? "" : "Signed",
                     a.Id
                 })
                 .Where(strFilter)
@@ -682,6 +709,7 @@ namespace FODLSystem.Controllers
                   a.Id,
                   a.LocationId,
                   a.EquipmentId,
+                  SignStatus = string.IsNullOrEmpty(a.Signature) ? "" : "Signed",
 
               });
 
@@ -715,10 +743,10 @@ namespace FODLSystem.Controllers
 
 
         }
-        
+
         //public IActionResult getDataDetails(int id)
         //{
-           
+
         //    var v = _context.FuelOilDetails.Where(a => a.FuelOilId == id).Where(a => a.Status == "Active").Select(a => new {
         //        a.EquipmentId,
         //        EquipmentName = a.Equipments.No + " | " + a.Equipments.Name,
@@ -731,11 +759,11 @@ namespace FODLSystem.Controllers
         //        a.Id
         //    });
 
-         
+
 
         //    var model = new
         //    {
-               
+
         //        data = v
 
         //    };
@@ -744,5 +772,128 @@ namespace FODLSystem.Controllers
 
 
         //}
+
+        public IActionResult getDataSubDetails(int id)
+        {
+            string strFilter = "";
+            try
+            {
+
+
+                
+
+
+
+                var v =
+
+               _context.FuelOilSubDetails
+               .Where(a => a.FuelOilDetailId == id)
+              .Where(a => a.Status != "Deleted")
+             
+              .Select(a => new
+              {
+                  ItemId = a.Items.Id,
+                  ItemName = a.Items.No + " | " + a.Items.Description,
+                  ComponentId = a.Components.Id,
+                  ComponentName = a.Components.Name,
+                  a.VolumeQty,
+                  a.Id
+
+              });
+
+
+                var model = new
+                {
+                    data = v.ToList()
+                };
+
+               
+               
+             
+                return Json(model);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex);
+            }
+        }
+        [HttpPost]
+        public IActionResult SaveFormSubDetail(FuelOilViewModel fvm)
+        {
+            string status = "";
+            string message = "";
+            string series = "";
+            string refno = "";
+            string refid = "0";
+
+
+
+
+
+            try
+            {
+                var d = _context.FuelOilSubDetails.Where(a => a.FuelOilDetailId == fvm.Id).Count();
+                if (d == 0)
+                {
+                    for (int i = 0; i < fvm.component.Length; i++)
+                    {
+                        var sub = new FuelOilSubDetail();
+                        sub.ItemId = Convert.ToInt32(fvm.no[i]);
+                        sub.ComponentId = Convert.ToInt32(fvm.component[i]);
+                        sub.VolumeQty = Convert.ToInt32(fvm.volume[i]);
+                        sub.TimeInput = DateTime.Now;
+                        sub.FuelOilDetailId = fvm.Id;
+                        _context.Add(sub);
+                      
+                    }
+                    _context.SaveChanges();
+                    status = "success";
+                   
+
+                }
+                else
+                {
+
+                    _context.FuelOilSubDetails
+                          .Where(a => a.FuelOilDetailId == fvm.Id)
+                          .ToList().ForEach(a => a.Status = "Deleted");
+
+                    //_context.SaveChanges();
+
+
+                    for (int i = 0; i < fvm.component.Length; i++)
+                    {
+                        var sub = new FuelOilSubDetail();
+                        sub.ItemId = Convert.ToInt32(fvm.no[i]);
+                        sub.ComponentId = Convert.ToInt32(fvm.component[i]);
+                        sub.VolumeQty = Convert.ToInt32(fvm.volume[i]);
+                        sub.TimeInput = DateTime.Now;
+                        sub.FuelOilDetailId = fvm.Id;
+                        _context.Add(sub);
+
+                    }
+                    _context.SaveChanges();
+                    status = "success";
+
+
+                   
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+                status = "fail";
+                message = ex.Message;
+            }
+
+            var modelItem = new
+            {
+                status,
+                message,
+                refid
+            };
+            return Json(modelItem);
+        }
     }
 }
