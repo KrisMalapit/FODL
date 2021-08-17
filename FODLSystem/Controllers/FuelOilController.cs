@@ -112,7 +112,7 @@ namespace FODLSystem.Controllers
 
             ViewData["CreatedDate"] = DateTime.Now;
             ViewData["Signature"] = "";
-
+            ViewData["Status"] = "Active";
             ViewData["Id"] = 0;
             ViewData["DispenserId"] = new SelectList(_context.Dispensers.Where(a => stat.Contains(a.Status)), "Id", "Name");
             ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");

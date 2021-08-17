@@ -102,10 +102,17 @@
 
 
 <script>
-   var compAccess = '@Model.CompanyAccess'
-   var selectedValuesTest = compAccess.split(',');
+    var compAccess = '@Model.CompanyAccess'
+    var lubeAccess = '@Model.LubeAccess'
+    var dispenserAccess = '@Model.DispenserAccess'
+
+    var selectedValuesTest = compAccess.split(',');
+    var lubeTest = lubeAccess.split(',');
+    var dispenserTest = dispenserAccess.split(',');
+
+
     $(function () {
-        @*console.log(@Model.UserType);*@
+       
         $("#UserType").val('@Model.UserType');
 
     });
@@ -136,6 +143,8 @@
     
 
     $('#CompanyAccess').val(selectedValuesTest).trigger('change');
+    $('#LubeAccess').val(lubeAccess).trigger('change');
+    $('#DispenserAccess').val(dispenserTest).trigger('change');
 
 
     $('#CompanyId').change(function () {

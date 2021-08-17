@@ -31,7 +31,7 @@ namespace FODLSystem.Controllers
                 string uridev = "http://sodium2/fodlapi/api/printreport?rvm=";
                 string urilocal = "http://localhost:59455/api/printreport?rvm=";
 
-                response = client.GetAsync(urilocal + xstring).Result;
+                response = client.GetAsync(uridev + xstring).Result;
                 string byteToString = response.Content.ReadAsStringAsync().Result.Replace("\"", string.Empty);
                 bytes = Convert.FromBase64String(byteToString);
 
