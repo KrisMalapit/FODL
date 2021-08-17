@@ -790,11 +790,6 @@ namespace FODLSystem.Controllers
             try
             {
 
-
-
-
-
-
                 var v =
 
                _context.FuelOilSubDetails
