@@ -68,7 +68,7 @@
 
                 </form>
                 <button data-dismiss="modal" class="btn btn-default">Close</button>
-                @if (Model.Status != "Posted")
+                @if (ViewBag.Status != "Posted")
                 {
                     <button id="btnSave" class="btn btn-primary" onclick="saveEquipment();">Save</button>
                 }
@@ -148,7 +148,7 @@
 
                 </form>
                 <button data-dismiss="modal" class="btn btn-default">Close</button>
-                @if (Model.Status != "Posted")
+                @if (ViewBag.Status != "Posted")
                 {
                     <button id="btnSave" class="btn btn-primary" onclick="saveItem();">Save</button>
                 }
@@ -399,7 +399,7 @@
 <script>
 
     $(function () {
-        if ('@Model.Status' == 'Posted') {
+        if ('@ViewBag.Status' == 'Posted') {
             disableForm();
         }
     })
@@ -729,7 +729,7 @@
                             '<a title="Details" onclick="showItem(' + row.id + ')">Details</a> | ' +
                             '<a title="Sign" onclick="signItem(' + row.id + ')">Sign</a> '; 
 
-                        if ('@Model.Status' != 'Posted') {
+                        if ('@ViewBag.Status' != 'Posted') {
                             $actions = $actions + '| <a class="anchorAction" title="Delete" onclick="deleteItem(\'' + row.id + '\',\'' + row.equipmentName + '\')">Delete</a>'
                         }
                             //'| <a class="anchorAction" title="Delete" onclick="deleteItem(\'' + row.id + '\',\'' + row.equipmentName + '\')">Delete</a>';
@@ -1079,7 +1079,7 @@
         $(".remITEM").prop("disabled", "disabled");
         $(".anchorAction").attr("style", "pointer-events: none");
         $("#aPrint").attr("style", "pointer-events: true");
-        @*console.log('@Model.Status');
+        @*console.log('@ViewBag.Status');
         $("#frm select").each(
             function (index) {
                 var sel = $(this);
