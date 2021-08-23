@@ -29,6 +29,17 @@ namespace FODLSystem.Controllers
             this.SetCurrentBreadCrumbTitle("Fuel Oil Liquidation");
             return View();
         }
+        [BreadCrumb(Title = "Summary", Order = 2, IgnoreAjaxRequests = true)]
+        public IActionResult Summary()
+        {
+            this.AddBreadCrumb(new BreadCrumb
+            {
+                Title = "Fuel Oil Liquidation",
+                Url = string.Format(Url.Action("Index", "FuelOil")),
+                Order = 1
+            });
+            return View();
+        }
         public IActionResult signUrl(int id)
         {
             string imagedata = "";
@@ -244,6 +255,7 @@ namespace FODLSystem.Controllers
             string series = "";
             string refno = "";
             string refid = "0";
+            string isNew = "true";
 
             if (fvm.LubeTruckId == 0 & fvm.DispenserId == 0)
             {
@@ -302,9 +314,12 @@ namespace FODLSystem.Controllers
 
 
                     status = "success";
+
+
                 }
                 else
                 {
+                    isNew = "false";
                     var fo = _context.FuelOils.Where(a => a.ReferenceNo == fvm.ReferenceNo).FirstOrDefault();
 
                     fo.Shift = fvm.Shift;
@@ -372,14 +387,15 @@ namespace FODLSystem.Controllers
             {
 
                 status = "fail";
-                message = ex.Message;
+                message = ex.InnerException.Message;
             }
 
             var modelItem = new
             {
                 status,
                 message,
-                refid
+                refid,
+                isNew
             };
             return Json(modelItem);
         }
@@ -476,7 +492,7 @@ namespace FODLSystem.Controllers
             {
 
 
-                var fdetail = _context.FuelOilDetails.Where(a => a.FuelOils.ReferenceNo == referenceNo);
+                var fdetail = _context.FuelOilDetails.Where(a => a.FuelOils.ReferenceNo == referenceNo).Where(a=>a.Status == "Active");
                 foreach (var item in fdetail)
                 {
                     if (string.IsNullOrEmpty(item.Signature))
@@ -617,7 +633,10 @@ namespace FODLSystem.Controllers
                     pageSize = recordsTotal;
                 }
 
-
+                if (!desc)
+                {
+                    v.OrderByDescending(a => a.Id);
+                }
                 var data = v;
                 var jsonData = new { draw = draw, recordsFiltered = recFilter, recordsTotal = recordsTotal, data = data };
                 return Ok(jsonData);
@@ -755,34 +774,60 @@ namespace FODLSystem.Controllers
 
         }
 
-        //public IActionResult getDataDetails(int id)
-        //{
+        [HttpPost]
+        public ActionResult getDataSummary()
+        {
+            string status = "";
+            try
+            {
 
-        //    var v = _context.FuelOilDetails.Where(a => a.FuelOilId == id).Where(a => a.Status == "Active").Select(a => new {
-        //        a.EquipmentId,
-        //        EquipmentName = a.Equipments.No + " | " + a.Equipments.Name,
-        //        a.LocationId,
-        //        LocationName = a.Locations.List,
-        //        a.SMR,
-        //        a.Signature,
-        //        a.CreatedDate,
-        //        a.Status,
-        //        a.Id
-        //    });
+                int [] fuelid = _context.FuelOils.Where(a => a.Status == "Posted").Select(a => a.Id).ToArray();
 
+                var v =
 
+               _context.FuelOilSubDetails
+                  .Where(a=> fuelid.Contains(a.FuelOilDetails.FuelOilId))
+                  .Where(a => a.Status == "Active")
+                
+                  .Select(a => new
+                  {
+                      EntryType = "Negative Adjmt.",
+                      ItemNo = a.Items.No,
+                      PostingDate = a.FuelOilDetails.FuelOils.TransactionDate,
+                      DocumentDate = a.FuelOilDetails.FuelOils.CreatedDate,
+                      Qty = a.VolumeQty,
+                      EquipmentCode = a.FuelOilDetails.Equipments.No,
+                      OfficeCode = a.FuelOilDetails.Locations.OfficeCode,
+                      FuelCode = a.Items.TypeFuel == "OIL-LUBE" ? a.FuelOilDetails.Equipments.FuelCodeOil : a.FuelOilDetails.Equipments.FuelCodeDiesel,
+                      LocationCode = "SMPC-SITE",
+                      DepartmentCode = a.FuelOilDetails.Equipments.DepartmentCode,
+                      a.Id,
+                      a.Status
+                      ,a.FuelOilDetailId
+                  });
 
-        //    var model = new
-        //    {
+                var xx = v.ToList();
+                status = "success";
 
-        //        data = v
-
-        //    };
-        //    return Json(model);
-
-
-
-        //}
+                var model = new
+                {
+                    status
+                 ,
+                    data = v
+                };
+                return Json(model);
+            }
+            catch (Exception ex)
+            {
+                var model = new
+                {
+                    status = "fail"
+                 ,
+                    message = ex.Message
+                };
+                return Json(model);
+            }
+        }
 
         public IActionResult getDataSubDetails(int id)
         {

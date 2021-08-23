@@ -34,59 +34,61 @@
     <div class="modal-dialog modal-md">
         <div class="modal-content animated fadeIn">
             <div class="modal-header">
-                <h4 class="modal-title" id="modalSnapTitle">Equipment Information </h4>
+                <h4 class="modal-title" id="modalSnapTitle">Equipment Information</h4>
                 <small class="font-bold">Modify details of this dispenser</small>
             </div>
             <div class="modal-body">
+
+
+                <p>
+                    @if (ViewBag.Status != "Posted")
+                    {
+                        <a href="#" onclick="saveEquipment();" title="Add" data-action='Add'>Save</a> <text>|</text>
+
+                    }
+
+
+                    <a href="#" title="Sign" onclick="signItem()">Signature</a> |
+                    <a href="#" title="Close" data-dismiss="modal">Close</a>
+                    
+
+                </p>
+
                 <form id="frmEquipment">
                     <input id="FuelOilId" name="FuelOilId" value="@ViewBag.Id" type="hidden" />
-                    <input id="DetailId" name="Id" type="hidden" />
+                    <input id="DetailId" name="Id" type="hidden"/>
 
-                    <div class="form-group">
-                        <label>Time</label>
-                        <div class="input-group">
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label">Time</label>
+                        <div class="input-group col-md-4">
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                             <input id="CreatedDate" name="CreatedDate" type="text" class="form-control datepicker">
                         </div>
+                        <label class="col-md-2 col-form-label">SMR</label>
+                        <div class="input-group col-md-4">
+                            <input type="text" id="SMR" name="SMR" class="form-control" />
+                        </div>
                     </div>
-
-                    <div class="form-group ">
-                        <label>Equipment</label>
-                        <select class="form-control input-sm" id="EquipmentId" name="EquipmentId">
-                            <option>Select Unit</option>
-                        </select>
-                    </div>
-                    <div class="form-group ">
-                        <label>Location</label>
-                        @Html.DropDownList("LocationId")
-                    </div>
-
-                    <div class="form-group ">
-                        <label>SMR</label>
-                        <input type="text" id="SMR" name="SMR" class="form-control" />
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label">Equipment</label>
+                        <div class="input-group col-md-4">
+                            <select class="form-control input-sm" id="EquipmentId" name="EquipmentId">
+                                <option>Select Unit</option>
+                            </select>
+                        </div>
+                        <label class="col-md-2 col-form-label">Location</label>
+                        <div class="input-group col-md-4">
+                            @Html.DropDownList("LocationId")
+                        </div>
                     </div>
 
                 </form>
-                <button data-dismiss="modal" class="btn btn-default">Close</button>
-                @if (ViewBag.Status != "Posted")
-                {
-                    <button id="btnSave" class="btn btn-primary" onclick="saveEquipment();">Save</button>
-                }
-                </div>
-        </div>
-    </div>
-</div>
 
-<div class="modal inmodal in " id="modalItem" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-md">
-        <div class="modal-content animated fadeIn">
-            <div class="modal-header">
-                <h4 class="modal-title" id="modalSnapTitle">Item Information </h4>
-                <small class="font-bold">Modify details of this Item</small>
-            </div>
-            <div class="modal-body">
+
+
+
                 <form id="frmItem">
-                    @* <input id="FuelOilDetailId" name="FuelOilId" value="@ViewBag.Id" type="hidden" />*@
+
                     <input id="SubDetailId" name="Id" type="hidden" />
                     <div class="form-group">
                         <script id="ITEMtemplate" type="text/template">
@@ -147,125 +149,25 @@
                     </div>
 
                 </form>
-                <button data-dismiss="modal" class="btn btn-default">Close</button>
-                @if (ViewBag.Status != "Posted")
-                {
-                    <button id="btnSave" class="btn btn-primary" onclick="saveItem();">Save</button>
-                }
+             
 
             </div>
         </div>
     </div>
 </div>
 
-
-
-
-<div class="modal inmodal in " id="modalSignature" tabindex="-1" role="dialog" aria-hidden="true" data-size="modal-lg">
-    <div class="modal-dialog modal-sm">
+<div class="modal inmodal in " id="modalItem" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md">
         <div class="modal-content animated fadeIn">
             <div class="modal-header">
-                <h4 class="modal-title" id="modalSnapTitle">Capture Signature</h4>
-                <small class="font-bold">Take snapshot of signature</small>
+                <h4 class="modal-title" id="modalSnapTitle">Item Information </h4>
+                <small class="font-bold">Modify details of this Item</small>
             </div>
             <div class="modal-body">
-                <input id="imageReferenceId" type="hidden" />
-                <p>
-
-                    <canvas class="signValue" height="400" id="signature"
-                            style="border:1px solid black"></canvas>
-
-                    <img width="100%" height="400" id="savetarget"
-                         style="border:1px solid black" src="@ViewBag.Signature"><br><br>
-                    <button id="clear" class="btn btn-primary">Create</button>
-                    <button id="save" class="btn btn-primary signValue">Save</button>
-                    <button id="close" data-dismiss="modal" class="btn btn-primary">Close</button>
-
-                </p>
-
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="col-md-12">
-    <div class="panel panel-success">
-        <div class="panel-heading">
-            Fuel Oil Liquidation Form
-        </div>
-        <div class="panel-body">
-            <form asp-action="Create" id="frm">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group row">
-                    <label asp-for="ReferenceNo" class="col-lg-2 col-form-label"></label>
-                    <div class="col-lg-4">
-                        <input asp-for="ReferenceNo" class="form-control" readonly />
-                        <span asp-validation-for="Shift" class="text-danger"></span>
-                    </div>
-                    <label asp-for="CreatedDate" class="col-lg-2 col-form-label"></label>
-                    <div class="col-lg-4">
-
-                        <input asp-for="CreatedDate" class="form-control" disabled />
-                        <span asp-validation-for="CreatedDate" class="text-danger"></span>
-                    </div>
-                </div>
-
-                <div class="row form-group">
-                    <label asp-for="Shift" class="col-lg-2 col-form-label"></label>
-                    <div class="col-lg-4">
-
-                        <select asp-for="Shift" class="form-control">
-                            <option value="Day">Day</option>
-                            <option value="Night">Night</option>
-
-                        </select>
-                        <span asp-validation-for="Shift" class="text-danger"></span>
-                    </div>
-
-                    <label asp-for="LubeTruckId" class="col-lg-2 col-form-label"></label>
-                    <div class="col-lg-4">
-                        <select asp-for="LubeTruckId" class="form-control" asp-items="ViewBag.LubeTruckId"></select>
-
-
-                    </div>
-                </div>
-
-                <div class="row form-group">
-                    <label asp-for="DispenserId" class="col-lg-2 col-form-label"></label>
-                    <div class="col-lg-4">
-                        <select asp-for="DispenserId" class="form-control" asp-items="ViewBag.DispenserId"></select>
-
-                    </div>
-
-                </div>
-
-                @*<div class="form-group row">
-                        <label asp-for="EquipmentId" class="col-lg-2 col-form-label"></label>
-                        <div class="col-lg-4">
-                            <select class="form-control input-sm" id="EquipmentId" name="EquipmentId">
-                                <option>Select Unit</option>
-                            </select>
-                            <span asp-validation-for="EquipmentId" class="text-danger"></span>
-                        </div>
-                        <label asp-for="Signature" class="col-lg-2 col-form-label"></label>
-                        <div class="col-lg-4">
-                            <input id="btnSignature" type="button" class="btn btn-outline-warning" value="Signature" />
-                        </div>
-                    </div>*@
-
-                @*<div class="form-group row">
-                        <label asp-for="LocationId" class="col-lg-2 col-form-label"></label>
-                        <div class="col-lg-4">
-
-                            <select asp-for="LocationId" class="form-control" asp-items="ViewBag.LocationId"></select>
-                            <span asp-validation-for="LocationId" class="text-danger"></span>
-                        </div>
-                    </div>*@
-
-
-
-
-                @*<div class="form-group">
+                @*<form id="frmItem">
+                   
+                    <input id="SubDetailId" name="Id" type="hidden" />
+                    <div class="form-group">
                         <script id="ITEMtemplate" type="text/template">
                             <td>
                                 <select class="form-control input-sm cmbNo" name="no[]">
@@ -321,15 +223,221 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </div>*@
+                    </div>
 
+                </form>*@
+                <button data-dismiss="modal" class="btn btn-default">Close</button>
+                @*@if (ViewBag.Status != "Posted")
+                {
+                    <button id="btnSave" class="btn btn-primary" onclick="saveItem();">Save</button>
+                }*@
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="modal inmodal in " id="modalSignature" tabindex="-1" role="dialog" aria-hidden="true" data-size="modal-lg">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content animated fadeIn">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalSnapTitle">Capture Signature</h4>
+                <small class="font-bold">Take snapshot of signature</small>
+            </div>
+            <div class="modal-body">
+                <input id="imageReferenceId" type="hidden" />
                 <p>
-                    <a href="#" onclick="createNew(this);" title="Add" data-action='Add'>Create New</a>
+
+                    <canvas class="signValue" height="400" id="signature"
+                            style="border:1px solid black"></canvas>
+
+                    <img width="100%" height="400" id="savetarget"
+                         style="border:1px solid black" src="@ViewBag.Signature"><br><br>
+
+                    @if (ViewBag.Status != "Posted")
+                    {
+                        <button id="clear" class="btn btn-primary">Create</button>
+                    }
+
+
+
+
+                    <button id="save" class="btn btn-primary signValue">Save</button>
+                    <button id="close" class="btn btn-primary">Close</button>
+
                 </p>
 
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            Fuel Oil Liquidation Form
+        </div>
+        <div class="panel-body">
+            <form asp-action="Create" id="frm">
+                <p>
+
+                    <a href="#" onclick="saveForm(this);" class="anchorAction">
+                        <i class="fa fa-check"></i>
+                        <span class="email-text">&nbsp;Save</span>
+                    </a>
+                    |
+                    <a href="#" id="aPrint" onclick="printForm('@ViewBag.Id','rptLiquidation');" class="anchorAction">
+                        <i class="fa fa-print"></i>
+                        <span class="email-text">&nbsp;Print</span>
+                    </a>
+                    |
+                    <a href="#" onclick="postForm(this);" class="anchorAction">
+                        <i class="fa fa-book"></i>
+                        <span class="email-text">&nbsp;Post</span>
+                    </a>
+
+                </p>
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group row">
+                    <label asp-for="ReferenceNo" class="col-lg-2 col-form-label"></label>
+                    <div class="col-lg-4">
+                        <input asp-for="ReferenceNo" class="form-control" readonly />
+                        <span asp-validation-for="Shift" class="text-danger"></span>
+                    </div>
+                    <label asp-for="CreatedDate" class="col-lg-2 col-form-label"></label>
+                    <div class="col-lg-4">
+
+                        <input asp-for="CreatedDate" class="form-control" disabled />
+                        <span asp-validation-for="CreatedDate" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <label asp-for="Shift" class="col-lg-2 col-form-label"></label>
+                    <div class="col-lg-4">
+
+                        <select asp-for="Shift" class="form-control">
+                            <option value="Day">Day</option>
+                            <option value="Night">Night</option>
+
+                        </select>
+                        <span asp-validation-for="Shift" class="text-danger"></span>
+                    </div>
+
+                    <label asp-for="LubeTruckId" class="col-lg-2 col-form-label"></label>
+                    <div class="col-lg-4">
+                        <select asp-for="LubeTruckId" class="form-control" asp-items="ViewBag.LubeTruckId"></select>
+
+
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <label asp-for="DispenserId" class="col-lg-2 col-form-label"></label>
+                    <div class="col-lg-4">
+                        <select asp-for="DispenserId" class="form-control" asp-items="ViewBag.DispenserId"></select>
+
+                    </div>
+
+                </div>
+
+                @*<div class="form-group row">
+            <label asp-for="EquipmentId" class="col-lg-2 col-form-label"></label>
+            <div class="col-lg-4">
+                <select class="form-control input-sm" id="EquipmentId" name="EquipmentId">
+                    <option>Select Unit</option>
+                </select>
+                <span asp-validation-for="EquipmentId" class="text-danger"></span>
+            </div>
+            <label asp-for="Signature" class="col-lg-2 col-form-label"></label>
+            <div class="col-lg-4">
+                <input id="btnSignature" type="button" class="btn btn-outline-warning" value="Signature" />
+            </div>
+        </div>*@
+
+                @*<div class="form-group row">
+            <label asp-for="LocationId" class="col-lg-2 col-form-label"></label>
+            <div class="col-lg-4">
+
+                <select asp-for="LocationId" class="form-control" asp-items="ViewBag.LocationId"></select>
+                <span asp-validation-for="LocationId" class="text-danger"></span>
+            </div>
+        </div>*@
+
+
+
+
+                @*<div class="form-group">
+            <script id="ITEMtemplate" type="text/template">
+                <td>
+                    <select class="form-control input-sm cmbNo" name="no[]">
+                        <option>Select Item</option>
+                    </select>
+                </td>
+
+                <td>
+                    <select class="form-control input-sm cmbComponent" name="component[]">
+                        <option>Select Component</option>
+                    </select>
+
+                </td>
+                <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
+
+                <td>
+
+                    <button class="remITEM btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i></button>
+                </td>
+            </script>
+            <table class="table table-bordered table-hover" id="tblItem">
+                <thead>
+                    <tr>
+                        <th width="5%">#</th>
+                        <th width="40%">Item</th>
+                        <th width="30%">Component</th>
+                        <th>Volume / Qty</th>
+                        <th width="10%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="p_Item">
+                    <tr>
+                        <td>1</td>
+                        <td>
+
+                            <select class="form-control input-sm cmbNo" name="no[]">
+                                <option>Select Item</option>
+                            </select>
+                        </td>
+
+                        <td>
+
+                            <select class="form-control input-sm cmbComponent" name="component[]">
+                                <option>Select Component</option>
+                            </select>
+
+                        </td>
+                        <td><input class=" form-control" type="text" placeholder="Volume / Qty" name="volume[]" required /></td>
+
+                        <td>
+                            <button class="addFE btn btn-default" type="button"><i class="fa fa-plus"></i> </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>*@
+                @if (ViewBag.Status != "Posted")
+                {
+                    <p>
+                        <a href="#" onclick="createNew(this);" title="Add" data-action='Add'>Add Equipment</a>
+                    </p>
+                }
+
                 @*<div class="col-lg-12">
-                    <div class="ibox float-e-margins">
-                        <div class="ibox-content">*@
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">*@
 
                 <table id="tbl" class="table table-striped table-no-bordered table-hover dataTable" style="width: 100%!important">
 
@@ -366,29 +474,12 @@
                     </tfoot>
                 </table>
                 @*</div>
-                        </div>
-                    </div>*@
+            </div>
+        </div>*@
 
 
 
-                <p>
 
-                    <a href="#" onclick="saveForm(this);" class="anchorAction">
-                        <i class="fa fa-check"></i>
-                        <span class="email-text">&nbsp;Save</span>
-                    </a>
-                    |
-                    <a href="#" id="aPrint" onclick="printForm('@ViewBag.Id','rptLiquidation');" class="anchorAction">
-                        <i class="fa fa-print"></i>
-                        <span class="email-text">&nbsp;Print</span>
-                    </a>
-                    |
-                    <a href="#" onclick="postForm(this);" class="anchorAction">
-                        <i class="fa fa-book"></i>
-                        <span class="email-text">&nbsp;Post</span>
-                    </a>
-
-                </p>
 
             </form>
 
@@ -464,11 +555,12 @@
                     , data: { imgData: data }
                     , success: function (responsedata) {
                         if (responsedata.status == "success") {
+                          
                             toastr["success"]("Signature saved!", "<b>Success</b> ")
-                            loadDatatable('@ViewBag.Id');
+                            loadDatatable($("#FuelOilId").val());
                             $('#savetarget').attr('src', data);
                         } else {
-                            toastr["error"](responsedata.message)
+                            toastr["error"](responsedata.message +'</br></br>'+ 'Something wrong with the creation of equipment.')
                             toastr.options = {
                                 "closeButton": true
                             }
@@ -497,6 +589,13 @@
         loadDatatable('@ViewBag.Id');
     })
 
+    $("#close").click(function () {
+     
+        //showItem($("#DetailId").val());
+        
+        $("#modalSignature").modal("hide");
+        $("#modalEquipment").modal("show");
+    })
     function printForm($refid,$rpt) {
         window.open('@Url.Action("printReport", "Reports")?ReferenceId=' + $refid+ '&Report=' + $rpt + '&rptType=PDF');
     }
@@ -512,11 +611,16 @@
             , dataType: 'json'
              , success: function (responsedata) {
                 if (responsedata.status == "success") {
-                    toastr["success"]("Form saved!", "<b>Success</b> ")
+                    //toastr["success"]("Equipment saved!", "<b>Success</b> ")
                     $("#DetailId").val(responsedata.message);
+                    $("#SubDetailId").val(responsedata.message);
                     loadDatatable($("#FuelOilId").val());
+
+                    saveItem();
+
                 } else {
-                    toastr["error"](responsedata.message)
+                    //toastr["error"](responsedata.message)
+                    toastr["error"](responsedata.message + "</br></br>" + "Please fill out all equipment information.")
                     toastr.options = {
                         "closeButton": true
                     }
@@ -526,8 +630,8 @@
     }
     function showItem(id) {
 
-        $("#SubDetailId").val(id);
-        $("#modalItem").modal("show");
+        //$("#SubDetailId").val(id);
+        //$("#modalItem").modal("show");
         loadDetails(id);
     }
     function createNew(obj) {
@@ -575,6 +679,7 @@
 
             $cdate = moment($(obj).attr('data-time')).format("MM/DD/YYYY HH:mm");
             $('#DetailId').val($(obj).attr('data-id'))
+            $('#SubDetailId').val($(obj).attr('data-id'))
             $('#CreatedDate').val($cdate)
 
 
@@ -613,7 +718,7 @@
 
             }).val($equipid).trigger('change');
         }
-
+        showItem($(obj).attr('data-id'));
         $("#modalEquipment").modal("show");
     }
     //$("#btnSignature").click(function () {
@@ -725,9 +830,7 @@
                         $actions =
                             "<a title='Edit' data-time=" + row.createdDate + " data-id=" + row.id + " data-equipment='" + row.equipmentId + "' data-equipmentname='" + row.equipmentName +
                             "' data-location='" + row.locationId + "' data-locationname='" + row.locationName + "' data-smr='" + row.smr +
-                            "' onclick='createNew(this);' >Edit</a> | " +
-                            '<a title="Details" onclick="showItem(' + row.id + ')">Details</a> | ' +
-                            '<a title="Sign" onclick="signItem(' + row.id + ')">Sign</a> '; 
+                            "' onclick='createNew(this);' >Edit</a>  " ; 
 
                         if ('@ViewBag.Status' != 'Posted') {
                             $actions = $actions + '| <a class="anchorAction" title="Delete" onclick="deleteItem(\'' + row.id + '\',\'' + row.equipmentName + '\')">Delete</a>'
@@ -800,12 +903,20 @@
 
         }
     }
-    function signItem(id) {
+    function signItem() {
+        //if ($("#DetailId").val() == 0) {
+        //    toastr["error"]("Please create signature ")
+        //    toastr.options = {
+        //        "closeButton": true,
+        //        "showDuration": "3000",
+        //    }
+        //}
+         $id = $("#DetailId").val();
          $.ajax({
             url: '@Url.Action("signUrl")'
             , dataType: "json"
             , type: "POST"
-            , data: { id: id }
+             , data: { id: $id }
             , success: function (responsedata) {
 
 
@@ -813,10 +924,14 @@
 
             }
         })
-        $("#imageReferenceId").val(id);
+        $("#imageReferenceId").val($id);
         $(".signValue").hide();
         $("#savetarget").show();
+
+        $("#modalEquipment").modal("hide");
+
         $("#modalSignature").modal("show");
+       
     }
 
     function loadDetails(id) {
@@ -852,7 +967,7 @@
                     $('#cmbNo'+ i).append(new Option("", ""));
                     $('#cmbNo' + i).append(new Option(responsedata.data[i].itemName, responsedata.data[i].itemId));
                     $('#cmbNo' + i).select2({
-                        dropdownParent: $('#modalItem .modal-content'),
+                        dropdownParent: $('#modalEquipment .modal-content'),
                         width: '100%',
                         theme: 'bootstrap',
                         ajax: {
@@ -884,7 +999,7 @@
 
                     $('#cmbComponent' + i).append(new Option(responsedata.data[i].componentName, responsedata.data[i].componentId));
                     $('#cmbComponent' + i).select2({
-                        dropdownParent: $('#modalItem .modal-content'),
+                        dropdownParent: $('#modalEquipment .modal-content'),
                         width: '100%',
                         theme: 'bootstrap',
                         ajax: {
@@ -936,7 +1051,7 @@
                         '</td>';
                     var $tr = $('<tr>').append('<td>' + i + '</td>' + x);
                     FEDiv.append($tr);
-                    initiateSelect2()
+                    //initiateSelect2()
 
                 }
 
@@ -971,6 +1086,8 @@
                     $("#CreatedDate").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss"))
                     $("#FuelOilId").val(responsedata.refid);
 
+
+
                 } else {
                     toastr["error"](responsedata.message)
                     toastr.options = {
@@ -993,13 +1110,9 @@
             , dataType: 'json'
              , success: function (responsedata) {
                 if (responsedata.status == "success") {
-                    toastr["success"]("Form saved!", "<b>Success</b> ")
-                    //$("#ReferenceNo").val(responsedata.message);
-                    //$("#CreatedDate").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss"))
-                    //$("#SubDetailId").val(responsedata.refid);
-
+                    toastr["success"]("Equipment information saved!", "<b>Success</b> ")
                 } else {
-                    toastr["error"](responsedata.message)
+                    toastr["error"](responsedata.message + "</br></br>" + "Please fill out all item information.")
                     toastr.options = {
                         "closeButton": true
                     }
@@ -1047,7 +1160,11 @@
             return false;
         }
 
-
+        if (confirm('Are you sure you want to post this form? Posting form will disable you from editing input values.')) {
+            
+        } else {
+            return false;
+        }
 
         var data = $('#ReferenceNo').val();
 
@@ -1058,7 +1175,9 @@
             , dataType: 'json'
              , success: function (responsedata) {
                 if (responsedata.status == "success") {
-                    toastr["success"]("Form saved!", "<b>Success</b> ")
+                    toastr["success"]("Form posted!", "<b>Success</b> ")
+                    disableForm();
+                    location.reload();
                 } else {
                     toastr["error"](responsedata.message)
                     toastr.options = {
@@ -1068,7 +1187,7 @@
             }
         })
 
-        disableForm();
+       
     }
     function disableForm() {
         $('#frm').find('input, select, button').each(function () {
@@ -1170,7 +1289,7 @@
     function initiateSelect2() {
 
         $(".cmbNo").select2({
-        dropdownParent: $('#modalItem .modal-content'),
+            dropdownParent: $('#modalEquipment .modal-content'),
         width: '100%',
         theme: 'bootstrap',
             ajax: {
@@ -1196,7 +1315,7 @@
         });
 
         $(".cmbComponent").select2({
-            dropdownParent: $('#modalItem .modal-content'),
+            dropdownParent: $('#modalEquipment .modal-content'),
             width: '100%',
             theme: 'bootstrap',
                 ajax: {

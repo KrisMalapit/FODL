@@ -94,10 +94,16 @@
                                 <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown">Data Entry</a>
                                 <ul role="menu" class="dropdown-menu">
                                     <li><a asp-area="" asp-controller="FuelOil" asp-action="Index">Fuel Oil Liquidation</a></li>
+                                    @if (User.Identity.GetRoleName() != "User")
+                                    {
+                                        <li>
+                                            <a asp-area="" asp-controller="FuelOil" asp-action="Summary">
+                                                Summary
+                                            </a>
+                                        </li>
+                                    }
 
-
-
-                                </ul>
+                                    </ul>
                             </li>
                             @if (User.Identity.GetRoleName() != "User")
                             {
@@ -115,11 +121,11 @@
 
                                     </ul>
                                 </li>
-                                @*<li>
+                                <li>
                                     <a asp-area="" asp-controller="Reports" asp-action="Index" class="simple-text logo-normal">
                                         Reports
                                     </a>
-                                </li>*@
+                                </li>
                             }
 
                         </ul>

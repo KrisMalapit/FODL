@@ -45,9 +45,9 @@ namespace FODLSystem.Models
             modelBuilder.Entity<LubeTruck>()
               .HasIndex(p => new { p.No, p.Status })
               .IsUnique();
-            modelBuilder.Entity<FuelOil>()
-             .HasIndex(p => new { p.TransactionDate,p.Shift, p.Status })
-             .IsUnique();
+            //modelBuilder.Entity<FuelOil>()
+            // .HasIndex(p => new { p.TransactionDate,p.Shift, p.Status,p.LubeTruckId })
+            // .IsUnique();
 
             modelBuilder.Entity<Company>().HasData(
                new { ID = 1, Code = "SMPC", Name = "Semirara Mining and Power Corporation", Status = "Active" }
