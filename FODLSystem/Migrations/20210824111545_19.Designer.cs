@@ -4,14 +4,16 @@ using FODLSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FODLSystem.Migrations
 {
     [DbContext(typeof(FODLSystemContext))]
-    partial class FODLSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20210824111545_19")]
+    partial class _19
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -140,25 +142,6 @@ namespace FODLSystem.Migrations
                     b.ToTable("Equipments");
                 });
 
-            modelBuilder.Entity("FODLSystem.Models.FileUpload", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("FileName");
-
-                    b.Property<string>("Status");
-
-                    b.Property<string>("UploadBy");
-
-                    b.Property<DateTime>("UploadDate");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("FileUploads");
-                });
-
             modelBuilder.Entity("FODLSystem.Models.FuelOil", b =>
                 {
                     b.Property<int>("Id")
@@ -172,8 +155,6 @@ namespace FODLSystem.Migrations
                     b.Property<int>("DispenserId");
 
                     b.Property<int>("LubeTruckId");
-
-                    b.Property<int>("OldId");
 
                     b.Property<string>("ReferenceNo");
 
@@ -210,8 +191,6 @@ namespace FODLSystem.Migrations
 
                     b.Property<int>("LocationId");
 
-                    b.Property<int>("OldId");
-
                     b.Property<string>("SMR");
 
                     b.Property<string>("Signature");
@@ -240,8 +219,6 @@ namespace FODLSystem.Migrations
                     b.Property<int>("FuelOilDetailId");
 
                     b.Property<int>("ItemId");
-
-                    b.Property<int>("OldId");
 
                     b.Property<string>("Status");
 

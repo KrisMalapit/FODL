@@ -20,5 +20,7 @@ namespace FODLSystem.Models
         public int FuelOilDetailId { get; set; }
         public virtual FuelOilDetail FuelOilDetails { get; set; }
         public string Status { get; set; } = "Active";
+        public int OldId { get; set; }
+
     }
 }

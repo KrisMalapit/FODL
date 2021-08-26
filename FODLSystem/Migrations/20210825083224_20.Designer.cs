@@ -4,14 +4,16 @@ using FODLSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FODLSystem.Migrations
 {
     [DbContext(typeof(FODLSystemContext))]
-    partial class FODLSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20210825083224_20")]
+    partial class _20
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -138,25 +140,6 @@ namespace FODLSystem.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Equipments");
-                });
-
-            modelBuilder.Entity("FODLSystem.Models.FileUpload", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("FileName");
-
-                    b.Property<string>("Status");
-
-                    b.Property<string>("UploadBy");
-
-                    b.Property<DateTime>("UploadDate");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("FileUploads");
                 });
 
             modelBuilder.Entity("FODLSystem.Models.FuelOil", b =>

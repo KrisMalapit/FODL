@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Text;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 using DNTBreadCrumb.Core;
 using FODLSystem.Models;
 using FODLSystem.Models.View_Model;
@@ -11,6 +14,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
 
 namespace FODLSystem.Controllers
 {
@@ -537,6 +543,10 @@ namespace FODLSystem.Controllers
         public ActionResult getData()
         {
             string strFilter = "";
+            string status = "Active,Posted";
+            string[] stat = status.Split(',').Select(n => n).ToArray();
+
+           
             try
             {
 
@@ -582,12 +592,13 @@ namespace FODLSystem.Controllers
                     strFilter = "true";
                 }
 
+               
 
 
                 int recCount =
 
                 _context.FuelOils
-                .Where(a => a.Status == "Active")
+                .Where(a => stat.Contains(a.Status))
 
                 .Where(strFilter)
                 .Count();
@@ -600,7 +611,7 @@ namespace FODLSystem.Controllers
                 var v =
 
                _context.FuelOils
-              .Where(a => a.Status != "Deleted")
+              .Where(a => stat.Contains(a.Status))
               .Where(strFilter)
 
               .Skip(skip).Take(pageSize)
@@ -946,5 +957,718 @@ namespace FODLSystem.Controllers
             };
             return Json(modelItem);
         }
+        
+
+        public class Author
+        {
+            public int Id { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+        public JsonResult Checkifposted() {
+
+            string message = "";
+            string status = "";
+            int cnt = _context.FuelOils.Where(a => a.TransactionDate == DateTime.Now.Date)
+                    .Where(a => a.Status == "Active").Count();
+
+            if (cnt > 0)
+            {
+                message = "Not all input has been posted";
+                status = "fail";
+            }
+            else
+            {
+                status = "success";
+            }
+
+            var model = new
+            {
+                status,
+                message
+
+            };
+
+            return Json(model);
+
+        }
+
+
+
+        public IActionResult DownloadExcel()
+        {
+            string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            string fileName = "fodl_" + DateTime.Now.ToString("MMddyyyy") + ".xlsx";
+            try
+            {
+
+
+                var fodlheader = _context.FuelOils
+                    .Where(a => a.Status == "Posted");
+                int[] foid = fodlheader.Select(a => a.Id).ToArray();
+                var fodldetail = _context.FuelOilDetails.Where(a => foid.Contains(a.FuelOilId))
+                    .Where(a => a.Status == "Active");
+                int[] fodetailid = fodldetail.Select(a => a.Id).ToArray();
+                var fodlsub = _context.FuelOilSubDetails.Where(a => fodetailid.Contains(a.FuelOilDetailId))
+                    .Where(a => a.Status == "Active");
+
+                using (var workbook = new XLWorkbook())
+                {
+                    IXLWorksheet worksheet =
+                    workbook.Worksheets.Add("Header");
+                    worksheet.Cell(1, 1).Value = "ReferenceNo";
+                    worksheet.Cell(1, 2).Value = "Shift";
+                    worksheet.Cell(1, 3).Value = "CreatedDate";
+                    worksheet.Cell(1, 4).Value = "CreatedBy";
+                    worksheet.Cell(1, 5).Value = "Status";
+                    worksheet.Cell(1, 6).Value = "DispenserId";
+                    worksheet.Cell(1, 7).Value = "LubeTruckId";
+                    worksheet.Cell(1, 8).Value = "TransactionDate";
+                    worksheet.Cell(1, 9).Value = "Id";
+                    int index = 1;
+
+                    foreach (var item in fodlheader)
+                    {
+                        worksheet.Cell(index + 1, 1).Value = item.ReferenceNo;
+                        worksheet.Cell(index + 1, 2).Value = item.Shift;
+                        worksheet.Cell(index + 1, 3).Value = item.CreatedDate;
+                        worksheet.Cell(index + 1, 4).Value = item.CreatedBy;
+                        worksheet.Cell(index + 1, 5).Value = item.Status;
+                        worksheet.Cell(index + 1, 6).Value = item.DispenserId;
+                        worksheet.Cell(index + 1, 7).Value = item.LubeTruckId;
+                        worksheet.Cell(index + 1, 8).Value = item.TransactionDate;
+                        worksheet.Cell(index + 1, 9).Value = item.Id;
+                        index++;
+                    }
+
+
+                    IXLWorksheet worksheet2 =
+                     workbook.Worksheets.Add("Detail");
+                    worksheet2.Cell(1, 1).Value = "CreatedDate";
+                    worksheet2.Cell(1, 2).Value = "EquipmentId";
+                    worksheet2.Cell(1, 3).Value = "LocationId";
+                    worksheet2.Cell(1, 4).Value = "FuelOilId";
+                    worksheet2.Cell(1, 5).Value = "Status";
+                    worksheet2.Cell(1, 6).Value = "SMR";
+                    worksheet2.Cell(1, 7).Value = "Signature";
+                    worksheet2.Cell(1, 8).Value = "Id";
+                    worksheet2.Cell(1, 9).Value = "CreatedBy";
+                    index = 1;
+
+                    foreach (var item in fodldetail)
+                    {
+                        worksheet2.Cell(index + 1, 1).Value = item.CreatedDate;
+                        worksheet2.Cell(index + 1, 2).Value = item.EquipmentId;
+                        worksheet2.Cell(index + 1, 3).Value = item.LocationId;
+                        worksheet2.Cell(index + 1, 4).Value = item.FuelOilId;
+                        worksheet2.Cell(index + 1, 5).Value = item.Status;
+                        worksheet2.Cell(index + 1, 6).Value = item.SMR;
+                        worksheet2.Cell(index + 1, 7).Value = item.Signature;
+                        worksheet2.Cell(index + 1, 8).Value = item.Id;
+                        worksheet2.Cell(index + 1, 9).Value = item.FuelOils.CreatedBy;
+                        index++;
+                    }
+
+
+                    IXLWorksheet worksheet3 =
+                     workbook.Worksheets.Add("SubDetail");
+                    worksheet3.Cell(1, 1).Value = "TimeInput";
+                    worksheet3.Cell(1, 2).Value = "ItemId";
+                    worksheet3.Cell(1, 3).Value = "ComponentId";
+                    worksheet3.Cell(1, 4).Value = "VolumeQty";
+                    worksheet3.Cell(1, 5).Value = "FuelOilDetailId";
+                    worksheet3.Cell(1, 6).Value = "Status";
+                    worksheet3.Cell(1, 7).Value = "Id";
+                    worksheet3.Cell(1, 8).Value = "CreatedBy";
+
+
+                    index = 1;
+
+                    foreach (var item in fodlsub)
+                    {
+                        worksheet3.Cell(index + 1, 1).Value = item.TimeInput;
+                        worksheet3.Cell(index + 1, 2).Value = item.ItemId;
+                        worksheet3.Cell(index + 1, 3).Value = item.ComponentId;
+                        worksheet3.Cell(index + 1, 4).Value = item.VolumeQty;
+                        worksheet3.Cell(index + 1, 5).Value = item.FuelOilDetailId;
+                        worksheet3.Cell(index + 1, 6).Value = item.Status;
+                        worksheet3.Cell(index + 1, 7).Value = item.Id;
+                        worksheet3.Cell(index + 1, 8).Value = item.FuelOilDetails.FuelOils.CreatedBy;
+
+                        index++;
+                    }
+
+
+
+
+                    _context.FuelOils.Where(a => a.Status == "Posted").ToList().ForEach(a => a.Status = "Deleted");
+                    _context.FuelOilDetails.Where(a => foid.Contains(a.FuelOilId)).Where(a => a.Status == "Active").ToList().ForEach(a => a.Status = "Deleted");
+                    _context.FuelOilSubDetails.Where(a => fodetailid.Contains(a.FuelOilDetailId)).Where(a => a.Status == "Active").ToList().ForEach(a => a.Status = "Deleted");
+                    _context.SaveChanges();
+                   
+
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        var content = stream.ToArray();
+                        return File(content, contentType, fileName);
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public IActionResult UploadExcel()
+        {
+            string filePath = "";
+            int hid = 0;
+            string message = "";
+            string status = "";
+            IFormFile file = Request.Form.Files[0];
+            try
+            {
+
+                string strFilename = Path.GetFileNameWithoutExtension(file.FileName);
+
+                int cntRec = _context.FileUploads.Where(a => a.FileName == strFilename).Count();
+                if (cntRec > 0)
+                {
+                    var err = new
+                    {
+                        status = "failed",
+                        message = "File already uploaded"
+                    };
+
+                   
+                    return Json(err);
+                }
+
+
+
+
+
+                //int yr = Convert.ToInt32(strFilename.Substring(9, 4));
+                //int mm = Convert.ToInt32(strFilename.Substring(5, 2));
+                //int dd = Convert.ToInt32(strFilename.Substring(7, 2));
+                //var dtFile = new DateTime(yr, mm, dd);
+                StringBuilder sb = new StringBuilder();
+                if (file.Length > 0)
+                {
+                    string sFileExtension = Path.GetExtension(file.FileName).ToLower();
+                    ISheet sheet;
+                    ISheet sheet2;
+                    ISheet sheet3;
+
+                    string fullPath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\fileuploads\", file.FileName);
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        file.CopyTo(stream);
+                        stream.Position = 0;
+                        if (sFileExtension == ".xls")
+                        {
+                            HSSFWorkbook hssfwb = new HSSFWorkbook(stream); //This will read the Excel 97-2000 formats  
+                           
+                            sheet = hssfwb.GetSheet("Header"); //get first sheet from workbook 
+                            sheet2 = hssfwb.GetSheet("Detail");
+                            sheet3 = hssfwb.GetSheet("SubDetail");
+                        }
+                        else
+                        {
+                            XSSFWorkbook hssfwb = new XSSFWorkbook(stream); //This will read 2007 Excel format  
+                           
+                            sheet = hssfwb.GetSheet("Header"); //get first sheet from workbook 
+                            sheet2 = hssfwb.GetSheet("Detail");
+                            sheet3 = hssfwb.GetSheet("SubDetail");
+                        }
+
+                      
+                        string strTest = UploadExcelTest(sheet, sheet2, sheet3);
+
+                        if (strTest != "Ok")
+                        {
+                            var models = new
+                            {
+                                status = "failed",
+                                message = strTest
+                            };
+
+                            filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\fileuploads\" + file.FileName);
+                            System.IO.File.Delete(filePath);
+                            return Json(models);
+                        }
+
+                        var transferExcel = UploadExcelFinal(sheet, sheet2, sheet3,strFilename);
+                        
+                    }
+                }
+                status = "success";
+                message = "Uploaded successfully!";
+            }
+            catch (Exception e)
+            {
+
+
+
+                status = "failed";
+                message = e.Message.ToString();
+            }
+
+            var model = new
+            {
+                status,
+                message
+            };
+
+            filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\fileuploads\" + file.FileName);
+            System.IO.File.Delete(filePath);
+
+            return Json(model);
+        }
+        public string UploadExcelTest(ISheet sheet, ISheet sheet2, ISheet sheet3)
+        {
+
+            try
+            {
+                try
+                {
+                   
+                    
+                   
+
+                    int rowCount = sheet.LastRowNum;
+                    int cnt = 0;
+                    int line = 1;
+                    //header
+
+                    List<FuelOil> svm = new List<FuelOil>();
+                    for (int i = 1; i <= rowCount; i++)
+                    {
+                        cnt = 0;
+                        line = 1;
+                        IRow headerRow = sheet.GetRow(i); //Get Header Row
+                        int cellCount = headerRow.LastCellNum;
+                        string[] clc = new string[cellCount];
+
+                        for (int j = 0; j < (cellCount); j++)
+                        {
+                            if (line > 8)
+                            {
+                                break;
+                            }
+
+                            if (cnt == 2)
+                            {
+                                var xx = headerRow.GetCell(j).DateCellValue.ToString();
+                          
+                                clc[cnt] = xx;
+
+                            }
+                            else
+                            {
+                                clc[cnt] = headerRow.GetCell(j).ToString();
+                            }
+
+                            cnt += 1;
+                            if (cnt == 8)
+                            {
+
+                                FuelOil sv = new FuelOil
+                                {
+                                    ReferenceNo = clc[0],
+                                    Shift = clc[1],
+                                    CreatedDate = Convert.ToDateTime(clc[2]),
+                                    CreatedBy = clc[3],
+                                    DispenserId = Convert.ToInt32(clc[5]),
+                                    LubeTruckId = Convert.ToInt32(clc[6]),
+                                    TransactionDate = Convert.ToDateTime(clc[7]),
+                                    Status = clc[4],
+                               
+                                };
+                                svm.Add(sv);
+
+                                line += 1;
+
+                            }
+
+                        }
+                    }
+
+                    //detail
+                    rowCount = sheet2.LastRowNum;
+                    List<FuelOilDetail> svmDetail = new List<FuelOilDetail>();
+                    for (int i = 1; i <= rowCount; i++)
+                    {
+                        cnt = 0;
+                        line = 1;
+                        IRow detailRow = sheet2.GetRow(i); //Get Detail Row
+                        int cellCount = detailRow.LastCellNum;
+                        string[] clc = new string[cellCount];
+                        for (int j = 0; j < (cellCount); j++)
+                        {
+                            if (line > 7)
+                            {
+                                break;
+                            }
+
+                            if (cnt == 0)
+                            {
+                                var xx = detailRow.GetCell(j).DateCellValue.ToString();
+                                clc[cnt] = xx;
+                            }
+                            else
+                            {
+                                clc[cnt] = detailRow.GetCell(j).ToString();
+                            }
+
+                            cnt += 1;
+                            if (cnt == 7)
+                            {
+
+                                FuelOilDetail sv = new FuelOilDetail
+                                {
+                                    CreatedDate = Convert.ToDateTime(clc[0]),
+                                    EquipmentId = Convert.ToInt32(clc[1]),
+                                    LocationId = Convert.ToInt32(clc[2]),
+                                    FuelOilId = Convert.ToInt32(clc[3]),
+                                    Status = clc[4],
+                                    SMR = clc[5],
+                                    Signature = clc[6],
+                                };
+                                svmDetail.Add(sv);
+                                line += 1;
+
+                            }
+
+                        }
+                    }
+
+
+                    //sub-detail
+                    rowCount = sheet3.LastRowNum;
+                    List<FuelOilSubDetail> subsvmDetail = new List<FuelOilSubDetail>();
+                    for (int i = 1; i <= rowCount; i++)
+                    {
+                        cnt = 0;
+                        line = 1;
+                        IRow subdetailRow = sheet3.GetRow(i); //Get Detail Row
+                        int cellCount = subdetailRow.LastCellNum;
+                        string[] clc = new string[cellCount];
+                        for (int j = 0; j < (cellCount); j++)
+                        {
+                            if (line > 6)
+                            {
+                                break;
+                            }
+
+                            if (cnt == 0)
+                            {
+                                var xx = subdetailRow.GetCell(j).DateCellValue.ToString();
+                                clc[cnt] = xx;
+                            }
+                            else
+                            {
+                                clc[cnt] = subdetailRow.GetCell(j).ToString();
+                            }
+
+                            cnt += 1;
+                            if (cnt == 6)
+                            {
+
+                                FuelOilSubDetail sv = new FuelOilSubDetail
+                                {
+                                    TimeInput = Convert.ToDateTime(clc[0]),
+                                    ItemId = Convert.ToInt32(clc[1]),
+                                    ComponentId = Convert.ToInt32(clc[2]),
+                                    VolumeQty = Convert.ToInt32(clc[3]),
+                                    FuelOilDetailId = Convert.ToInt32(clc[4]),
+                                    Status = clc[5],
+
+                                };
+                                subsvmDetail.Add(sv);
+                                line += 1;
+
+                            }
+
+                        }
+                    }
+                    return "Ok";
+                }
+                catch (Exception e)
+                {
+
+                    return e.ToString();
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+        }
+        public string UploadExcelFinal(ISheet sheet, ISheet sheet2, ISheet sheet3,string strFilename)
+        {
+            
+            
+            try
+            {
+                try
+                {
+                    int rowCount = sheet.LastRowNum;
+                    int cnt = 0;
+                    int line = 1;
+                    //header
+                    List<FuelOil> svm = new List<FuelOil>();
+                    for (int i = 1; i <= rowCount; i++)
+                    {
+                        string createdBy = "";
+                        cnt = 0;
+                        line = 1;
+                        IRow headerRow = sheet.GetRow(i); //Get Header Row
+                        int cellCount = headerRow.LastCellNum;
+                        string[] clc = new string[cellCount];
+
+                        for (int j = 0; j < (cellCount); j++)
+                        {
+                            if (line > 9)
+                            {
+                                break;
+                            }
+
+                            if (cnt == 2)
+                            {
+                                var xx = headerRow.GetCell(j).DateCellValue.ToString();
+
+                                clc[cnt] = xx;
+
+                            }
+                            else
+                            {
+                                clc[cnt] = headerRow.GetCell(j).ToString();
+                            }
+
+                            cnt += 1;
+                            if (cnt == 9)
+                            {
+
+                                FuelOil sv = new FuelOil
+                                {
+                                    ReferenceNo = clc[0],
+                                    Shift = clc[1],
+                                    CreatedDate = Convert.ToDateTime(clc[2]),
+                                    CreatedBy = clc[3],
+                                    DispenserId = Convert.ToInt32(clc[5]),
+                                    LubeTruckId = Convert.ToInt32(clc[6]),
+                                    TransactionDate = Convert.ToDateTime(clc[7]),
+                                    Status = clc[4],
+                                    TransferDate = DateTime.Now,
+                                    TransferredBy = User.Identity.GetFullName(),
+                                    OldId = Convert.ToInt32(clc[8])
+
+
+                                };
+                                //svm.Add(sv);
+                                _context.FuelOils.Add(sv);
+                                line += 1;
+
+                            }
+
+                        }
+                    }
+                    _context.SaveChanges();
+
+                    //detail
+                    rowCount = sheet2.LastRowNum;
+                    List<FuelOilDetail> svmDetail = new List<FuelOilDetail>();
+                    for (int i = 1; i <= rowCount; i++)
+                    {
+                        cnt = 0;
+                        line = 1;
+                        IRow detailRow = sheet2.GetRow(i); //Get Detail Row
+                        int cellCount = detailRow.LastCellNum;
+                        string[] clc = new string[cellCount];
+                        for (int j = 0; j < (cellCount); j++)
+                        {
+                            if (line > 9)
+                            {
+                                break;
+                            }
+
+                            if (cnt == 0)
+                            {
+                                var xx = detailRow.GetCell(j).DateCellValue.ToString();
+                                clc[cnt] = xx;
+                            }
+                            else
+                            {
+                                clc[cnt] = detailRow.GetCell(j).ToString();
+                            }
+
+                            cnt += 1;
+                            if (cnt == 9)
+                            {
+                                int hId = _context.FuelOils.Where(a => a.OldId == Convert.ToInt32(clc[3]))
+                                    .Where(a => a.CreatedBy == clc[8])
+                                    .FirstOrDefault().Id;
+
+                                FuelOilDetail sv = new FuelOilDetail
+                                {
+                                    CreatedDate = Convert.ToDateTime(clc[0]),
+                                    EquipmentId = Convert.ToInt32(clc[1]),
+                                    LocationId = Convert.ToInt32(clc[2]),
+                                    Status = clc[4],
+                                    SMR = clc[5],
+                                    Signature = clc[6],
+                                    OldId = Convert.ToInt32(clc[7]), //FuelOilId
+                                    FuelOilId = hId
+                                };
+                                //svmDetail.Add(sv);
+                                _context.FuelOilDetails.Add(sv);
+                                line += 1;
+
+                            }
+
+                        }
+                    }
+                    _context.SaveChanges();
+
+                    //sub-detail
+                    rowCount = sheet3.LastRowNum;
+                    List<FuelOilSubDetail> subsvmDetail = new List<FuelOilSubDetail>();
+                    for (int i = 1; i <= rowCount; i++)
+                    {
+                        cnt = 0;
+                        line = 1;
+                        IRow subdetailRow = sheet3.GetRow(i); //Get Detail Row
+                        int cellCount = subdetailRow.LastCellNum;
+                        string[] clc = new string[cellCount];
+                        for (int j = 0; j < (cellCount); j++)
+                        {
+                            if (line > 8)
+                            {
+                                break;
+                            }
+
+                            if (cnt == 0)
+                            {
+                                var xx = subdetailRow.GetCell(j).DateCellValue.ToString();
+                                clc[cnt] = xx;
+                            }
+                            else
+                            {
+                                clc[cnt] = subdetailRow.GetCell(j).ToString();
+                            }
+
+                            cnt += 1;
+                            if (cnt == 8)
+                            {
+                                int hId = _context.FuelOilDetails
+                                    .Where(a => a.OldId == Convert.ToInt32(clc[4]))
+                                    .Where(a => a.FuelOils.CreatedBy == clc[7])
+                                    .FirstOrDefault().Id;
+
+                                FuelOilSubDetail sv = new FuelOilSubDetail
+                                {
+                                    TimeInput = Convert.ToDateTime(clc[0]),
+                                    ItemId = Convert.ToInt32(clc[1]),
+                                    ComponentId = Convert.ToInt32(clc[2]),
+                                    VolumeQty = Convert.ToInt32(clc[3]),
+                                    FuelOilDetailId = hId,
+                                    Status = clc[5],
+                                    OldId = Convert.ToInt32(clc[6])
+
+                                };
+                                //subsvmDetail.Add(sv);
+                                _context.FuelOilSubDetails.Add(sv);
+                                line += 1;
+                            }
+
+                        }
+                    }
+
+                    Log log = new Log
+                    {
+                        Action = "Upload",
+                        CreatedDate = DateTime.Now,
+                        Descriptions = "Upload Excel File " + strFilename,
+                        Status = "success",
+                        UserId = User.Identity.GetUserId().ToString()
+                    };
+
+                    _context.Add(log);
+
+
+                    FileUpload fu = new FileUpload
+                    {
+                        FileName = strFilename,
+                        UploadDate = DateTime.Now,
+                        UploadBy = User.Identity.GetFullName()
+                    };
+                    _context.Add(fu);
+
+
+
+
+                    _context.SaveChanges();
+
+                    return "Ok";
+                }
+                catch (Exception e)
+                {
+
+                    return e.ToString();
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+
+
+        }
+        public IActionResult DownloadCSV()
+        {
+
+            string fileName = "fodl_"+DateTime.Now.ToString("MMddyyyy") +".csv";
+            try
+            {
+                var fodlheader = _context.FuelOils
+                    .Where(a => a.Status == "Posted");
+                int[] foid = fodlheader.Select(a => a.Id).ToArray();
+                var fodldetail = _context.FuelOilDetails.Where(a=> foid.Contains(a.FuelOilId))
+                    .Where(a => a.Status == "Active");
+                int[] fodetailid = fodldetail.Select(a => a.Id).ToArray();
+                var fodlsub = _context.FuelOilSubDetails.Where(a => fodetailid.Contains(a.FuelOilDetailId))
+                    .Where(a => a.Status == "Active");
+
+                try
+                {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.AppendLine("ReferenceNo,Shift,CreatedDate,CreatedBy,Status,DispenserId,LubeTruckId,TransactionDate");
+                    foreach (var author in fodlheader)
+                    {
+                        stringBuilder.AppendLine($"{author.ReferenceNo},{ author.Shift},{ author.CreatedDate}," +
+                            $"{author.CreatedBy }, {author.Status}, {author.DispenserId},{author.LubeTruckId },{author.TransactionDate }");
+                    }
+                    return File(Encoding.UTF8.GetBytes
+                    (stringBuilder.ToString()), "text/csv", fileName);
+                }
+                catch
+                {
+                    return null;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        
     }
 }

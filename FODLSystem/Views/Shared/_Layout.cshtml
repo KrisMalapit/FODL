@@ -67,6 +67,7 @@
     <link href="~/css/plugins/datapicker/jquery.datetimepicker.css" rel="stylesheet">
     <link href="~/css/plugins/dataTables/dataTables.checkboxes.css" rel="stylesheet">
     <link href="~/css/plugins/select2/select2.min.css" rel="stylesheet">
+    <link href="~/css/plugins/dropzone/dropzone.css" rel="stylesheet">
 </head>
 <body class="top-navigation">
     <script src="~/js/jquery-3.1.1.min.js"></script>
@@ -103,7 +104,7 @@
                                         </li>
                                     }
 
-                                    </ul>
+                                </ul>
                             </li>
                             @if (User.Identity.GetRoleName() != "User")
                             {
@@ -204,6 +205,7 @@
     <!-- Custom and plugin javascript -->
     <script src="~/js/inspinia.js"></script>
     <script src="~/js/plugins/toastr/toastr.min.js"></script>
+    <script src="~/js/plugins/dropzone/dropzone.js"></script>
     <script src="~/js/plugins/dataTables/dataTables.checkboxes.min.js"></script>
     <script>
         $(document).ajaxStart(function () {

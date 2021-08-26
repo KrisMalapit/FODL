@@ -23,5 +23,8 @@ namespace FODLSystem.Models
         public virtual LubeTruck LubeTrucks { get; set; }
         public DateTime TransactionDate { get; set; }
         public string Status { get; set; } = "Active";
+        public DateTime TransferDate { get; set; }
+        public string TransferredBy { get; set; }
+        public int OldId { get; set; }
     }
 }

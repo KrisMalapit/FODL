@@ -24,5 +24,7 @@ namespace FODLSystem.Models
         public DateTime CreatedDate { get; set; }
         public int FuelOilId { get; set; }
         public virtual FuelOil FuelOils { get; set; }
+        public int OldId { get; set; }
+
     }
 }
