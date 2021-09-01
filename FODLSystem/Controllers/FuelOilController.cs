@@ -117,6 +117,13 @@ namespace FODLSystem.Controllers
         // GET: Companies/Create
         public IActionResult Create()
         {
+            string lubeAccess = User.Identity.GetLubeAccess();
+            string dispenserAccess = User.Identity.GetDispenserAccess();
+            
+
+            int[] lubeId = lubeAccess.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
+            int[] dispenserId = dispenserAccess.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
+
             string status = "Active,Default";
             string[] stat = status.Split(',').Select(n => n).ToArray();
 
@@ -131,9 +138,11 @@ namespace FODLSystem.Controllers
             ViewData["Signature"] = "";
             ViewData["Status"] = "Active";
             ViewData["Id"] = 0;
-            ViewData["DispenserId"] = new SelectList(_context.Dispensers.Where(a => stat.Contains(a.Status)), "Id", "Name");
+            ViewData["DispenserId"] = new SelectList(_context.Dispensers
+                .Where(a => dispenserId.Contains(a.Id))
+                .Where(a => stat.Contains(a.Status)), "Id", "Name");
             ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks
-
+                .Where(a => lubeId.Contains(a.Id))
                 .Where(a => stat.Contains(a.Status)), "Id", "Description");
 
             ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List");
@@ -142,6 +151,13 @@ namespace FODLSystem.Controllers
         [BreadCrumb(Title = "Edit", Order = 2, IgnoreAjaxRequests = true)]
         public IActionResult Edit(int id)
         {
+            string lubeAccess = User.Identity.GetLubeAccess();
+            string dispenserAccess = User.Identity.GetDispenserAccess();
+
+
+            int[] lubeId = lubeAccess.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
+            int[] dispenserId = dispenserAccess.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
+
             this.AddBreadCrumb(new BreadCrumb
             {
                 Title = "Fuel Oil Liquidation",
@@ -153,8 +169,12 @@ namespace FODLSystem.Controllers
             ViewData["Id"] = model.Id;
             ViewData["Status"] = model.Status;
             ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List");
-            ViewData["DispenserId"] = new SelectList(_context.Dispensers.Where(a => a.Status != "Deleted"), "Id", "Name", model.DispenserId);
-            ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => a.Status != "Deleted"), "Id", "Description", model.LubeTruckId);
+            ViewData["DispenserId"] = new SelectList(_context.Dispensers
+                 .Where(a => dispenserId.Contains(a.Id))
+                .Where(a => a.Status != "Deleted"), "Id", "Name", model.DispenserId);
+            ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks
+                 .Where(a => lubeId.Contains(a.Id))
+                .Where(a => a.Status != "Deleted"), "Id", "Description", model.LubeTruckId);
             return View("Create", model);
         }
         public JsonResult SearchItem(string q)

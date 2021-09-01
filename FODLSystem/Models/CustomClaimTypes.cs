@@ -67,14 +67,14 @@ namespace FODLSystem.Models
         public static string GetDispenserAccess(this IIdentity identity)
         {
             ClaimsIdentity claimsIdentity = identity as ClaimsIdentity;
-            Claim claim = claimsIdentity?.FindFirst(CustomClaimTypes.CompanyAccess);
+            Claim claim = claimsIdentity?.FindFirst(CustomClaimTypes.DispenserAccess);
 
             return claim?.Value ?? string.Empty;
         }
         public static string GetLubeAccess(this IIdentity identity)
         {
             ClaimsIdentity claimsIdentity = identity as ClaimsIdentity;
-            Claim claim = claimsIdentity?.FindFirst(CustomClaimTypes.CompanyAccess);
+            Claim claim = claimsIdentity?.FindFirst(CustomClaimTypes.LubeAccess);
 
             return claim?.Value ?? string.Empty;
         }

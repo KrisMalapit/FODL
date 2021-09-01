@@ -95,6 +95,7 @@ namespace FODLSystem.Controllers
             if (model.LogInType == "AD")
             {
                 loginresult = CallAPI("http://aluminum/ADAPI/api/values", model.Domain, model.Username, model.Password);
+                //loginresult = "OK";
             }
             else
             {
