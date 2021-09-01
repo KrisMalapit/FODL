@@ -66,7 +66,7 @@
                     <span asp-validation-for="RoleId" class="text-danger"></span>
                 </div>
 
-
+              
                 <div class="form-group">
                     <label class="control-label">Company Access</label>
                     <select id="CompanyAccess" style="width:400px" name="companytags[]" class="form-control">
@@ -75,20 +75,16 @@
                 </div>
                 <div class="form-group">
                     <label class="control-label">Lube Access</label>
-                    <select id="LubeAccess" style="width:400px" name="lubetags[]" class="form-control">
-                        <option value="0">N/A</option>
-                    </select>
+                    <select id="LubeAccess" style="width:400px" name="lubetags[]" class="form-control" asp-items="ViewBag.LubeTruckId"></select>
                 </div>
                 <div class="form-group">
                     <label class="control-label">Dispenser Access</label>
-                    <select id="DispenserAccess" style="width:400px" name="dispensertags[]" class="form-control">
-                        <option value="0">N/A</option>
-                    </select>
+                    <select id="DispenserAccess" style="width:400px" name="dispensertags[]" class="form-control" asp-items="ViewBag.DispenserId"></select>
                 </div>
 
 
             </div>
-        </div>
+            </div>
         <div class="form-group">
             <input type="submit" value="Save" class="btn btn-default" />
         </div>
@@ -141,9 +137,9 @@
     });
     
     
-
+    
     $('#CompanyAccess').val(selectedValuesTest).trigger('change');
-    $('#LubeAccess').val(lubeAccess).trigger('change');
+    $('#LubeAccess').val(lubeTest).trigger('change');
     $('#DispenserAccess').val(dispenserTest).trigger('change');
 
 

@@ -98,15 +98,20 @@ namespace FODLSystem.Controllers
             }
             else
             {
-                loginresult = "OK";
+                loginresult = LocalLogIn(model);
             }
            
-            loginresult = "OK";
+     
 
             if (loginresult == "OK")
             {
                 User user = new User() { Username = model.Username, Domain = model.Domain };
+                if (model.LogInType != "AD")
+                {
+                    user.Domain = "Local";
+                }
                 user = GetUserDetails(user);
+
                 if (user != null)
                 {
                     var principal = CreatePrincipal(user);
@@ -130,7 +135,20 @@ namespace FODLSystem.Controllers
 
 
         }
-
+        private string LocalLogIn(LoginViewModel model)
+        {
+            var pwrd = GetSHA1HashData(model.Password);
+            int user = _context.Users.Where(a=>a.Status == "1").Where(a => a.Password == pwrd).Where(a => a.Username == model.Username).Count();
+            if (user > 0)
+            {
+                return "OK";
+            }
+            else
+            {
+                return "User not known in local log-in";
+            }
+            
+        }
         public string CallAPI(string url, string Domain, string UserName, string Password)
 
         {
@@ -190,6 +208,8 @@ namespace FODLSystem.Controllers
                     new Claim("RoleName", user.Roles.Name),
                     new Claim("FullName", user.Name),
                     new Claim("CompanyAccess", user.CompanyAccess),
+                    new Claim("LubeAccess", user.LubeAccess),
+                    new Claim("DispenserAccess", user.DispenserAccess),
                     new Claim("DepartmentID", user.DepartmentId.ToString()),
                    
                 };

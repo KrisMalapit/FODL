@@ -29,11 +29,189 @@ namespace FODLSystem.Controllers
         [BreadCrumb(Title = "Index", Order = 1, IgnoreAjaxRequests = true)]
         public IActionResult Index(string domain)
         {
+            string status = "Active,Default";
+            string[] stat = status.Split(',').Select(n => n).ToArray();
             this.SetCurrentBreadCrumbTitle("Users");
             ViewBag.Domain = domain;
+            ViewData["RoleId"] = new SelectList(_context.Set<Role>(), "Id", "Name");
+            ViewData["DepartmentId"] = new SelectList(_context.Set<Department>(), "ID", "Name");
+
+            ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");
+            ViewData["DispenserId"] = new SelectList(_context.Dispensers.Where(a => stat.Contains(a.Status)), "Id", "Name");
+
+
+            return View();
+        }
+        // GET: Users/Create
+        public IActionResult Create()
+        {
+            string status = "Active,Default";
+            string[] stat = status.Split(',').Select(n => n).ToArray();
+            ViewData["RoleId"] = new SelectList(_context.Set<Role>(), "Id", "Name");
+            ViewData["DepartmentId"] = new SelectList(_context.Set<Department>(), "ID", "Name");
+            ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");
+            ViewData["DispenserId"] = new SelectList(_context.Dispensers.Where(a => stat.Contains(a.Status)), "Id", "Name");
             return View();
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(LocalUserViewModel userView, string[] lubetags, string[] dispensertags)
+        {
+            string lubeaccess = string.Join(",", lubetags);
+            string dispenseraccess = string.Join(",", dispensertags);
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    User user = new User();
+                    user.Password = GetSHA1HashData(userView.Password);
+                    user.RoleId = userView.RoleId;
+                    user.Username = userView.Username;
+                    user.Status = "1";
+                    user.Domain = "Local";
+                    user.FirstName = userView.Firstname;
+                    user.LastName = userView.Lastname;
+                    user.Name = userView.Firstname + " " + userView.Lastname;
+                    user.DepartmentId = userView.DepartmentId;
+                    user.CompanyAccess = "1";
+                    user.LubeAccess = lubeaccess;
+                    user.DispenserAccess = dispenseraccess;
+                    _context.Add(user);
+                    await _context.SaveChangesAsync();
+
+
+                    Log log = new Log
+                    {
+                        Descriptions = "New User - " + user.Id,
+                        Action = "Add",
+                        Status = "success",
+                        UserId = User.Identity.Name
+                    };
+                    _context.Add(log);
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception e)
+                {
+                    ResetContextState();
+                    Log log = new Log
+                    {
+                        Descriptions = "New User - " + e.InnerException.Message,
+                        Action = "Add",
+                        Status = "fail",
+                        UserId = User.Identity.Name
+                    };
+                    _context.Add(log);
+                    await _context.SaveChangesAsync();
+                    ModelState.AddModelError("", e.InnerException.Message);
+                }
+
+            }
+
+
+
+
+
+
+            ViewData["RoleId"] = new SelectList(_context.Set<Role>(), "Id", "Name", userView.RoleId);
+            ViewData["DepartmentId"] = new SelectList(_context.Set<Department>(), "ID", "Name", userView.DepartmentId);
+            return View(userView);
+        }
+        //// POST: Users/Edit/5
+        //// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        //// more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Edit(User user)
+        //{
+            
+
+        //    if (ModelState.IsValid)
+        //    {
+        //        try
+        //        {
+
+        //            var users = _context.Users.Where(a => a.Id == user.Id).FirstOrDefault();
+                    
+        //            if (users != null)
+        //            {
+        //                _context.Entry(users).State = EntityState.Detached;
+        //                user.Name = user.FirstName + " " + user.LastName;
+        //                user.Password = users.Password;
+        //            }
+
+
+        //            _context.Update(user);
+        //            await _context.SaveChangesAsync();
+
+        //            Log log = new Log
+        //            {
+        //                Descriptions = "Edit User - " + user.Id,
+        //                Action = "Edit",
+        //                Status = "success",
+        //                UserId = User.Identity.Name
+        //            };
+        //            _context.Add(log);
+        //            await _context.SaveChangesAsync();
+
+
+        //        }
+        //        catch (DbUpdateConcurrencyException)
+        //        {
+        //            ResetContextState();
+        //            Log log = new Log
+        //            {
+        //                Descriptions = "Edit User - " + user.Id,
+        //                Action = "Edit",
+        //                Status = "fail",
+        //                UserId = User.Identity.Name
+        //            };
+        //            _context.Add(log);
+        //            await _context.SaveChangesAsync();
+
+                  
+
+        //        }
+        //        return RedirectToAction(nameof(Index));
+        //    }
+
+
+        //    var itemStatus = new List<SelectListItem>
+        //    {
+        //        new SelectListItem {Text = "Disabled", Value = "0"},
+        //        new SelectListItem {Text = "Enabled", Value = "1"}
+        //    };
+
+
+        //    ViewData["RoleId"] = new SelectList(_context.Set<Role>(), "Id", "Name", user.RoleId);
+        //    ViewData["Status"] = new SelectList(itemStatus, "Value", "Text", user.Status);
+        //    return View(user);
+        //}
+
+
+        private string GetSHA1HashData(string data)
+        {
+            //create new instance of md5
+            SHA1 sha1 = SHA1.Create();
+
+            //convert the input text to array of bytes
+            byte[] hashData = sha1.ComputeHash(Encoding.Default.GetBytes(data));
+
+            //create new instance of StringBuilder to save hashed data
+            StringBuilder returnValue = new StringBuilder();
+
+            //loop for each byte and add it to StringBuilder
+            for (int i = 0; i < hashData.Length; i++)
+            {
+                returnValue.Append(hashData[i].ToString());
+            }
+
+            // return hexadecimal string
+            return returnValue.ToString();
+        }
         public IActionResult getData(string domain)
         {
 
@@ -175,7 +353,54 @@ namespace FODLSystem.Controllers
 
 
         }
+        public IActionResult getDataLocal()
+        {
 
+            string status = "";
+            var v =
+
+                _context.Users.Where(a => a.Status == "1").Where(a=>a.Domain == "Local").Select(a => new {
+
+
+                    a.Username
+                      ,
+                    a.Name
+                     
+                        ,
+
+                    a.Id
+                    , a.DepartmentId
+                    , Department = a.Departments.Name
+                    , Role = a.Roles.Name
+                    , a.RoleId
+                    , a.FirstName
+                    , a.LastName
+
+                    ,
+                    LubeAccess = a.LubeAccess
+                    ,
+                    DispenserAccess = a.DispenserAccess
+
+
+                });
+            status = "success";
+
+
+
+
+
+
+            var model = new
+            {
+                status
+                ,
+                data = v.ToList()
+            };
+            return Json(model);
+
+
+
+        }
 
 
         [HttpPost]
@@ -272,6 +497,9 @@ namespace FODLSystem.Controllers
         [BreadCrumb(Title = "Edit", Order = 2, IgnoreAjaxRequests = true)]
         public IActionResult Edit(int? id)
         {
+            string status = "Active,Default";
+            string[] stat = status.Split(',').Select(n => n).ToArray();
+
             this.AddBreadCrumb(new BreadCrumb
             {
                 Title = "Users",
@@ -287,14 +515,15 @@ namespace FODLSystem.Controllers
             {
                 return NotFound();
             }
+
             string deptname = user.Departments.Name;
             ViewData["Department"] = new SelectList(_context.Departments.Where(a => a.Status == "Active").Where(a => a.CompanyId == user.Departments.CompanyId), "ID", "Name", user.DepartmentId);
             ViewData["Company"] = new SelectList(_context.Companies.Where(a => a.Status == "Active"), "ID", "Name", user.Departments.CompanyId);
             ViewData["Roles"] = new SelectList(_context.Roles, "Id", "Name", user.RoleId);
 
-            
 
-
+            ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");
+            ViewData["DispenserId"] = new SelectList(_context.Dispensers.Where(a => stat.Contains(a.Status)), "Id", "Name");
             return View(user);
         }
 
@@ -307,11 +536,13 @@ namespace FODLSystem.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(User u, string[] companytags)
+        public IActionResult Edit(User u, string[] companytags,string[] lubetags,string[] dispensertags)
         {
 
             //u.CompanyAccess = companytags.ToString();
             string companyaccess = string.Join(",", companytags);
+            string lubeaccess = string.Join(",", lubetags);
+            string dispenseraccess = string.Join(",", dispensertags);
 
 
 
@@ -322,6 +553,8 @@ namespace FODLSystem.Controllers
                 user.RoleId = u.RoleId;
                 user.DepartmentId = u.DepartmentId;
                 user.UserType = u.UserType;
+                user.LubeAccess = lubeaccess;
+                user.DispenserAccess = dispenseraccess;
                 _context.Entry(user).State = EntityState.Modified;
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
@@ -337,7 +570,7 @@ namespace FODLSystem.Controllers
             try
             {
                 User detail = _context.Users.Find(id);
-                detail.Status = "0";
+                detail.Status = "0" + DateTime.Now.Date.Ticks;
                 _context.Entry(detail).State = EntityState.Modified;
                 _context.SaveChanges();
                 status = "success";
@@ -382,6 +615,51 @@ namespace FODLSystem.Controllers
                 items = model.ToList(),
             };
             return Json(modelUser);
+        }
+        [HttpPost]
+        public ActionResult SaveLocal(LocalUserViewModel luser, string[] lubetags, string[] dispensertags)
+        {
+            string lubeaccess = string.Join(",", lubetags);
+            string dispenseraccess = string.Join(",", dispensertags);
+
+
+            string status = "";
+            string message = "";
+            try
+            {
+
+                
+                var item = _context.Users.Find(luser.Id);
+                item.Username = luser.Username;
+                item.LastName = luser.Lastname;
+                item.FirstName = luser.Firstname;
+                item.DepartmentId = luser.DepartmentId;
+                item.Name = luser.Firstname + " " + luser.Lastname;
+                item.RoleId = luser.RoleId;
+                item.CompanyAccess = "1";
+                item.LubeAccess = lubeaccess;
+                item.DispenserAccess = dispenseraccess;
+
+                _context.Entry(item).State = EntityState.Modified;
+                _context.SaveChanges();
+               
+
+
+                status = "success";
+            }
+            catch (Exception ex)
+            {
+                status = "fail";
+                message = ex.InnerException.Message;
+            }
+
+            var model = new
+            {
+                status,
+                message
+            };
+
+            return Json(model);
         }
 
     }

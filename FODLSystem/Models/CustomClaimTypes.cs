@@ -19,7 +19,8 @@ namespace FODLSystem.Models
         public const string CompanyAccess = "CompanyAccess";
         public const string DepartmentID = "DepartmentID";
         public const string DepartmentName = "DepartmentName";
-
+        public const string DispenserAccess = "DispenserAccess";
+        public const string LubeAccess = "LubeAccess";
 
     }
     public static class IdentityExtensions
@@ -63,6 +64,23 @@ namespace FODLSystem.Models
 
             return claim?.Value ?? string.Empty;
         }
+        public static string GetDispenserAccess(this IIdentity identity)
+        {
+            ClaimsIdentity claimsIdentity = identity as ClaimsIdentity;
+            Claim claim = claimsIdentity?.FindFirst(CustomClaimTypes.CompanyAccess);
+
+            return claim?.Value ?? string.Empty;
+        }
+        public static string GetLubeAccess(this IIdentity identity)
+        {
+            ClaimsIdentity claimsIdentity = identity as ClaimsIdentity;
+            Claim claim = claimsIdentity?.FindFirst(CustomClaimTypes.CompanyAccess);
+
+            return claim?.Value ?? string.Empty;
+        }
+
+
+
         public static string GetDepartmentID(this IIdentity identity)
         {
             ClaimsIdentity claimsIdentity = identity as ClaimsIdentity;

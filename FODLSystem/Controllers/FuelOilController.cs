@@ -132,7 +132,9 @@ namespace FODLSystem.Controllers
             ViewData["Status"] = "Active";
             ViewData["Id"] = 0;
             ViewData["DispenserId"] = new SelectList(_context.Dispensers.Where(a => stat.Contains(a.Status)), "Id", "Name");
-            ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");
+            ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks
+
+                .Where(a => stat.Contains(a.Status)), "Id", "Description");
 
             ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List");
             return View();
@@ -808,16 +810,16 @@ namespace FODLSystem.Controllers
                       DocumentDate = a.FuelOilDetails.FuelOils.CreatedDate,
                       Qty = a.VolumeQty,
                       EquipmentCode = a.FuelOilDetails.Equipments.No,
-                      OfficeCode = a.FuelOilDetails.Locations.OfficeCode,
+                      a.FuelOilDetails.Locations.OfficeCode,
                       FuelCode = a.Items.TypeFuel == "OIL-LUBE" ? a.FuelOilDetails.Equipments.FuelCodeOil : a.FuelOilDetails.Equipments.FuelCodeDiesel,
                       LocationCode = "SMPC-SITE",
-                      DepartmentCode = a.FuelOilDetails.Equipments.DepartmentCode,
+                      a.FuelOilDetails.Equipments.DepartmentCode,
                       a.Id,
-                      a.Status
-                      ,a.FuelOilDetailId
+                      a.Status,
+                      a.FuelOilDetailId
                   });
 
-                var xx = v.ToList();
+               
                 status = "success";
 
                 var model = new

@@ -61,12 +61,16 @@
                                     @Html.AntiForgeryToken()
                                     @Html.ValidationSummary(true, "", new { @class = "text-danger" });
                                     <input type="hidden" name="LogInType" value="LOCAL" />
-                                    <div class="form-group">
+                                    <div class="form-group" hidden>
                                         @Html.DropDownList("Domain",
                                                     new SelectList(Enum.GetValues(typeof(FODLSystem.Models.Domain)), "SEMIRARAMINING"), new { @class = "form-control" })
                                     </div>
+
                                     <div class="form-group">
                                         <input type="text" class="form-control" name="Username" placeholder="Username" required="">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" class="form-control" name="Password" placeholder="Password" required="">
                                     </div>
 
                                     <button type="submit" class="btn btn-primary block full-width m-b">Login</button>

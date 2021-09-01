@@ -95,7 +95,7 @@
         $.ajax({
                 url: "@Url.Action("SaveItem")"
                     , method: "POST"
-                    , data: { id: $id, No: $no, Description: $description, OldId: $oldid }
+                    , data: { Id: $id, No: $no, Description: $description, OldId: $oldid }
                     , dataType: 'json'
                     , success: function (responsedata) {
                         if (responsedata.status == "success") {
