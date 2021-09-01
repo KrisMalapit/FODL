@@ -432,6 +432,8 @@ namespace FODLSystem.Controllers
                         user.Name = Name;
                         user.Email = Email;
                         user.Status = "1";
+                        user.DispenserAccess = "1";
+                        user.LubeAccess = "1";
                         user.RoleId = 2;
                         user.UserType = UserType;
                         _context.Users.Add(user);
@@ -462,6 +464,8 @@ namespace FODLSystem.Controllers
                         user.Status = "1";
                         user.RoleId = 2;
                         user.CompanyAccess = "1";
+                        user.DispenserAccess = "1";
+                        user.LubeAccess = "1";
                         user.UserType = UserType;
                         _context.Users.Add(user);
                         _context.SaveChanges();
