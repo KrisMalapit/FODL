@@ -34,7 +34,7 @@ namespace FODLSystem.Controllers
             {
                 var item = _context.Components.Find(id);
                 item.Name = Name;
-               
+                item.DateModified = DateTime.Now.Date;
                 _context.Entry(item).State = EntityState.Modified;
                 _context.SaveChanges();
 

@@ -4,14 +4,16 @@ using FODLSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FODLSystem.Migrations
 {
     [DbContext(typeof(FODLSystemContext))]
-    partial class FODLSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20210902235816_25")]
+    partial class _25
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -414,21 +416,6 @@ namespace FODLSystem.Migrations
                         new { Id = 1, Name = "Admin", Status = "Active" },
                         new { Id = 2, Name = "User", Status = "Active" }
                     );
-                });
-
-            modelBuilder.Entity("FODLSystem.Models.SynchronizeInformation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("LastModifiedDate");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SynchronizeInformations");
                 });
 
             modelBuilder.Entity("FODLSystem.Models.User", b =>

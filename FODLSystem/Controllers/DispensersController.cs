@@ -54,7 +54,7 @@ namespace FODLSystem.Controllers
                 var item = _context.Dispensers.Find(id);
                 item.No = No;
                 item.Name = Name;
-              
+                item.DateModified = DateTime.Now.Date;
                 _context.Entry(item).State = EntityState.Modified;
                 _context.SaveChanges();
 

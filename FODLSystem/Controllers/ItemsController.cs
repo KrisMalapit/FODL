@@ -36,6 +36,7 @@ namespace FODLSystem.Controllers
                 var item = _context.Items.Find(id);
                 item.DescriptionLiquidation = DescLiq;
                 item.TypeFuel = TypeFuel;
+                item.DateModified = DateTime.Now.Date;
                 _context.Entry(item).State = EntityState.Modified;
                 _context.SaveChanges();
 

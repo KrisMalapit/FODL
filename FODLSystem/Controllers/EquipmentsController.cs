@@ -57,7 +57,7 @@ namespace FODLSystem.Controllers
                 item.DepartmentCode = DepartmentCode;
                 item.FuelCodeDiesel = FuelCodeDiesel;
                 item.FuelCodeOil = FuelCodeOil;
-
+                item.DateModified = DateTime.Now.Date;
 
                 _context.Entry(item).State = EntityState.Modified;
                 _context.SaveChanges();

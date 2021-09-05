@@ -35,8 +35,8 @@ namespace FODLSystem.Models
         public DbSet<FuelOilDetail> FuelOilDetails { get; set; }
         public DbSet<FuelOilSubDetail> FuelOilSubDetails { get; set; }
         public DbSet<FileUpload> FileUploads { get; set; }
-
-
+        public DbSet<SynchronizeInformation> SynchronizeInformations { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()

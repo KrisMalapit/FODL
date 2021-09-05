@@ -26,5 +26,6 @@ namespace FODLSystem.Models
         public DateTime TransferDate { get; set; }
         public string TransferredBy { get; set; }
         public int OldId { get; set; }
+        public string SourceReferenceNo { get; set; }
     }
 }

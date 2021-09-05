@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FODLSystem.Models
@@ -14,5 +15,6 @@ namespace FODLSystem.Models
         public string OldId { get; set; }
         public string Description { get; set; }
         public string Status { get; set; } = "Active";
+        public DateTime ?DateModified { get; set; }
     }
 }

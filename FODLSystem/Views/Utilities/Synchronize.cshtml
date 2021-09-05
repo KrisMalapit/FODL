@@ -1,9 +1,7 @@
 ﻿
-
 @{
     ViewData["Title"] = "Index";
 }
-
 <style>
     /* Mimic table appearance */
     #fileuploaddiv.table {
@@ -63,9 +61,6 @@
         color: darkgreen;
     }
 </style>
-
-
-
 <div id="itemsModal" class="modal inmodal in" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content animated fadeIn">
@@ -146,73 +141,32 @@
     </div>
 </div>
 
-
-
 <div class="col-lg-12">
     <div class="ibox float-e-margins">
         <div class="ibox-content">
+            <h3>
+                Synchronization
+            </h3>
+            <br />
             <p>
-                <a asp-action="Create">Create New</a>
-                |
+
                 <a href="#" class="anchorAction" id="btnExportExcel">
                     <i class="fa fa-download"></i>
-                    <span class="email-text">&nbsp;Download</span>
+                    <span class="email-text">&nbsp;Download Data For Synchronization</span>
                 </a>
-
-                
-                
-
-
                 @if (User.Identity.GetRoleName() != "User")
-                { <text>|</text>
+                {<text>|</text>
                 <a href="#" id="btnAdd" class="anchorAction">
                     <i class="fa fa-upload"></i>
-                    <span class="email-text">&nbsp;Upload</span>
+                    <span class="email-text">&nbsp;Upload Data For Synchronization</span>
                 </a>
 
-                }
+            }
 
 
 
 
             </p>
-            <table id="tbl" class="table table-striped table-no-bordered table-hover dataTable" style="width: 100%!important">
-
-                <thead>
-                    <tr>
-                        <th>Reference No</th>
-                        <th>Date Created</th>
-                        <th>Shift</th>
-                        <th>LubeTruck</th>
-                        <th>Dispenser</th>
-                        <th>Status</th>
-                        <th style="width:8%">Action</th>
-
-                    </tr>
-                    <tr>
-                        <th>Reference No</th>
-                        <th>Date Created</th>
-                        <th>Shift</th>
-                        <th>LubeTruck</th>
-                        <th>Dispenser</th>
-                        <th>Status</th>
-
-                        <th></th>
-
-                    </tr>
-                </thead>
-                <tfoot>
-                    <tr>
-                        <th>Reference No</th>
-                        <th>Date Created</th>
-                        <th>Shift</th>
-                        <th>LubeTruck</th>
-                        <th>Dispenser</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </tfoot>
-            </table>
         </div>
     </div>
 </div>
@@ -317,193 +271,8 @@
     }
 
     $("#btnExportExcel").click(function () {
-        var table = $('#tbl').DataTable();
-        $rowCount = table.data().count();
-       
-        if ($rowCount == 0) {
-            toastr["error"]("No data to be posted")
-            toastr.options = {
-                "closeButton": true,
-                "showDuration": "3000",
-            }
-            return false;
-        }
-       
-
-            $.ajax({
-                    url: "@Url.Action("Checkifposted")"
-                    , method: "POST"
-                    
-                    , dataType: 'json'
-                    , success: function (responsedata) {
-                       if (responsedata.status == "success") {
-
-                           if (confirm('This will download all data and will be move to archived. Continue?')) {
-                               
-                               var newWindow = window.open('@Url.Action("DownloadExcel")');
-                               
-                               //loadDatatable();
-                           }
-
-
-                        } else {
-
-                            toastr["error"](responsedata.message)
-                            toastr.options = {
-                                "closeButton": true,
-                                "showDuration": "3000",
-                            }
-                        }
-                    }
-            })
-        
-
-
-        
+        //if (confirm('This will download all data and will be move to archived. Continue?')) {               
+            window.open('@Url.Action("DownloadExcel")');
+        //}  
     })
-    $(function () {
-        $('#tbl thead tr:eq(1) th').each(function () {
-
-            var title = $(this).text();
-            if (title == "") {
-
-            } else {
-                $(this).html('<input type="search" class="form-control form-control-sm" placeholder="Search ' + title + '" />');
-            }
-        });
-
-        loadDatatable();
-    })
-
-    function loadDatatable() {
-
-
-        if ($.fn.DataTable.isDataTable('#tbl')) {
-            $('#tbl').DataTable().destroy();
-        }
-
-        var table = $("#tbl").DataTable({
-            "processing": true,
-            "serverSide": true,
-            "searching": true,
-            "fixedHeader": true,
-            "order": [[1, "desc"]],
-            "ajax": {
-                "url": "@Url.Action("getData")",
-                "type": "POST",
-                "datatype": "json"
-            },
-            "columns": [
-                { "data": "referenceNo", "name": "ReferenceNo", "autoWidth": true },
-                {
-                    data: "createdDate",
-                    name: "CreatedDate",
-                    render: function (data, type, row) {
-
-                        return moment(data).format("YYYY-MM-DD HH:mm:ss");
-                    }
-                },
-
-                { "data": "shift", "name": "Shift", "autoWidth": true },
-                { "data": "lubeTruckName", "name": "LubeTruckName", "autoWidth": true },
-                { "data": "dispenserName", "name": "DispenserName", "autoWidth": true },
-                { "data": "status", "name": "Status", "autoWidth": true },
-                {
-                     render: function (data, type, row) {
-                         var linkEdit = "@Url.Action("Edit", "FuelOil")?id=" + row.id;
-                         var linkDelete = "@Url.Action("Delete", "FuelOil")?id=" + row.id;
-
-                         if (row.status == "Active") {
-                             $actions =
-                                 '<a title="Edit" class="btn btn-white btn-bitbucket" href="' + linkEdit + '"><i class="fa fa-list"></i></a> ' +
-
-                             '<a title="Delete" onclick="deleteItem(' + row.id + ')" class="btn btn-danger btn-bitbucket" href="#"><i class="fa fa-trash"></i></a>';
-
-
-
-                             return $actions;
-                         } else {
-                             $actions =
-                                 '<a title="Edit" class="btn btn-white btn-bitbucket" href="' + linkEdit + '"><i class="fa fa-list"></i></a> ';
-
-
-
-                             return $actions;
-                         }
-
-                    }
-                }
-
-
-            ]
-            ,
-            "columnDefs": [{ "orderable": false, "targets": [6] }]
-
-
-        });
-
-
-
-
-
-        $('#tbl input').on('keyup change', function (e) {
-
-            var keyCode = e.keyCode
-            if (keyCode >= 9 && keyCode <= 27) {
-
-            } else {
-                searchFunction(this);
-            }
-        });
-        function searchFunction(e) {
-
-            delay(function () {
-                console.log(e);
-                table.column($(e).parent().index() + ':visible')
-                    .search(e.value)
-                    .draw();
-            }, 1000);
-        }
-        $("#tbl_filter").hide();
-    }
-
-    var delay = (function () {
-        var timer = 0;
-        return function (callback, ms) {
-            clearTimeout(timer);
-            timer = setTimeout(callback, ms);
-        };
-    })();
-
-
-    function deleteItem(id) {
-         if (confirm('This will delete list. Continue?')) {
-            $.ajax({
-            url: "@Url.Action("Delete")"
-            , method: "POST"
-            , data: { id: id }
-            , dataType: 'json'
-            , success: function (responsedata) {
-               if (responsedata.status == "success") {
-
-                   toastr["success"]("Item Deleted","<b>Success</b> ")
-                   loadDatatable();
-
-
-                } else {
-
-                    toastr["error"](responsedata.message)
-                    toastr.options = {
-                        "closeButton": true,
-                        "showDuration": "3000",
-                    }
-                }
-            }
-        })
-
-        }
-    }
-
-
-
 </script>

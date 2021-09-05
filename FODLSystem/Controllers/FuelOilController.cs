@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
@@ -223,6 +224,11 @@ namespace FODLSystem.Controllers
             string status = "";
             string message = "";
             int refId = 0;
+
+            
+
+
+
             try
             {
                 if (fvm.Id == 0)
@@ -273,7 +279,24 @@ namespace FODLSystem.Controllers
             };
             return Json(modelItem);
         }
-
+        private bool testNetworkConnection() {
+            try
+            {
+                Ping myPing = new Ping();
+                String host = "192.168.70.231";
+                byte[] buffer = new byte[32];
+                int timeout = 1000;
+                PingOptions pingOptions = new PingOptions();
+                PingReply reply = myPing.Send(host, timeout, buffer, pingOptions);
+                return (reply.Status == IPStatus.Success);
+               
+                
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
         [HttpPost]
         public IActionResult SaveForm(FuelOilViewModel fvm)
@@ -285,6 +308,12 @@ namespace FODLSystem.Controllers
             string refid = "0";
             string isNew = "true";
 
+
+
+            
+            
+
+
             if (fvm.LubeTruckId == 0 & fvm.DispenserId == 0)
             {
                 var model = new
@@ -294,6 +323,13 @@ namespace FODLSystem.Controllers
                 };
                 return Json(model);
             }
+
+           
+
+
+
+
+
 
 
             if (fvm.LubeTruckId == 0)
@@ -312,11 +348,22 @@ namespace FODLSystem.Controllers
 
             try
             {
+                var hasConnection = testNetworkConnection();
+
+
                 if (string.IsNullOrEmpty(fvm.ReferenceNo))
                 {
                     string series_code = "FuelOil";
                     series = new NoSeriesController(_context).GetNoSeries(series_code);
-                    refno = "FLCR" + series;
+                    if (hasConnection)
+                    {
+                        refno = "FLCR" + series;
+                    }  
+                    else
+                    {
+                        long ticks = DateTime.Now.Ticks;
+                        refno = "FLCR-" + string.Format("{0:X}", ticks).ToLower();
+                    }
 
                     var fo = new FuelOil
                     {
@@ -329,15 +376,19 @@ namespace FODLSystem.Controllers
                         DispenserId = fvm.DispenserId
                         ,
                         LubeTruckId = fvm.LubeTruckId
-
-
+                        , SourceReferenceNo = refno
                     };
 
                     _context.Add(fo);
                     _context.SaveChanges();
                     message = refno;
                     refid = fo.Id.ToString();
-                    string x = new NoSeriesController(_context).UpdateNoSeries(series, series_code);
+
+                    if (hasConnection)
+                    {
+                        string x = new NoSeriesController(_context).UpdateNoSeries(series, series_code);
+                    }
+                    
 
 
 
@@ -757,7 +808,8 @@ namespace FODLSystem.Controllers
 
                _context.FuelOilDetails
                   .Where(a => a.FuelOilId == id)
-                  .Where(a => a.Status != "Deleted")
+                  //.Where(a => a.Status != "Deleted")
+                  .Where(a => a.Status == "Active")
                   .Where(strFilter)
                   .Skip(skip).Take(pageSize)
                   .Select(a => new
@@ -872,8 +924,8 @@ namespace FODLSystem.Controllers
 
                _context.FuelOilSubDetails
                .Where(a => a.FuelOilDetailId == id)
-              .Where(a => a.Status != "Deleted")
-
+              //.Where(a => a.Status != "Deleted")
+              .Where(a => a.Status == "Active")
               .Select(a => new
               {
                   ItemId = a.Items.Id,
@@ -994,9 +1046,17 @@ namespace FODLSystem.Controllers
             int cnt = _context.FuelOils.Where(a => a.TransactionDate == DateTime.Now.Date)
                     .Where(a => a.Status == "Active").Count();
 
+            int cntPosted = _context.FuelOils.Where(a => a.TransactionDate == DateTime.Now.Date)
+                    .Where(a => a.Status == "Posted").Count();
+
             if (cnt > 0)
             {
                 message = "Not all input has been posted";
+                status = "fail";
+            }
+            else if (cntPosted == 0) 
+            {
+                message = "No data to be download. Please try refreshing the page.";
                 status = "fail";
             }
             else
@@ -1123,9 +1183,9 @@ namespace FODLSystem.Controllers
 
 
 
-                    _context.FuelOils.Where(a => a.Status == "Posted").ToList().ForEach(a => a.Status = "Deleted");
-                    _context.FuelOilDetails.Where(a => foid.Contains(a.FuelOilId)).Where(a => a.Status == "Active").ToList().ForEach(a => a.Status = "Deleted");
-                    _context.FuelOilSubDetails.Where(a => fodetailid.Contains(a.FuelOilDetailId)).Where(a => a.Status == "Active").ToList().ForEach(a => a.Status = "Deleted");
+                    _context.FuelOils.Where(a => a.Status == "Posted").ToList().ForEach(a => a.Status = "Archived");
+                    _context.FuelOilDetails.Where(a => foid.Contains(a.FuelOilId)).Where(a => a.Status == "Archived").ToList().ForEach(a => a.Status = "Deleted");
+                    _context.FuelOilSubDetails.Where(a => fodetailid.Contains(a.FuelOilDetailId)).Where(a => a.Status == "Archived").ToList().ForEach(a => a.Status = "Deleted");
                     _context.SaveChanges();
                    
 
@@ -1443,6 +1503,7 @@ namespace FODLSystem.Controllers
                     int rowCount = sheet.LastRowNum;
                     int cnt = 0;
                     int line = 1;
+
                     //header
                     List<FuelOil> svm = new List<FuelOil>();
                     for (int i = 1; i <= rowCount; i++)
@@ -1476,10 +1537,14 @@ namespace FODLSystem.Controllers
                             cnt += 1;
                             if (cnt == 9)
                             {
+                                string series_code = "FuelOil";
+                                string series = new NoSeriesController(_context).GetNoSeries(series_code);
+                                string refno = "FLCR" + series;
 
-                                FuelOil sv = new FuelOil
-                                {
-                                    ReferenceNo = clc[0],
+
+                                    FuelOil sv = new FuelOil
+                                    {
+                                    ReferenceNo = refno,
                                     Shift = clc[1],
                                     CreatedDate = Convert.ToDateTime(clc[2]),
                                     CreatedBy = clc[3],
@@ -1489,19 +1554,21 @@ namespace FODLSystem.Controllers
                                     Status = clc[4],
                                     TransferDate = DateTime.Now,
                                     TransferredBy = User.Identity.GetFullName(),
-                                    OldId = Convert.ToInt32(clc[8])
+                                    OldId = Convert.ToInt32(clc[8]),
+                                    SourceReferenceNo = clc[0]
 
-
-                                };
+                                    };
                                 //svm.Add(sv);
                                 _context.FuelOils.Add(sv);
+                                _context.SaveChanges();
+                                string x = new NoSeriesController(_context).UpdateNoSeries(series, series_code);
                                 line += 1;
 
                             }
 
                         }
                     }
-                    _context.SaveChanges();
+                   
 
                     //detail
                     rowCount = sheet2.LastRowNum;

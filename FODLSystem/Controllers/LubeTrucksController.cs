@@ -53,7 +53,7 @@ namespace FODLSystem.Controllers
                     item.No = No;
                     item.OldId = OldId;
                     item.Description = Description;
-
+                    item.DateModified = DateTime.Now.Date;
                     _context.Entry(item).State = EntityState.Modified;
                     _context.SaveChanges();
                 }
