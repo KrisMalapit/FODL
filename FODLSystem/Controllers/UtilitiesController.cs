@@ -128,10 +128,10 @@ namespace FODLSystem.Controllers
                     {
                         wsItem.Cell(index + 1, 1).Value = item.Id;
                         wsItem.Cell(index + 1, 2).Value = item.No;
-                        wsItem.Cell(index + 1, 3).Value = item.Description;
-                        wsItem.Cell(index + 1, 4).Value = item.Description2;
+                        wsItem.Cell(index + 1, 3).Value = "'" + item.Description;
+                        wsItem.Cell(index + 1, 4).Value = "'" + item.Description2;
                         wsItem.Cell(index + 1, 5).Value = item.TypeFuel;
-                        wsItem.Cell(index + 1, 6).Value = item.DescriptionLiquidation;
+                        wsItem.Cell(index + 1, 6).Value = "'" + item.DescriptionLiquidation;
                         wsItem.Cell(index + 1, 7).Value = item.Status;
                         wsItem.Cell(index + 1, 8).Value = item.DateModified;
                         index++;
@@ -200,12 +200,12 @@ namespace FODLSystem.Controllers
                         wsEquipments.Cell(index + 1, 1).Value = item.Id;
                         wsEquipments.Cell(index + 1, 2).Value = item.No;
                         wsEquipments.Cell(index + 1, 3).Value = item.Name;
-                        wsEquipments.Cell(index + 1, 4).Value = item.ModelNo;
+                        wsEquipments.Cell(index + 1, 4).Value = "'" + item.ModelNo;
                         wsEquipments.Cell(index + 1, 5).Value = item.Status;
-                        wsEquipments.Cell(index + 1, 6).Value = item.DepartmentCode;
-                        wsEquipments.Cell(index + 1, 7).Value = item.FuelCodeDiesel;
-                        wsEquipments.Cell(index + 1, 8).Value = item.FuelCodeOil;
-                        wsEquipments.Cell(index + 1, 9).Value = item.FuelCodeOil;
+                        wsEquipments.Cell(index + 1, 6).Value = "'" + item.DepartmentCode;
+                        wsEquipments.Cell(index + 1, 7).Value = "'" + item.FuelCodeDiesel;
+                        wsEquipments.Cell(index + 1, 8).Value = "'" + item.FuelCodeOil;
+                        wsEquipments.Cell(index + 1, 9).Value = "'" + item.FuelCodeOil;
                         index++;
                     }
 
@@ -223,11 +223,11 @@ namespace FODLSystem.Controllers
                     foreach (var item in lubetrucks)
                     {
                         wsLubetrucks.Cell(index + 1, 1).Value = item.Id;
-                        wsLubetrucks.Cell(index + 1, 2).Value = item.No;
-                        wsLubetrucks.Cell(index + 1, 3).Value = item.OldId;
-                        wsLubetrucks.Cell(index + 1, 4).Value = item.Description;
-                        wsLubetrucks.Cell(index + 1, 5).Value = item.Status;
-                        wsLubetrucks.Cell(index + 1, 6).Value = item.DateModified;
+                        wsLubetrucks.Cell(index + 1, 2).Value = "'" + item.No;
+                        wsLubetrucks.Cell(index + 1, 3).Value = "'" + item.OldId;
+                        wsLubetrucks.Cell(index + 1, 4).Value = "'" + item.Description;
+                        wsLubetrucks.Cell(index + 1, 5).Value = "'" + item.Status;
+                        wsLubetrucks.Cell(index + 1, 6).Value = "'" + item.DateModified;
                         index++;
                     }
 
@@ -361,17 +361,16 @@ namespace FODLSystem.Controllers
                     int rowCount = sheet.LastRowNum;
                     int deptCount = 0;
                     int userCount = 0;
-
                     int dispenserCount = 0;
-                    int componentCount = 0;
                     int itemCount = 0;
+                    int componentCount = 0;
                     int lubetruckCount = 0;
                     int equipmentCount = 0;
-                    
 
 
+                    //DEPARTMENT
                     deptCount = _context.Departments.Count();
-                    userCount = _context.Users.Count();
+                   
 
                     if (rowCount == deptCount)
                     {
@@ -382,8 +381,8 @@ namespace FODLSystem.Controllers
                         int cnt = 0;
                         int line = 1;
 
-                        //DEPARTMENT
-                        List<Department> svm = new List<Department>();
+                        
+                        //List<Department> svm = new List<Department>();
                         for (int i = (deptCount + 1); i <= rowCount; i++)
                         {
 
@@ -439,9 +438,10 @@ namespace FODLSystem.Controllers
 
 
                     }
-                    
 
+                    //USER
                     rowCount = sheet2.LastRowNum;
+                    userCount = _context.Users.Count();
                     if (rowCount == userCount)
                     {
                        
@@ -450,8 +450,8 @@ namespace FODLSystem.Controllers
                     {
                         int cnt = 0;
                         int line = 1;
-                        //USER
-                        List<User> usr = new List<User>();
+                       
+                        //List<User> usr = new List<User>();
                         for (int i = (userCount + 1); i <= rowCount; i++)
                         {
 
@@ -512,6 +512,241 @@ namespace FODLSystem.Controllers
                     }
 
 
+                    //ITEMS
+                    rowCount = sheet3.LastRowNum;
+                    componentCount = _context.Items.Count();
+                    if (rowCount == componentCount)
+                    {
+
+                    }
+                    else
+                    {
+                        int cnt = 0;
+                     
+                      
+                        //List<User> usr = new List<User>();
+                        for (int i = (componentCount + 1); i <= rowCount; i++)
+                        {
+                            cnt = 0;
+                         
+                            IRow headerRow = sheet3.GetRow(i); //Get Header Row
+                            int cellCount = headerRow.LastCellNum;
+                            string[] clc = new string[cellCount];
+
+                            for (int j = 0; j < (cellCount); j++)
+                            {
+                                clc[cnt] = headerRow.GetCell(j).ToString();
+                                cnt += 1;
+                                if (cnt == 7)
+                                {
+
+                                    Item sv = new Item
+                                    {
+                                        //Id = Convert.ToInt32(clc[0]),
+                                        No = clc[1],
+                                        Description = clc[2],
+                                        Description2 = clc[3],
+                                        TypeFuel = clc[4],
+                                        DescriptionLiquidation = clc[5],
+                                        Status = clc[6],
+                                    };
+
+                                    _context.Items.Add(sv);
+
+
+
+
+                                }
+
+                            }
+
+                        }
+                        _context.SaveChanges();
+
+
+
+                    }
+
+                    //Components
+                    rowCount = sheet4.LastRowNum;
+                    componentCount = _context.Components.Count();
+                    if (rowCount == componentCount)
+                    {
+
+                    }
+                    else
+                    {
+                        int cnt = 0;
+                        //List<User> usr = new List<User>();
+                        for (int i = (componentCount + 1); i <= rowCount; i++)
+                        {
+                            cnt = 0;
+
+                            IRow headerRow = sheet4.GetRow(i); //Get Header Row
+                            int cellCount = headerRow.LastCellNum;
+                            string[] clc = new string[cellCount];
+
+                            for (int j = 0; j < (cellCount); j++)
+                            {
+                                clc[cnt] = headerRow.GetCell(j).ToString();
+                                cnt += 1;
+                                if (cnt == 4)
+                                {
+
+                                    Component sv = new Component
+                                    {
+                                        //Id = Convert.ToInt32(clc[0]),
+                                        Name = clc[1],
+                                       
+                                        Status = clc[2],
+                                    };
+
+                                    _context.Components.Add(sv);
+                                }
+
+                            }
+
+                        }
+                        _context.SaveChanges();
+                    }
+
+                    //Dispensers
+                    rowCount = sheet5.LastRowNum;
+                    dispenserCount = _context.Dispensers.Count();
+                    if (rowCount == dispenserCount)
+                    {
+
+                    }
+                    else
+                    {
+                        int cnt = 0;
+                        //List<User> usr = new List<User>();
+                        for (int i = (dispenserCount + 1); i <= rowCount; i++)
+                        {
+                            cnt = 0;
+
+                            IRow headerRow = sheet5.GetRow(i); //Get Header Row
+                            int cellCount = headerRow.LastCellNum;
+                            string[] clc = new string[cellCount];
+
+                            for (int j = 0; j < (cellCount); j++)
+                            {
+                                clc[cnt] = headerRow.GetCell(j).ToString();
+                                cnt += 1;
+                                if (cnt == 4)
+                                {
+
+                                    Dispenser sv = new Dispenser
+                                    {
+                                        //Id = Convert.ToInt32(clc[0]),
+                                        Name = clc[1],
+
+                                        Status = clc[2],
+                                    };
+
+                                    _context.Dispensers.Add(sv);
+                                }
+
+                            }
+
+                        }
+                        _context.SaveChanges();
+                    }
+
+                    //Equipments
+                    rowCount = sheet6.LastRowNum;
+                    equipmentCount = _context.Equipments.Count();
+                    if (rowCount == equipmentCount)
+                    {
+
+                    }
+                    else
+                    {
+                        int cnt = 0;
+                        //List<User> usr = new List<User>();
+                        for (int i = (equipmentCount + 1); i <= rowCount; i++)
+                        {
+                            cnt = 0;
+
+                            IRow headerRow = sheet6.GetRow(i); //Get Header Row
+                            int cellCount = headerRow.LastCellNum;
+                            string[] clc = new string[cellCount];
+
+                            for (int j = 0; j < (cellCount); j++)
+                            {
+                                clc[cnt] = headerRow.GetCell(j).ToString();
+                                cnt += 1;
+                                if (cnt == 9)
+                                {
+
+                                    Equipment sv = new Equipment
+                                    {
+                                        //Id = Convert.ToInt32(clc[0]),
+                                        No = clc[1],
+                                        Name = clc[2],
+                                        ModelNo = clc[3],
+                                        Status = clc[4],
+                                        DepartmentCode = clc[5],
+                                        FuelCodeDiesel = clc[6],
+                                        FuelCodeOil = clc[7],
+                                    };
+
+                                    _context.Equipments.Add(sv);
+                                }
+
+                            }
+
+                        }
+                        _context.SaveChanges();
+                    }
+
+
+                    //Lubetrucks
+                    rowCount = sheet7.LastRowNum;
+                    lubetruckCount = _context.LubeTrucks.Count();
+                    if (rowCount == lubetruckCount)
+                    {
+
+                    }
+                    else
+                    {
+                        int cnt = 0;
+                        //List<User> usr = new List<User>();
+                        for (int i = (lubetruckCount + 1); i <= rowCount; i++)
+                        {
+                            cnt = 0;
+
+                            IRow headerRow = sheet7.GetRow(i); //Get Header Row
+                            int cellCount = headerRow.LastCellNum;
+                            string[] clc = new string[cellCount];
+
+                            for (int j = 0; j < (cellCount); j++)
+                            {
+                                clc[cnt] = headerRow.GetCell(j).ToString();
+                                cnt += 1;
+                                if (cnt == 6)
+                                {
+
+                                    LubeTruck sv = new LubeTruck
+                                    {
+                                        //Id = Convert.ToInt32(clc[0]),
+                                        No = clc[1],
+                                        OldId = clc[2],
+                                        Description = clc[3],
+                                        Status = clc[4],
+                                       
+                                    };
+
+                                    _context.LubeTrucks.Add(sv);
+                                }
+
+                            }
+
+                        }
+                        _context.SaveChanges();
+                    }
+
+
                     var si = _context.SynchronizeInformations.Find(1);
                     if (si != null)
                     {
@@ -552,7 +787,7 @@ namespace FODLSystem.Controllers
             catch (Exception e)
             {
 
-                throw;
+                return e.ToString();
             }
 
 
