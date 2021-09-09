@@ -747,6 +747,24 @@ namespace FODLSystem.Controllers
                     }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     var si = _context.SynchronizeInformations.Find(1);
                     if (si != null)
                     {
