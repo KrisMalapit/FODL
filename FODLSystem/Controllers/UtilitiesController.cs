@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.OleDb;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -323,7 +325,7 @@ namespace FODLSystem.Controllers
                       
                        
 
-                        var transferExcel = UploadExcelFinal(sheet, sheet2, sheet3, sheet4, sheet5, sheet6, sheet7);
+                        var transferExcel = UploadExcelFinal(sheet, sheet2, sheet3, sheet4, sheet5, sheet6, sheet7, fullPath);
                         
                     }
                 }
@@ -350,7 +352,7 @@ namespace FODLSystem.Controllers
 
             return Json(model);
         }
-        public string UploadExcelFinal(ISheet sheet, ISheet sheet2, ISheet sheet3, ISheet sheet4, ISheet sheet5, ISheet sheet6, ISheet sheet7)
+        public string UploadExcelFinal(ISheet sheet, ISheet sheet2, ISheet sheet3, ISheet sheet4, ISheet sheet5, ISheet sheet6, ISheet sheet7,string fileName)
         {
 
             
@@ -747,6 +749,26 @@ namespace FODLSystem.Controllers
                     }
 
 
+
+                    //var dtItems = ConvertToDatatable(sheet3);
+                    //var importdata = from row in dtItems.AsEnumerable()
+                    //                 select new Item()
+                    //                 {
+                    //                     Id = row.Field<int>(0),
+                    //                     No = row.Field<string>(1),
+                    //                     Description = row.Field<string>(2),
+                    //                     Description2 = row.Field<string>(3),
+                    //                     TypeFuel = row.Field<string>(4),
+                    //                     DescriptionLiquidation = row.Field<string>(5),
+                    //                     Status = row.Field<string>(6),
+                    //                     DateModified = row.Field<DateTime>(7),
+                    //                 };
+
+                    //IQueryable<IImportRow> data = importdata as IQueryable<IImportRow>;
+
+                    var strItems = UpdateItems(fileName);
+
+
                     var si = _context.SynchronizeInformations.Find(1);
                     if (si != null)
                     {
@@ -791,6 +813,98 @@ namespace FODLSystem.Controllers
             }
 
 
+        }
+        static string UpdateItems(string fileName) {
+
+            try
+            {
+                string conn = string.Empty;
+                DataTable dtexcel = new DataTable();
+
+                conn = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + fileName + ";Extended Properties='Excel 12.0;HDR=NO';"; //for above excel 2007  
+                using (OleDbConnection con = new OleDbConnection(conn))
+                {
+                    try
+                    {
+                        OleDbDataAdapter oleAdpt = new OleDbDataAdapter("select * from [Items]", con); //here we read data from sheet1  
+                        oleAdpt.Fill(dtexcel); //fill excel data into dataTable 
+
+                        int dtRows = dtexcel.Rows.Count;
+                        List<Item> items = new List<Item>();
+                        for (int i = 0; i < dtexcel.Rows.Count; i++)
+                        {
+                            Item student = new Item();
+                            student.Id = Convert.ToInt32(dtexcel.Rows[i]["Id"]);
+                            student.No = dtexcel.Rows[i]["No"].ToString();
+                            student.Description = dtexcel.Rows[i]["Description"].ToString();
+                            student.Description2 = dtexcel.Rows[i]["Description2"].ToString();
+                            student.TypeFuel = dtexcel.Rows[i]["TypeFuel"].ToString();
+                            student.DescriptionLiquidation = dtexcel.Rows[i]["DescriptionLiquidation"].ToString();
+                            student.Status = dtexcel.Rows[i]["Status"].ToString();
+                            student.DateModified =Convert.ToDateTime(dtexcel.Rows[i]["DateModified"]);
+
+                            items.Add(student);
+                        }
+                        var x = items;
+                        return "success";
+
+                    }
+                    catch (Exception e)
+                    {
+
+                        return e.Message;
+                    }
+                }
+                //return dtexcel;
+                
+            }
+            catch (Exception e)
+            {
+
+                return e.Message;
+            }
+        }
+        static DataTable ConvertToDatatable(ISheet sheet)
+        {
+            DataTable dtTable = new DataTable();
+            List<string> rowList = new List<string>();
+            //ISheet sheet;
+            //using (var stream = new FileStream("TestData.xlsx", FileMode.Open))
+            //{
+            //    stream.Position = 0;
+            //    XSSFWorkbook xssWorkbook = new XSSFWorkbook(stream);
+            //   shtItem = xssWorkbook.GetSheetAt(0);
+                IRow headerRow = sheet.GetRow(0);
+                int cellCount = headerRow.LastCellNum;
+                for (int j = 0; j < cellCount; j++)
+                {
+                    ICell cell = headerRow.GetCell(j);
+                    if (cell == null || string.IsNullOrWhiteSpace(cell.ToString())) continue;
+                    {
+                        dtTable.Columns.Add(cell.ToString());
+                    }
+                }
+                for (int i = (sheet.FirstRowNum + 1); i <= sheet.LastRowNum; i++)
+                {
+                    IRow row = sheet.GetRow(i);
+                    if (row == null) continue;
+                    if (row.Cells.All(d => d.CellType == CellType.Blank)) continue;
+                    for (int j = row.FirstCellNum; j < cellCount; j++)
+                    {
+                        if (row.GetCell(j) != null)
+                        {
+                            if (!string.IsNullOrEmpty(row.GetCell(j).ToString()) && !string.IsNullOrWhiteSpace(row.GetCell(j).ToString()))
+                            {
+                                rowList.Add(row.GetCell(j).ToString());
+                            }
+                        }
+                    }
+                    if (rowList.Count > 0)
+                        dtTable.Rows.Add(rowList.ToArray());
+                    rowList.Clear();
+                }
+            //}
+            return dtTable;
         }
 
     }
