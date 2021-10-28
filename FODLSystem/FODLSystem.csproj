@@ -8,12 +8,13 @@
     <PackageReference Include="Aspose.Words" Version="21.9.0" />
     <PackageReference Include="ClosedXML" Version="0.95.4" />
     <PackageReference Include="DNTBreadCrumb.Core" Version="1.7.0" />
+    <PackageReference Include="EPPlus" Version="5.7.4" />
+    <PackageReference Include="LinqToExcel" Version="2.0.0-PRERELEASE-2" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.9" />
     <PackageReference Include="NPOI" Version="2.5.4" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="System.Data.OleDb" Version="5.0.0" />
     <PackageReference Include="System.DirectoryServices.AccountManagement" Version="5.0.0" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.9" />
   </ItemGroup>

@@ -12,7 +12,7 @@
                 <div class="col-md-4 row">
                     <label class="class-md-4 col-form-label">Batch No</label>
                     <div class="col-md-8">
-                        <input class="form-control" />
+                        <input class="form-control" id="txtBatchNo" />
                     </div>
                 </div>
                <br />
@@ -36,7 +36,7 @@
                    
                 </table>
                 <p>
-                    <a href="#" onclick="saveForm(this);" class="anchorAction">
+                    <a href="#" onclick="uploadNavision();"  class="anchorAction">
                         <i class="fa fa-check"></i>
                         <span class="email-text">&nbsp;Upload to Navision</span>
                     </a>
@@ -56,10 +56,17 @@
     </div>
 </div>
 <script>
+
     $(function () {
        
-        var data = [];
+        loadDatatable();
 
+    });
+    function loadDatatable() {
+        var data = [];
+        if ($.fn.DataTable.isDataTable('#tbl')) {
+            $('#tbl').DataTable().destroy();
+        }
          $.ajax({
                         url: "@Url.Action("getDataSummary")"
                             , method: "POST"
@@ -101,8 +108,58 @@
                             }
         });
 
-    });
+    }
+    function uploadNavision() {
 
+        if ($.trim($("#txtBatchNo").val()) == "") {
+            toastr["error"]("Please fill out batch no")
+            toastr.options = {
+                "closeButton": true
+            }
+            return false;
+        }
+
+        var table = $('#tbl').DataTable();
+        $rowCount = table.data().count();
+
+        if ($rowCount == 0) {
+            toastr["error"]("No data to be uploaded")
+            toastr.options = {
+                "closeButton": true,
+                "showDuration": "3000",
+            }
+            return false;
+        }
+
+       
+         $.ajax({
+                        url: "@Url.Action("uploadNavision","Utilities")"
+                            , method: "POST"
+                            , dataType: 'json'
+                            , data: { batchno: $("#txtBatchNo").val()}
+                            , success: function (responsedata) {
+                                console.log(responsedata);
+                                if (responsedata.status == "success") {
+
+                                    toastr["success"]("Successfully uploaded to Navision")
+                                    toastr.options = {
+                                        "closeButton": true
+                                    }
+
+                                    loadDatatable();
+
+                                } else {
+                                    toastr["error"](responsedata.message)
+                                    toastr.options = {
+                                        "closeButton": true
+                                    }
+
+                                    loadDatatable();
+                                }
+
+                            }
+        });
+    }
     
         
        

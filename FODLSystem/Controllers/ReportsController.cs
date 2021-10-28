@@ -29,9 +29,10 @@ namespace FODLSystem.Controllers
 
                 string urilive = "http://californium/FODLApi/api/printreport?rvm=";
                 string uridev = "http://sodium2/fodlapi/api/printreport?rvm=";
+                string uridevminesite = "http://192.168.0.199/fodlapi/api/printreport?rvm=";
                 string urilocal = "http://localhost:59455/api/printreport?rvm=";
 
-                response = client.GetAsync(uridev + xstring).Result;
+                response = client.GetAsync(uridevminesite + xstring).Result;
                 string byteToString = response.Content.ReadAsStringAsync().Result.Replace("\"", string.Empty);
                 bytes = Convert.FromBase64String(byteToString);
 

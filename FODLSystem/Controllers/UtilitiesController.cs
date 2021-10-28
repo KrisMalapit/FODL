@@ -4,16 +4,21 @@ using System.Data;
 using System.Data.OleDb;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
 using DNTBreadCrumb.Core;
 using FODLSystem.Models;
+using FODLSystem.Models.View_Model;
+using LinqToExcel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using OfficeOpenXml;
 
 namespace FODLSystem.Controllers
 {
@@ -89,7 +94,7 @@ namespace FODLSystem.Controllers
                     worksheet2.Cell(1, 13).Value = "DepartmentId";
                     worksheet2.Cell(1, 14).Value = "DispenserAccess";
                     worksheet2.Cell(1, 15).Value = "LubeAccess";
-
+                    worksheet2.Cell(1, 16).Value = "DateModified";
                     index = 1;
 
                     foreach (var item in users)
@@ -109,6 +114,7 @@ namespace FODLSystem.Controllers
                         worksheet2.Cell(index + 1, 13).Value = item.DepartmentId;
                         worksheet2.Cell(index + 1, 14).Value = "'" + item.DispenserAccess;
                         worksheet2.Cell(index + 1, 15).Value = "'" + item.LubeAccess;
+                        worksheet2.Cell(index + 1, 16).Value = "'" + item.DateModified;
                         index++;
                     }
 
@@ -255,6 +261,7 @@ namespace FODLSystem.Controllers
             string message = "";
             string status = "";
             IFormFile file = Request.Form.Files[0];
+            
             try
             {
 
@@ -472,7 +479,7 @@ namespace FODLSystem.Controllers
 
 
                                 cnt += 1;
-                                if (cnt == 15)
+                                if (cnt == 16)
                                 {
 
 
@@ -494,7 +501,7 @@ namespace FODLSystem.Controllers
                                         DepartmentId = Convert.ToInt32(clc[12]),
                                         DispenserAccess = clc[13],
                                         LubeAccess = clc[14],
-
+                                        
                                     };
 
                                     _context.Users.Add(sv);
@@ -766,15 +773,15 @@ namespace FODLSystem.Controllers
 
                     //IQueryable<IImportRow> data = importdata as IQueryable<IImportRow>;
 
-                    var strItems = UpdateItems(fileName);
 
+                    DateTime lastDateModified = DateTime.Now.Date;
 
                     var si = _context.SynchronizeInformations.Find(1);
                     if (si != null)
                     {
                         si.LastModifiedDate = DateTime.Now.Date;
                         si.ModifiedBy = User.Identity.GetFullName();
-                        _context.SynchronizeInformations.Update(si);
+                        _context.SynchronizeInformations.Update(si); 
                     }
                     else
                     {
@@ -783,14 +790,25 @@ namespace FODLSystem.Controllers
                         sIn.ModifiedBy = User.Identity.GetFullName();
                         _context.Add(sIn);
                         _context.SaveChanges();
+
+                        lastDateModified = si.LastModifiedDate;
                     }
-                   
+
+
+                    var userStatus = UpdateUsers(fileName, "Users", lastDateModified); //Users
+                    var itemStatus = UpdateItems(fileName, "Items", lastDateModified); //Items
+                    var componentsStatus = UpdateComponents(fileName, "Components", lastDateModified); //Components
+                    var dispensersStatus = UpdateDispensers(fileName, "Dispensers", lastDateModified); //Dispensers
+                    var equipmentsStatus = UpdateEquipments(fileName, "Equipments", lastDateModified); //Equipments
+                    var lubetrucksStatus = UpdateLubeTrucks(fileName, "Lubetrucks", lastDateModified); //Lubetrucks
+
 
                     Log log = new Log
                     {
                         Action = "Upload",
                         CreatedDate = DateTime.Now,
-                        Descriptions = "Upload Excel File Synchronize" ,
+                        Descriptions = "Upload Excel File Synchronize. Users : " + userStatus + "  Item : " + itemStatus + " Components : " + componentsStatus + " Dispensers : " + dispensersStatus +
+                                        " Equipments : " + equipmentsStatus + " Lubetrucks : " + lubetrucksStatus ,
                         Status = "success",
                         UserId = User.Identity.GetUserId().ToString()
                     };
@@ -814,49 +832,67 @@ namespace FODLSystem.Controllers
 
 
         }
-        static string UpdateItems(string fileName) {
+        string UpdateUsers(string fileName, string sheetName, DateTime LastDateModified)
+        {
 
             try
             {
-                string conn = string.Empty;
+                FileInfo fs = new FileInfo(fileName);
+                ExcelPackage package = new ExcelPackage(fs);
                 DataTable dtexcel = new DataTable();
+                dtexcel = ExcelToDataTable(package, sheetName);
+                DateTime defdDate = new DateTime(1900, 01, 01);
 
-                conn = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + fileName + ";Extended Properties='Excel 12.0;HDR=NO';"; //for above excel 2007  
-                using (OleDbConnection con = new OleDbConnection(conn))
+                int dtRows = dtexcel.Rows.Count;
+                List<User> items = new List<User>();
+                for (int i = 0; i < dtexcel.Rows.Count; i++)
                 {
-                    try
-                    {
-                        OleDbDataAdapter oleAdpt = new OleDbDataAdapter("select * from [Items]", con); //here we read data from sheet1  
-                        oleAdpt.Fill(dtexcel); //fill excel data into dataTable 
+                    User item = new User();
+                    item.Id = Convert.ToInt32(dtexcel.Rows[i]["Id"]);
+                    item.Username = dtexcel.Rows[i]["Username"].ToString();
+                    item.RoleId = Convert.ToInt32(dtexcel.Rows[i]["RoleId"]);
+                    item.Password = dtexcel.Rows[i]["Password"].ToString();
+                    item.FirstName = dtexcel.Rows[i]["FirstName"].ToString();
+                    item.LastName = dtexcel.Rows[i]["LastName"].ToString();
+                    item.Name = dtexcel.Rows[i]["Name"].ToString();
+                    item.Status = dtexcel.Rows[i]["Status"].ToString();
+                    item.Email = dtexcel.Rows[i]["Email"].ToString();
+                    item.Domain = dtexcel.Rows[i]["Domain"].ToString();
+                    item.CompanyAccess = dtexcel.Rows[i]["CompanyAccess"].ToString();
+                    item.UserType = dtexcel.Rows[i]["UserType"].ToString();
+                    item.DepartmentId = Convert.ToInt32(dtexcel.Rows[i]["DepartmentId"]);
+                    item.DispenserAccess = dtexcel.Rows[i]["DispenserAccess"].ToString();
+                    item.LubeAccess = dtexcel.Rows[i]["LubeAccess"].ToString();
+                    
+                    item.DateModified = dtexcel.Rows[i]["DateModified"].ToString() == "" ? defdDate : Convert.ToDateTime(dtexcel.Rows[i]["DateModified"]);
 
-                        int dtRows = dtexcel.Rows.Count;
-                        List<Item> items = new List<Item>();
-                        for (int i = 0; i < dtexcel.Rows.Count; i++)
-                        {
-                            Item student = new Item();
-                            student.Id = Convert.ToInt32(dtexcel.Rows[i]["Id"]);
-                            student.No = dtexcel.Rows[i]["No"].ToString();
-                            student.Description = dtexcel.Rows[i]["Description"].ToString();
-                            student.Description2 = dtexcel.Rows[i]["Description2"].ToString();
-                            student.TypeFuel = dtexcel.Rows[i]["TypeFuel"].ToString();
-                            student.DescriptionLiquidation = dtexcel.Rows[i]["DescriptionLiquidation"].ToString();
-                            student.Status = dtexcel.Rows[i]["Status"].ToString();
-                            student.DateModified =Convert.ToDateTime(dtexcel.Rows[i]["DateModified"]);
-
-                            items.Add(student);
-                        }
-                        var x = items;
-                        return "success";
-
-                    }
-                    catch (Exception e)
-                    {
-
-                        return e.Message;
-                    }
+                    items.Add(item);
                 }
-                //return dtexcel;
-                
+                var itemsToUpdate = items.Where(a => a.DateModified >= LastDateModified);
+
+                int itemCount = itemsToUpdate.Count();
+                foreach (var item in itemsToUpdate)
+                {
+                    var it = _context.Users.Find(item.Id);
+                    it.Username = item.Username;
+                    it.RoleId = item.RoleId;
+                    it.Password = item.Password;
+                    it.FirstName = item.FirstName;
+                    it.LastName = item.LastName;
+                    it.Name = item.Name;
+                    it.Status = item.Status;
+                    it.Email = item.Email;
+                    it.Domain = item.Domain;
+                    it.CompanyAccess = item.CompanyAccess;
+                    it.UserType = item.UserType;
+                    it.DepartmentId = item.DepartmentId;
+                    it.DispenserAccess = item.DispenserAccess;
+                    it.LubeAccess = item.LubeAccess;
+                    _context.Update(it);
+                }
+
+                return "Ok";
+
             }
             catch (Exception e)
             {
@@ -864,6 +900,261 @@ namespace FODLSystem.Controllers
                 return e.Message;
             }
         }
+        
+        string UpdateItems(string fileName,string sheetName,DateTime LastDateModified) {
+
+            try
+            {
+                FileInfo fs = new FileInfo(fileName);
+                ExcelPackage package = new ExcelPackage(fs);
+                DataTable dtexcel = new DataTable();
+                dtexcel = ExcelToDataTable(package, sheetName);
+                DateTime defdDate = new DateTime(1900, 01, 01);
+
+                int dtRows = dtexcel.Rows.Count;
+                List<Item> items = new List<Item>();
+                for (int i = 0; i < dtexcel.Rows.Count; i++)
+                {
+                    Item item = new Item();
+                    item.Id = Convert.ToInt32(dtexcel.Rows[i]["Id"]);
+                    item.No = dtexcel.Rows[i]["No"].ToString();
+                    item.Description = dtexcel.Rows[i]["Description"].ToString();
+                    item.Description2 = dtexcel.Rows[i]["Description2"].ToString();
+                    item.TypeFuel = dtexcel.Rows[i]["TypeFuel"].ToString();
+                    item.DescriptionLiquidation = dtexcel.Rows[i]["DescriptionLiquidation"].ToString();
+                    item.Status = dtexcel.Rows[i]["Status"].ToString();
+                    item.DateModified = dtexcel.Rows[i]["DateModified"].ToString() == "" ? defdDate : Convert.ToDateTime(dtexcel.Rows[i]["DateModified"]);
+
+                    items.Add(item);
+                }
+                var itemsToUpdate = items.Where(a=>a.DateModified >= LastDateModified);
+                int itemCount = itemsToUpdate.Count();
+                foreach (var item in itemsToUpdate)
+                {
+                    var it = _context.Items.Find(item.Id);
+                    it.Description = item.Description;
+                    it.Description2 = item.Description2;
+                    it.DescriptionLiquidation = item.DescriptionLiquidation;
+                    it.TypeFuel = item.TypeFuel;
+                    it.No = item.No;
+                    it.Status = item.Status;
+                    _context.Update(it);
+                }
+
+                return "Ok";
+
+            }
+            catch (Exception e)
+            {
+                
+                return e.Message;
+            }
+        }
+
+        string UpdateComponents(string fileName, string sheetName, DateTime LastDateModified)
+        {
+
+            try
+            {
+                FileInfo fs = new FileInfo(fileName);
+                ExcelPackage package = new ExcelPackage(fs);
+                DataTable dtexcel = new DataTable();
+                dtexcel = ExcelToDataTable(package, sheetName);
+                DateTime defdDate = new DateTime(1900, 01, 01);
+
+                int dtRows = dtexcel.Rows.Count;
+                List<Component> items = new List<Component>();
+                for (int i = 0; i < dtexcel.Rows.Count; i++)
+                {
+                    Component item = new Component();
+                    item.Id = Convert.ToInt32(dtexcel.Rows[i]["Id"]);
+                    item.Name = dtexcel.Rows[i]["Name"].ToString();
+                    item.DateModified = dtexcel.Rows[i]["DateModified"].ToString() == "" ? defdDate : Convert.ToDateTime(dtexcel.Rows[i]["DateModified"]);
+                    item.Status = dtexcel.Rows[i]["Status"].ToString();
+                    items.Add(item);
+                }
+                var itemsToUpdate = items.Where(a => a.DateModified >= LastDateModified);
+                int itemCount = itemsToUpdate.Count();
+                foreach (var item in itemsToUpdate)
+                {
+                    var it = _context.Components.Find(item.Id);
+                    it.Name = item.Name;
+                    it.Status = item.Status;
+                    _context.Update(it);
+                }
+
+                return "Ok";
+
+            }
+            catch (Exception e)
+            {
+
+                return e.Message;
+            }
+        }
+
+        string UpdateDispensers(string fileName, string sheetName, DateTime LastDateModified)
+        {
+
+            try
+            {
+                FileInfo fs = new FileInfo(fileName);
+                ExcelPackage package = new ExcelPackage(fs);
+                DataTable dtexcel = new DataTable();
+                dtexcel = ExcelToDataTable(package, sheetName);
+                DateTime defdDate = new DateTime(1900, 01, 01);
+
+                int dtRows = dtexcel.Rows.Count;
+                List<Dispenser> items = new List<Dispenser>();
+                for (int i = 0; i < dtexcel.Rows.Count; i++)
+                {
+                    Dispenser item = new Dispenser();
+                    item.Id = Convert.ToInt32(dtexcel.Rows[i]["Id"]);
+                    item.Name = dtexcel.Rows[i]["Name"].ToString();
+                    item.DateModified = dtexcel.Rows[i]["DateModified"].ToString() == "" ? defdDate : Convert.ToDateTime(dtexcel.Rows[i]["DateModified"]);
+                    item.Status = dtexcel.Rows[i]["Status"].ToString();
+                    items.Add(item);
+                }
+                var itemsToUpdate = items.Where(a => a.DateModified >= LastDateModified);
+                int itemCount = itemsToUpdate.Count();
+                foreach (var item in itemsToUpdate)
+                {
+                    var it = _context.Dispensers.Find(item.Id);
+                    it.Name = item.Name;
+                    it.Status = item.Status;
+                    _context.Update(it);
+                }
+
+                return "Ok";
+
+            }
+            catch (Exception e)
+            {
+
+                return e.Message;
+            }
+        }
+        string UpdateEquipments(string fileName, string sheetName, DateTime LastDateModified)
+        {
+
+            try
+            {
+                FileInfo fs = new FileInfo(fileName);
+                ExcelPackage package = new ExcelPackage(fs);
+                DataTable dtexcel = new DataTable();
+                dtexcel = ExcelToDataTable(package, sheetName);
+                DateTime defdDate = new DateTime(1900, 01, 01);
+
+                int dtRows = dtexcel.Rows.Count;
+                List<Equipment> items = new List<Equipment>();
+                for (int i = 0; i < dtexcel.Rows.Count; i++)
+                {
+                    Equipment item = new Equipment();
+                    item.Id = Convert.ToInt32(dtexcel.Rows[i]["Id"]);
+                    item.No = dtexcel.Rows[i]["No"].ToString();
+                    item.Name = dtexcel.Rows[i]["Name"].ToString();
+                    item.ModelNo = dtexcel.Rows[i]["ModelNo"].ToString();
+                    item.DepartmentCode = dtexcel.Rows[i]["DepartmentCode"].ToString();
+                    item.FuelCodeDiesel = dtexcel.Rows[i]["FuelCodeDiesel"].ToString();
+                    item.FuelCodeOil = dtexcel.Rows[i]["FuelCodeOil"].ToString();
+                    item.Status = dtexcel.Rows[i]["Status"].ToString();
+                    item.DateModified = dtexcel.Rows[i]["DateModified"].ToString() == "" ? defdDate : Convert.ToDateTime(dtexcel.Rows[i]["DateModified"]);
+
+                    items.Add(item);
+                }
+                var itemsToUpdate = items.Where(a => a.DateModified >= LastDateModified);
+                int itemCount = itemsToUpdate.Count();
+                foreach (var item in itemsToUpdate)
+                {
+                    var it = _context.Equipments.Find(item.Id);
+                    it.Name = item.Name;
+                    it.ModelNo = item.ModelNo;
+                    it.DepartmentCode = item.DepartmentCode;
+                    it.FuelCodeDiesel = item.FuelCodeDiesel;
+                    it.FuelCodeOil = item.FuelCodeOil;
+                    it.No = item.No;
+                    it.Status = item.Status;
+                    _context.Update(it);
+                }
+
+                return "Ok";
+
+            }
+            catch (Exception e)
+            {
+
+                return e.Message;
+            }
+        }
+
+        string UpdateLubeTrucks(string fileName, string sheetName, DateTime LastDateModified)
+        {
+
+            try
+            {
+                FileInfo fs = new FileInfo(fileName);
+                ExcelPackage package = new ExcelPackage(fs);
+                DataTable dtexcel = new DataTable();
+                dtexcel = ExcelToDataTable(package, sheetName);
+                DateTime defdDate = new DateTime(1900, 01, 01);
+
+                int dtRows = dtexcel.Rows.Count;
+                List<LubeTruck> items = new List<LubeTruck>();
+                for (int i = 0; i < dtexcel.Rows.Count; i++)
+                {
+                    LubeTruck item = new LubeTruck();
+                    item.Id = Convert.ToInt32(dtexcel.Rows[i]["Id"]);
+                    item.No = dtexcel.Rows[i]["No"].ToString();
+                    item.OldId = dtexcel.Rows[i]["OldId"].ToString();
+                    item.Description = dtexcel.Rows[i]["Description"].ToString();
+                    item.DateModified = dtexcel.Rows[i]["DateModified"].ToString() == "" ? defdDate : Convert.ToDateTime(dtexcel.Rows[i]["DateModified"]);
+                    item.Status = dtexcel.Rows[i]["Status"].ToString();
+                    items.Add(item);
+                }
+                var itemsToUpdate = items.Where(a => a.DateModified >= LastDateModified);
+                int itemCount = itemsToUpdate.Count();
+                foreach (var item in itemsToUpdate)
+                {
+                    var it = _context.LubeTrucks.Find(item.Id);
+                    it.No = item.No;
+                    it.OldId = item.OldId;
+                    it.Description = item.Description;
+                    it.Status = item.Status;
+                    _context.Update(it);
+                }
+
+                return "Ok";
+
+            }
+            catch (Exception e)
+            {
+
+                return e.Message;
+            }
+        }
+
+        static DataTable ExcelToDataTable(ExcelPackage package,string sheetName)
+        {
+            ExcelWorksheet workSheet = package.Workbook.Worksheets[sheetName];
+            DataTable table = new DataTable();
+            foreach (var firstRowCell in workSheet.Cells[1, 1, 1, workSheet.Dimension.End.Column])
+            {
+                table.Columns.Add(firstRowCell.Text);
+            }
+
+            for (var rowNumber = 2; rowNumber <= workSheet.Dimension.End.Row; rowNumber++)
+            {
+                var row = workSheet.Cells[rowNumber, 1, rowNumber, workSheet.Dimension.End.Column];
+                var newRow = table.NewRow();
+                foreach (var cell in row)
+                {
+                    newRow[cell.Start.Column - 1] = cell.Text;
+                }
+                table.Rows.Add(newRow);
+            }
+            return table;
+        }
+
         static DataTable ConvertToDatatable(ISheet sheet)
         {
             DataTable dtTable = new DataTable();
@@ -905,6 +1196,94 @@ namespace FODLSystem.Controllers
                 }
             //}
             return dtTable;
+        }
+
+        public JsonResult uploadNavision(string batchno)
+        {
+            string status = "";
+            string message = "";
+            try
+            {
+                //string apiUrl = @"http://192.168.0.199/FODLApi/api/"; //SMPC DEV
+                string apiUrl = @"http://sodium2/FODLApi/api/"; //SMPC DEV
+                //string apiUrl = @"http://localhost:59455/api/"; //LOCAL
+
+                NavisionViewModel nvm = null;
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = new Uri(apiUrl);
+                    var responseTask = client.GetAsync("uploadnav?batchno=" + batchno);
+                    responseTask.Wait();
+
+                    var response = responseTask.Result;
+                    if (response.IsSuccessStatusCode)
+                    {
+
+
+                        var readTask = response.Content.ReadAsAsync<NavisionViewModel>();
+
+                        //var readTask = response.Content.ReadAsAsync<IList<ContractorModel>>();
+
+                        try
+                        {
+                            readTask.Wait();
+
+                            nvm = readTask.Result;
+                            if (nvm.message != "success")
+                            {
+                                status = "failed";
+                                message = nvm.message;
+                            }
+                            else
+                            {
+                                status = "success";
+                                message = "Uploaded to Navision Successfully";
+                            }
+
+                        }
+                        catch (Exception e)
+                        {
+
+                            status = "failed";
+                            message = e.Message.ToString();
+
+                        }
+
+
+
+
+                    }
+                    else
+                    {
+                        status = "failed";
+                        message = response.ReasonPhrase;
+                    }
+                }
+
+
+
+                Log log = new Log();
+                log.Action = "Save";
+                log.CreatedDate = DateTime.Now;
+                log.Descriptions = "Send data to API";
+                log.Status = status + " " + message;
+                _context.Add(log);
+                _context.SaveChanges();
+
+               
+            }
+            catch (Exception e)
+            {
+
+                status = "failed";
+                message = e.Message.ToString();
+            }
+            var model = new
+            {
+                status, message
+            };
+
+            return Json(model);
         }
 
     }

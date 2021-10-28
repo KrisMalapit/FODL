@@ -39,9 +39,13 @@
             </div>
             <div class="modal-body">
 
+             
+
+
+
 
                 <p>
-                    @if (ViewBag.Status != "Posted")
+                    @if (ViewBag.Status != "Posted" && ViewBag.Status != "Transferred")
                     {
                         <a href="#" onclick="saveEquipment();" title="Add" data-action='Add'>Save</a> <text>|</text>
 
@@ -50,13 +54,13 @@
 
                     <a href="#" title="Sign" onclick="signItem()">Signature</a> |
                     <a href="#" title="Close" data-dismiss="modal">Close</a>
-                    
+
 
                 </p>
 
                 <form id="frmEquipment">
                     <input id="FuelOilId" name="FuelOilId" value="@ViewBag.Id" type="hidden" />
-                    <input id="DetailId" name="Id" type="hidden"/>
+                    <input id="DetailId" name="Id" type="hidden" />
 
                     <div class="form-group row">
                         <label class="col-md-2 col-form-label">Time</label>
@@ -149,7 +153,7 @@
                     </div>
 
                 </form>
-             
+
 
             </div>
         </div>
@@ -257,7 +261,7 @@
                     <img width="100%" height="400" id="savetarget"
                          style="border:1px solid black" src="@ViewBag.Signature"><br><br>
 
-                    @if (ViewBag.Status != "Posted")
+                    @if (ViewBag.Status != "Posted" && ViewBag.Status != "Transferred")
                     {
                         <button id="clear" class="btn btn-primary">Create</button>
                     }
@@ -428,7 +432,7 @@
                 </tbody>
             </table>
         </div>*@
-                @if (ViewBag.Status != "Posted")
+                @if (ViewBag.Status != "Posted" && ViewBag.Status != "Transferred")
                 {
                     <p>
                         <a href="#" onclick="createNew(this);" title="Add" data-action='Add'>Add Equipment</a>
@@ -490,7 +494,7 @@
 <script>
 
     $(function () {
-        if ('@ViewBag.Status' == 'Posted') {
+        if ('@ViewBag.Status' == 'Posted' || '@ViewBag.Status' == "Transferred") {
             disableForm();
         }
     })
@@ -832,7 +836,7 @@
                             "' data-location='" + row.locationId + "' data-locationname='" + row.locationName + "' data-smr='" + row.smr +
                             "' onclick='createNew(this);' >Edit</a>  " ; 
 
-                        if ('@ViewBag.Status' != 'Posted') {
+                        if ('@ViewBag.Status' != 'Posted' && '@ViewBag.Status' != "Transferred") {
                             $actions = $actions + '| <a class="anchorAction" title="Delete" onclick="deleteItem(\'' + row.id + '\',\'' + row.equipmentName + '\')">Delete</a>'
                         }
                             //'| <a class="anchorAction" title="Delete" onclick="deleteItem(\'' + row.id + '\',\'' + row.equipmentName + '\')">Delete</a>';
@@ -1028,7 +1032,7 @@
 
 
 
-                    if ('@ViewBag.Status' == "Posted") {
+                        if ('@ViewBag.Status' == "Posted" || '@ViewBag.Status' == "Transferred") {
                         disableForm();
                     }
 

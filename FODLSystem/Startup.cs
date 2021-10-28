@@ -40,7 +40,7 @@ namespace FODLSystem
 
 
             services.AddDbContext<FODLSystemContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("FODLContextLocal")
+            options.UseSqlServer(Configuration.GetConnectionString("FODLContextTestMinesite")
             , builder => builder.UseRowNumberForPaging() //add this for Incorrect syntax near 'OFFSET'. Invalid usage of the option NEXT in the FETCH statement
             ));
 
@@ -48,8 +48,7 @@ namespace FODLSystem
                opt.AddPolicy("CorsPolicy", policy => {
                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://192.168.70.231");
                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://sodium2");
-                   policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://192.168.30.182");
-                   policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://californium:8443/");
+                   policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://192.168.0.199");
                })
            );
 

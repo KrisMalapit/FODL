@@ -78,6 +78,7 @@ namespace FODLSystem.Controllers
                     user.CompanyAccess = "1";
                     user.LubeAccess = lubeaccess;
                     user.DispenserAccess = dispenseraccess;
+                    user.DateModified = DateTime.Now.Date;
                     _context.Add(user);
                     await _context.SaveChangesAsync();
 
@@ -436,6 +437,7 @@ namespace FODLSystem.Controllers
                         user.LubeAccess = "1";
                         user.RoleId = 2;
                         user.UserType = UserType;
+                        user.DateModified = DateTime.Now.Date;
                         _context.Users.Add(user);
                         _context.SaveChanges();
                         status = "success";
@@ -450,6 +452,7 @@ namespace FODLSystem.Controllers
                     if (result != null)
                     {
                         result.Status = "0";
+                        result.DateModified = DateTime.Now.Date;
                         _context.Entry(result).State = EntityState.Modified;
                         _context.SaveChanges();
 
@@ -467,6 +470,7 @@ namespace FODLSystem.Controllers
                         user.DispenserAccess = "1";
                         user.LubeAccess = "1";
                         user.UserType = UserType;
+                        user.DateModified = DateTime.Now.Date;
                         _context.Users.Add(user);
                         _context.SaveChanges();
 
@@ -559,6 +563,7 @@ namespace FODLSystem.Controllers
                 user.UserType = u.UserType;
                 user.LubeAccess = lubeaccess;
                 user.DispenserAccess = dispenseraccess;
+                user.DateModified = DateTime.Now.Date;
                 _context.Entry(user).State = EntityState.Modified;
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Index));

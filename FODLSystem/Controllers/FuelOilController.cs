@@ -118,36 +118,47 @@ namespace FODLSystem.Controllers
         // GET: Companies/Create
         public IActionResult Create()
         {
-            string lubeAccess = User.Identity.GetLubeAccess();
-            string dispenserAccess = User.Identity.GetDispenserAccess();
-            
-
-            int[] lubeId = lubeAccess.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
-            int[] dispenserId = dispenserAccess.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
-
-            string status = "Active,Default";
-            string[] stat = status.Split(',').Select(n => n).ToArray();
-
-            this.AddBreadCrumb(new BreadCrumb
+            try
             {
-                Title = "Fuel Oil Liquidation",
-                Url = string.Format(Url.Action("Index")),
-                Order = 1
-            });
+                string lubeAccess = User.Identity.GetLubeAccess();
+                string dispenserAccess = User.Identity.GetDispenserAccess();
 
-            ViewData["CreatedDate"] = DateTime.Now;
-            ViewData["Signature"] = "";
-            ViewData["Status"] = "Active";
-            ViewData["Id"] = 0;
-            ViewData["DispenserId"] = new SelectList(_context.Dispensers
-                .Where(a => dispenserId.Contains(a.Id))
-                .Where(a => stat.Contains(a.Status)), "Id", "Name");
-            ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks
-                .Where(a => lubeId.Contains(a.Id))
-                .Where(a => stat.Contains(a.Status)), "Id", "Description");
 
-            ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List");
-            return View();
+                int[] lubeId = lubeAccess.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
+                int[] dispenserId = dispenserAccess.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
+
+                string status = "Active,Default";
+                string[] stat = status.Split(',').Select(n => n).ToArray();
+
+                this.AddBreadCrumb(new BreadCrumb
+                {
+                    Title = "Fuel Oil Liquidation",
+                    Url = string.Format(Url.Action("Index")),
+                    Order = 1
+                });
+
+                ViewData["CreatedDate"] = DateTime.Now;
+                ViewData["Signature"] = "";
+                ViewData["Status"] = "Active";
+                ViewData["Id"] = 0;
+                ViewData["DispenserId"] = new SelectList(_context.Dispensers
+                    .Where(a => dispenserId.Contains(a.Id))
+                    .Where(a => stat.Contains(a.Status)), "Id", "Name");
+                ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks
+                    .Where(a => lubeId.Contains(a.Id))
+                    .Where(a => stat.Contains(a.Status)), "Id", "Description");
+
+                ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List");
+
+                return View();
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError("", e.Message);
+                return View("Index");
+               
+            }
+            
         }
         [BreadCrumb(Title = "Edit", Order = 2, IgnoreAjaxRequests = true)]
         public IActionResult Edit(int id)
@@ -616,7 +627,7 @@ namespace FODLSystem.Controllers
         public ActionResult getData()
         {
             string strFilter = "";
-            string status = "Active,Posted";
+            string status = "Active,Posted,Transferred";
             string[] stat = status.Split(',').Select(n => n).ToArray();
 
            

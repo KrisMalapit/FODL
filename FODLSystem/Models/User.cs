@@ -40,6 +40,7 @@ namespace FODLSystem.Models
 
         public string LubeAccess { get; set; }
         public string DispenserAccess { get; set; }
+        public DateTime? DateModified { get; set; }
 
     }
 }
