@@ -45,9 +45,10 @@ namespace FODLSystem.Models
             modelBuilder.Entity<LubeTruck>()
               .HasIndex(p => new { p.No, p.Status })
               .IsUnique();
-            //modelBuilder.Entity<FuelOil>()
-            // .HasIndex(p => new { p.TransactionDate,p.Shift, p.Status,p.LubeTruckId })
-            // .IsUnique();
+
+            modelBuilder.Entity<FuelOil>()
+             .HasIndex(p => new { p.TransactionDate, p.Shift, p.Status, p.LubeTruckId })
+             .IsUnique();
 
             modelBuilder.Entity<Company>().HasData(
                new { ID = 1, Code = "SMPC", Name = "Semirara Mining and Power Corporation", Status = "Active" }
@@ -74,7 +75,9 @@ namespace FODLSystem.Models
             modelBuilder.Entity<Location>().HasData(
                new { Id = 1, No = "na", List = "N/A", OfficeCode = "000", Status = "Default" }
            );
-
+            modelBuilder.Entity<Component>().HasData(
+              new { Id = 1,  Name = "N/A",  Status = "Default", DateModified = DateTime.Now }
+          );
         }
 
         internal object Include(Func<object, object> p)

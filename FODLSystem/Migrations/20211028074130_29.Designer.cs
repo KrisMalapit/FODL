@@ -4,14 +4,16 @@ using FODLSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FODLSystem.Migrations
 {
     [DbContext(typeof(FODLSystemContext))]
-    partial class FODLSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20211028074130_29")]
+    partial class _29
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -60,10 +62,6 @@ namespace FODLSystem.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Components");
-
-                    b.HasData(
-                        new { Id = 1, DateModified = new DateTime(2021, 10, 28, 18, 5, 29, 221, DateTimeKind.Local), Name = "N/A", Status = "Default" }
-                    );
                 });
 
             modelBuilder.Entity("FODLSystem.Models.Department", b =>
@@ -204,10 +202,6 @@ namespace FODLSystem.Migrations
                     b.HasIndex("DispenserId");
 
                     b.HasIndex("LubeTruckId");
-
-                    b.HasIndex("TransactionDate", "Shift", "Status", "LubeTruckId")
-                        .IsUnique()
-                        .HasFilter("[Shift] IS NOT NULL AND [Status] IS NOT NULL");
 
                     b.ToTable("FuelOils");
                 });

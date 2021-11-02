@@ -52,6 +52,10 @@
                         <option value="OIL 220">OIL 220</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>Description in Liquidation 2</label>
+                    <input class="form-control" id="itemDescriptionLiquidation2"  />
+                </div>
                 <button data-dismiss="modal" class="btn btn-default">Close</button>
                 <button id="btnSave" class="btn btn-primary" onclick="saveItem();">Save</button>
 
@@ -75,6 +79,7 @@
                         <th>Description</th>
                         <th>Description 2</th>
                         <th>Description in Liquidation</th>
+                        <th>Description in Liquidation 2</th>
                         <th>Type of Fuel</th>
 
                         <th>Action</th>
@@ -85,6 +90,7 @@
                         <th>Description</th>
                         <th>Description 2</th>
                         <th>Description in Liquidation</th>
+                        <th>Description in Liquidation 2</th>
                         <th>Type of Fuel</th>
 
                         <th></th>
@@ -97,6 +103,7 @@
                         <th>Description</th>
                         <th>Description 2</th>
                         <th>Description in Liquidation</th>
+                        <th>Description in Liquidation 2</th>
                         <th>Type of Fuel</th>
 
                         <th></th>
@@ -112,11 +119,11 @@
         $id = $("#itemId").val();
         $typeFuel = $("#itemItemFuel").val();
         $descLiq = $("#itemDescriptionLiquidation").val();
-
+        $descLiq2 = $("#itemDescriptionLiquidation2").val();
         $.ajax({
                 url: "@Url.Action("SaveItem")"
                     , method: "POST"
-                    , data: { id: $id, TypeFuel: $typeFuel, DescLiq: $descLiq }
+            , data: { id: $id, TypeFuel: $typeFuel, DescLiq: $descLiq, DescLiq2: $descLiq2 }
                     , dataType: 'json'
                     , success: function (responsedata) {
                         if (responsedata.status == "success") {
@@ -177,6 +184,7 @@
                 { "data": "description", "name": "Description", "autoWidth": true },
                 { "data": "description2", "name": "Description2", "autoWidth": true },
                 { "data": "descriptionLiquidation", "name": "DescriptionLiquidation", "autoWidth": true },
+                { "data": "descriptionLiquidation2", "name": "DescriptionLiquidation2", "autoWidth": true },
                 { "data": "typeFuel", "name": "TypeFuel", "autoWidth": true },
                 {
                     //data-no=' + row.no + ' data - desc=' + row.description + ' data - desc2=' + row.description2 + ' data - descliq=' + row.descriptionLiquidation + ' data - type=' + row.typeFuel +
@@ -185,11 +193,12 @@
                         $desc = (row.description == "") ? null : row.description;
                         $desc2 = (row.description2 == "") ? null : row.description2;
                         $descliq = (row.descriptionLiquidation == "") ? null : row.descriptionLiquidation;
+                        $descliq2 = (row.descriptionLiquidation2 == "") ? null : row.descriptionLiquidation2;
                         $type = (row.typeFuel == "") ? null : row.typeFuel;
 
 
                         $actions =
-                            "<a title='Edit' data-id="+row.id+" data-no=" + row.no + " data-desc='" + $desc + "' data-desc2='" + $desc2 + "' data-descliq='" + $descliq + "' data-type='" + $type + "' onclick='showmodal(this);'>Edit</a>";
+                            "<a title='Edit' data-id=" + row.id + " data-no=" + row.no + " data-desc='" + $desc + "' data-desc2='" + $desc2 + "' data-descliq='" + $descliq + "' data-descliq2='" + $descliq2 + "' data-type='" + $type + "' onclick='showmodal(this);'>Edit</a>";
 
                         return $actions;
                     }
@@ -206,7 +215,7 @@
 
 
 
-
+        
         $('#tbl input').on('keyup change', function (e) {
 
             var keyCode = e.keyCode
@@ -242,6 +251,7 @@
         $desc = $(obj).attr('data-desc');
         $desc2 = $(obj).attr('data-desc2') == "null" ? "" : $(obj).attr('data-desc2');
         $descliq = $(obj).attr('data-descliq') == "null" ? "" : $(obj).attr('data-descliq');
+        $descliq2 = $(obj).attr('data-descliq2') == "null" ? "" : $(obj).attr('data-descliq2');
         $type = $(obj).attr('data-type') == "null" ? "" : $(obj).attr('data-type');
 
         console.log(obj);
@@ -251,7 +261,7 @@
         $("#itemDescription2").val($desc2);
         $("#itemItemFuel").val($type);
         $("#itemDescriptionLiquidation").val($descliq);
-
+        $("#itemDescriptionLiquidation2").val($descliq2);
 
 
 

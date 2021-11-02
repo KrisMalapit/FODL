@@ -141,12 +141,51 @@ namespace FODLSystem.Controllers
                 ViewData["Signature"] = "";
                 ViewData["Status"] = "Active";
                 ViewData["Id"] = 0;
-                ViewData["DispenserId"] = new SelectList(_context.Dispensers
+
+
+                var disp = _context.Dispensers
                     .Where(a => dispenserId.Contains(a.Id))
-                    .Where(a => stat.Contains(a.Status)), "Id", "Name");
-                ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks
+                    .Where(a => stat.Contains(a.Status));
+                List<CustomList> lstdisp = new List<CustomList>();
+                foreach (var item in disp)
+                {
+                    CustomList tag = new CustomList()
+                    {
+                        Id = item.Id,
+                        Text = item.Name
+                    };
+                    lstdisp.Add(tag);
+                }
+                CustomList def = new CustomList()
+                {
+                    Id = 0,
+                    Text = "SELECT DISPENSER"
+                };
+                lstdisp.Add(def);
+                ViewData["DispenserId"] = new SelectList(lstdisp.AsQueryable().OrderBy(c => c.Id), "Id", "Text");
+
+                var lube = _context.LubeTrucks
                     .Where(a => lubeId.Contains(a.Id))
-                    .Where(a => stat.Contains(a.Status)), "Id", "Description");
+                    .Where(a => stat.Contains(a.Status));
+                List<CustomList> lst = new List<CustomList>();
+                foreach (var item in lube)
+                {
+                    CustomList tag = new CustomList()
+                    {
+                        Id = item.Id,
+                        Text = item.No + " | " + item.Description
+                    };
+                    lst.Add(tag);
+                }
+                CustomList def2 = new CustomList()
+                {
+                    Id = 0,
+                    Text = "SELECT LUBE TRUCK"
+                };
+                lst.Add(def2);
+                ViewData["LubeTruckId"] = new SelectList(lst.AsQueryable().OrderBy(c=>c.Id), "Id", "Text");
+
+
 
                 ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List");
 
@@ -181,12 +220,67 @@ namespace FODLSystem.Controllers
             ViewData["Id"] = model.Id;
             ViewData["Status"] = model.Status;
             ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List");
-            ViewData["DispenserId"] = new SelectList(_context.Dispensers
+
+
+            var disp = _context.Dispensers
                  .Where(a => dispenserId.Contains(a.Id))
-                .Where(a => a.Status != "Deleted"), "Id", "Name", model.DispenserId);
-            ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks
+                 .Where(a => a.Status != "Deleted");
+            List<CustomList> lstdisp = new List<CustomList>();
+            foreach (var item in disp)
+            {
+                CustomList tag = new CustomList()
+                {
+                    Id = item.Id,
+                    Text = item.Name
+                };
+                lstdisp.Add(tag);
+            }
+            CustomList def = new CustomList()
+            {
+                Id = 0,
+                Text = "SELECT DISPENSER"
+            };
+            lstdisp.Add(def);
+            ViewData["DispenserId"] = new SelectList(lstdisp.AsQueryable().OrderBy(c => c.Id), "Id", "Text", model.DispenserId);
+
+            var lube = _context.LubeTrucks
                  .Where(a => lubeId.Contains(a.Id))
-                .Where(a => a.Status != "Deleted"), "Id", "Description", model.LubeTruckId);
+                 .Where(a => a.Status != "Deleted");
+            List<CustomList> lst = new List<CustomList>();
+            foreach (var item in lube)
+            {
+                CustomList tag = new CustomList()
+                {
+                    Id = item.Id,
+                    Text = item.No + " | " + item.Description
+                };
+                lst.Add(tag);
+            }
+            CustomList def2 = new CustomList()
+            {
+                Id = 0,
+                Text = "SELECT LUBE TRUCK"
+            };
+            lst.Add(def2);
+            ViewData["LubeTruckId"] = new SelectList(lst.AsQueryable().OrderBy(c => c.Id), "Id", "Text", model.LubeTruckId);
+
+
+
+
+
+            //ViewData["DispenserId"] = new SelectList(_context.Dispensers
+            //     .Where(a => dispenserId.Contains(a.Id))
+            //    .Where(a => a.Status != "Deleted"), "Id", "Name", model.DispenserId);
+            //ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks
+            //     .Where(a => lubeId.Contains(a.Id))
+            //    .Where(a => a.Status != "Deleted"), "Id", "Description", model.LubeTruckId);
+
+
+
+
+
+
+
             return View("Create", model);
         }
         public JsonResult SearchItem(string q)
@@ -195,6 +289,7 @@ namespace FODLSystem.Controllers
                 .Where(a => a.Status == "Active")
                 .Where(a => a.Description.ToUpper().Contains(q.ToUpper())
                 || a.DescriptionLiquidation.ToUpper().Contains(q.ToUpper())
+                || a.DescriptionLiquidation2.ToUpper().Contains(q.ToUpper())
                 || a.No.ToUpper().Contains(q.ToUpper())).Select(b => new
                 {
                     id = b.Id,
@@ -212,8 +307,13 @@ namespace FODLSystem.Controllers
         }
         public JsonResult SearchComponent()
         {
+
+
+            string status = "Active,Default";
+            string[] stat = status.Split(',').Select(n => n).ToArray();
+
             var model = _context.Components
-                .Where(a => a.Status == "Active")
+                .Where(a => stat.Contains(a.Status))
                 .Select(b => new
                 {
                     id = b.Id,
@@ -869,15 +969,71 @@ namespace FODLSystem.Controllers
 
 
         }
-
         [HttpPost]
-        public ActionResult getDataSummary()
+        public ActionResult getDataReferenceNo()
         {
             string status = "";
             try
             {
 
-                int [] fuelid = _context.FuelOils.Where(a => a.Status == "Posted").Select(a => a.Id).ToArray();
+                var v = _context.FuelOils
+                    .Where(a => a.Status == "Posted")
+                    .Select( 
+                        a => new {
+                            a.Id,
+                            a.ReferenceNo
+                        } 
+                    );
+
+
+
+
+                status = "success";
+
+                var model = new
+                {
+                    status
+                 ,
+                    data = v
+                };
+                return Json(model);
+            }
+            catch (Exception ex)
+            {
+                var model = new
+                {
+                    status = "fail"
+                 ,
+                    message = ex.Message
+                };
+                return Json(model);
+            }
+        }
+        [HttpPost]
+        public ActionResult getDataSummary(string refid)
+        {
+            string status = "";
+            int[] fuelid;
+           
+            try
+            {
+                if (string.IsNullOrEmpty(refid))
+                {
+
+                    fuelid = _context.FuelOils
+                        .Where(a => a.Status == "Posted")
+                        .Select(a => a.Id).ToArray();
+                }
+                else
+                {
+                    fuelid = refid.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
+                }
+               
+                    
+                
+
+               
+
 
                 var v =
 
@@ -887,6 +1043,7 @@ namespace FODLSystem.Controllers
                 
                   .Select(a => new
                   {
+                      a.FuelOilDetails.FuelOils.ReferenceNo,
                       EntryType = "Negative Adjmt.",
                       ItemNo = a.Items.No,
                       PostingDate = a.FuelOilDetails.FuelOils.TransactionDate,
@@ -973,7 +1130,7 @@ namespace FODLSystem.Controllers
             string refno = "";
             string refid = "0";
 
-
+            
 
 
 
@@ -984,6 +1141,13 @@ namespace FODLSystem.Controllers
                 {
                     for (int i = 0; i < fvm.component.Length; i++)
                     {
+                        if (Convert.ToInt32(fvm.no[i]) == 1)
+                        {
+                            fvm.component[i] = "1";
+                        }
+
+
+
                         var sub = new FuelOilSubDetail();
                         sub.ItemId = Convert.ToInt32(fvm.no[i]);
                         sub.ComponentId = Convert.ToInt32(fvm.component[i]);

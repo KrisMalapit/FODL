@@ -24,6 +24,7 @@ namespace FODLSystem.Models
         [Display(Name = "Description in Liquidation")]
        
         public string DescriptionLiquidation{ get; set; }
+        public string DescriptionLiquidation2 { get; set; }
         public string Status { get; set; } = "Active";
         public DateTime? DateModified { get; set; }
     }

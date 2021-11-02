@@ -1198,21 +1198,21 @@ namespace FODLSystem.Controllers
             return dtTable;
         }
 
-        public JsonResult uploadNavision(string batchno)
+        public JsonResult uploadNavision(string batchno,string refid)
         {
             string status = "";
             string message = "";
             try
             {
-                //string apiUrl = @"http://192.168.0.199/FODLApi/api/"; //SMPC DEV
-                string apiUrl = @"http://sodium2/FODLApi/api/"; //SMPC DEV
+                string apiUrl = @"http://192.168.0.199/FODLApi/api/"; //SMPC DEV
+                //string apiUrl = @"http://sodium2/FODLApi/api/"; //SMPC DEV
                 //string apiUrl = @"http://localhost:59455/api/"; //LOCAL
 
                 NavisionViewModel nvm = null;
                 using (var client = new HttpClient())
                 {
                     client.BaseAddress = new Uri(apiUrl);
-                    var responseTask = client.GetAsync("uploadnav?batchno=" + batchno);
+                    var responseTask = client.GetAsync("uploadnav?batchno=" + batchno + "&referenceno=" + refid);
                     responseTask.Wait();
 
                     var response = responseTask.Result;

@@ -651,6 +651,7 @@
         $action = String($(obj).attr('title'));
         if ($action==='Add') {
             $('#DetailId').val(0)
+            $("#EquipmentId").val(0);
             $("#CreatedDate").val(moment('@DateTime.Now').format("MM/DD/YYYY HH:mm"))
             $("#EquipmentId").select2({
                 dropdownParent: $('#modalEquipment .modal-content'),
@@ -677,7 +678,7 @@
 
                         cache: false
                 },
-                minimumInputLength: 4,
+                minimumInputLength: 2,
             });
         } else {
 
@@ -718,7 +719,7 @@
                     },
                     cache: false
                 },
-                minimumInputLength: 4,
+                minimumInputLength: 2,
 
             }).val($equipid).trigger('change');
         }
@@ -974,6 +975,8 @@
                         dropdownParent: $('#modalEquipment .modal-content'),
                         width: '100%',
                         theme: 'bootstrap',
+                        placeholder: "Select Item",
+                        allowClear: true,
                         ajax: {
                             url: "@Url.Action("SearchItem")",
                             dataType: 'json',
@@ -994,7 +997,7 @@
                             cache: false
                         },
 
-                        minimumInputLength: 4,
+                        minimumInputLength: 2,
 
                     }).val(responsedata.data[i].itemId).trigger('change');
 
@@ -1006,6 +1009,8 @@
                         dropdownParent: $('#modalEquipment .modal-content'),
                         width: '100%',
                         theme: 'bootstrap',
+                        placeholder: "Select Component",
+                        allowClear: true,
                         ajax: {
                             url: "@Url.Action("SearchComponent")",
                             dataType: 'json',
@@ -1223,12 +1228,16 @@
     });
     $("#DispenserId").select2({
         width: '100%',
-        theme: 'bootstrap'
+        theme: 'bootstrap',
+        placeholder: "Select a Location",
+        allowClear: true
     });
 
     $("#LubeTruckId").select2({
         width: '100%',
-        theme: 'bootstrap'
+        theme: 'bootstrap',
+        placeholder: "SELECT LUBE TRUCK",
+        allowClear: true
     });
 
     $("#LocationId").select2({
@@ -1294,6 +1303,8 @@
 
         $(".cmbNo").select2({
             dropdownParent: $('#modalEquipment .modal-content'),
+            placeholder: "Select Item",
+            allowClear: true,
         width: '100%',
         theme: 'bootstrap',
             ajax: {
@@ -1315,12 +1326,16 @@
 
                 cache: false
         },
-        minimumInputLength: 4,
+        minimumInputLength: 2,
         });
 
         $(".cmbComponent").select2({
             dropdownParent: $('#modalEquipment .modal-content'),
+
             width: '100%',
+            
+            placeholder: "Select Component",
+            allowClear: true,
             theme: 'bootstrap',
                 ajax: {
                     url: "@Url.Action("SearchComponent")",

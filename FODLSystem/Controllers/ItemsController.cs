@@ -27,7 +27,7 @@ namespace FODLSystem.Controllers
         }
         
         [HttpPost]
-        public ActionResult SaveItem(int id,string TypeFuel,string DescLiq)
+        public ActionResult SaveItem(int id,string TypeFuel,string DescLiq, string DescLiq2)
         {
             string status = "";
             string message = "";
@@ -35,6 +35,7 @@ namespace FODLSystem.Controllers
             {
                 var item = _context.Items.Find(id);
                 item.DescriptionLiquidation = DescLiq;
+                item.DescriptionLiquidation2 = DescLiq2;
                 item.TypeFuel = TypeFuel;
                 item.DateModified = DateTime.Now.Date;
                 _context.Entry(item).State = EntityState.Modified;
@@ -135,6 +136,7 @@ namespace FODLSystem.Controllers
                   a.Description,
                   a.Description2,
                   a.DescriptionLiquidation,
+                  a.DescriptionLiquidation2,
                   a.TypeFuel,
                   a.Id
 
