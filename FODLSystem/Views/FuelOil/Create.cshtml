@@ -47,7 +47,8 @@
                 <p>
                     @if (ViewBag.Status != "Posted" && ViewBag.Status != "Transferred")
                     {
-                        <a href="#" onclick="saveEquipment();" title="Add" data-action='Add'>Save</a> <text>|</text>
+                        
+                        <a class="hidePost" href="#" onclick="saveEquipment();" title="Add" data-action='Add'>Save |</a>
 
                     }
 
@@ -263,7 +264,7 @@
 
                     @if (ViewBag.Status != "Posted" && ViewBag.Status != "Transferred")
                     {
-                        <button id="clear" class="btn btn-primary">Create</button>
+                        <button id="clear" class="btn btn-primary hidePost">Create</button>
                     }
 
 
@@ -434,7 +435,7 @@
         </div>*@
                 @if (ViewBag.Status != "Posted" && ViewBag.Status != "Transferred")
                 {
-                    <p>
+                    <p class="hidePost">
                         <a href="#" onclick="createNew(this);" title="Add" data-action='Add'>Add Equipment</a>
                     </p>
                 }
@@ -561,7 +562,7 @@
                         if (responsedata.status == "success") {
                           
                             toastr["success"]("Signature saved!", "<b>Success</b> ")
-                            loadDatatable($("#FuelOilId").val());
+                            loadDatatable($("#FuelOilId").val(),"Edit");
                             $('#savetarget').attr('src', data);
                         } else {
                             toastr["error"](responsedata.message +'</br></br>'+ 'Something wrong with the creation of equipment.')
@@ -589,8 +590,12 @@
                 $(this).html('<input type="search" class="form-control form-control-sm" placeholder="Search ' + title + '" />');
             }
         });
-
-        loadDatatable('@ViewBag.Id');
+        if ('@ViewBag.Status' != 'Posted' && '@ViewBag.Status' != "Transferred") {
+             loadDatatable('@ViewBag.Id',"Edit");
+        } else {
+            loadDatatable('@ViewBag.Id',"View");
+        }
+       
     })
 
     $("#close").click(function () {
@@ -618,7 +623,7 @@
                     //toastr["success"]("Equipment saved!", "<b>Success</b> ")
                     $("#DetailId").val(responsedata.message);
                     $("#SubDetailId").val(responsedata.message);
-                    loadDatatable($("#FuelOilId").val());
+                    loadDatatable($("#FuelOilId").val(),"Edit");
 
                     saveItem();
 
@@ -639,7 +644,7 @@
         loadDetails(id);
     }
     function createNew(obj) {
-
+   
         if ($('#ReferenceNo').val() == '') {
             toastr["error"]("Save Form First", "Error")
             toastr.options = {
@@ -796,8 +801,8 @@
         return false;
     });
 
-    function loadDatatable($id) {
-
+    function loadDatatable($id,$type) {
+        var xx = $type;
 
         if ($.fn.DataTable.isDataTable('#tbl')) {
             $('#tbl').DataTable().destroy();
@@ -832,17 +837,36 @@
                     render: function (data, type, row) {
                         $no = (row.no == "") ? null : row.no;
                         $name = (row.name == "") ? null : row.name;
-                        $actions =
-                            "<a title='Edit' data-time=" + row.createdDate + " data-id=" + row.id + " data-equipment='" + row.equipmentId + "' data-equipmentname='" + row.equipmentName +
-                            "' data-location='" + row.locationId + "' data-locationname='" + row.locationName + "' data-smr='" + row.smr +
-                            "' onclick='createNew(this);' >Edit</a>  " ; 
+                        
 
-                        if ('@ViewBag.Status' != 'Posted' && '@ViewBag.Status' != "Transferred") {
+                        @*if ('@ViewBag.Status' != 'Posted' && '@ViewBag.Status' != "Transferred") {
                             $actions = $actions + '| <a class="anchorAction" title="Delete" onclick="deleteItem(\'' + row.id + '\',\'' + row.equipmentName + '\')">Delete</a>'
-                        }
-                            //'| <a class="anchorAction" title="Delete" onclick="deleteItem(\'' + row.id + '\',\'' + row.equipmentName + '\')">Delete</a>';
+                        }*@
+                  
+                        //if (xx == "Edit") {
+                        //    console.log("E");
+                            $actions =
+                                "<a title="+xx+" data-time=" + row.createdDate + " data-id=" + row.id + " data-equipment='" + row.equipmentId + "' data-equipmentname='" + row.equipmentName +
+                                "' data-location='" + row.locationId + "' data-locationname='" + row.locationName + "' data-smr='" + row.smr +
+                                "' onclick='createNew(this);' >"+xx+"</a>  "; 
+                        if (xx == "Edit") {
+                            return $actions + '| <a class="anchorAction" title="Delete" onclick="deleteItem(\'' + row.id + '\',\'' + row.equipmentName + '\')">Delete</a>'
 
-                        return $actions;
+                        } else {
+                            return $actions;
+
+                        }
+                                           //} else {
+                        //    console.log("V");
+                        //    $actions =
+                        //        "<a title='View' data-time=" + row.createdDate + " data-id=" + row.id + " data-equipment='" + row.equipmentId + "' data-equipmentname='" + row.equipmentName +
+                        //        "' data-location='" + row.locationId + "' data-locationname='" + row.locationName + "' data-smr='" + row.smr +
+                        //        "' onclick='createNew(this);' >Edit</a>  ";  
+                        //    return $actions;
+
+                        //}
+
+                        
                     }
                 }
 
@@ -892,7 +916,7 @@
             , success: function (responsedata) {
                if (responsedata.status == "success") {
                    toastr["success"]("Item Deleted","<b>Success</b> ")
-                   loadDatatable('@ViewBag.Id');
+                   loadDatatable('@ViewBag.Id',"Edit");
 
 
                 } else {
@@ -1186,7 +1210,7 @@
                 if (responsedata.status == "success") {
                     toastr["success"]("Form posted!", "<b>Success</b> ")
                     disableForm();
-                    location.reload();
+                    loadDatatable('@ViewBag.Id',"View");
                 } else {
                     toastr["error"](responsedata.message)
                     toastr.options = {
@@ -1207,6 +1231,8 @@
         $(".remITEM").prop("disabled", "disabled");
         $(".anchorAction").attr("style", "pointer-events: none");
         $("#aPrint").attr("style", "pointer-events: true");
+        $(".hidePost").hide();
+
         @*console.log('@ViewBag.Status');
         $("#frm select").each(
             function (index) {

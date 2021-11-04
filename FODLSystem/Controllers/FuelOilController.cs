@@ -1085,6 +1085,8 @@ namespace FODLSystem.Controllers
         public IActionResult getDataSubDetails(int id)
         {
             string strFilter = "";
+            string status = "Active,Transferred";
+            string[] stat = status.Split(',').Select(n => n).ToArray();
             try
             {
 
@@ -1093,7 +1095,7 @@ namespace FODLSystem.Controllers
                _context.FuelOilSubDetails
                .Where(a => a.FuelOilDetailId == id)
               //.Where(a => a.Status != "Deleted")
-              .Where(a => a.Status == "Active")
+              .Where(a => status.Contains(a.Status))
               .Select(a => new
               {
                   ItemId = a.Items.Id,
