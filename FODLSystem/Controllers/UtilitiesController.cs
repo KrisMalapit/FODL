@@ -1204,9 +1204,9 @@ namespace FODLSystem.Controllers
             string message = "";
             try
             {
-                string apiUrl = @"http://192.168.0.199/FODLApi/api/"; //SMPC DEV
+                //string apiUrl = @"http://192.168.0.199/FODLApi/api/"; //SMPC DEV
                 //string apiUrl = @"http://sodium2/FODLApi/api/"; //SMPC DEV
-                //string apiUrl = @"http://localhost:59455/api/"; //LOCAL
+                string apiUrl = @"http://localhost:59455/api/"; //LOCAL
 
                 NavisionViewModel nvm = null;
                 using (var client = new HttpClient())

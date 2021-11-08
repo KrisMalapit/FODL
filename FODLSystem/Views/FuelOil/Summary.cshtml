@@ -16,7 +16,7 @@
                 <div class="col-md-4 row">
                     <label class="class-md-4 col-form-label">Batch No</label>
                     <div class="col-md-8">
-                        <input class="form-control" id="txtBatchNo" />
+                        <input class="form-control" id="txtBatchNo" type="text" />
                     </div>
                 </div>
                <br />
@@ -87,7 +87,14 @@
 <script>
     var strReference = '';
     $(function () {
+
         $("#tblReference").DataTable();
+
+        $("input[type=text]").keyup(function () {
+            console.log("s");
+            $(this).val($(this).val().toUpperCase());
+        });
+
         loadDatatable("0");
         loadDatatableReference();
     });

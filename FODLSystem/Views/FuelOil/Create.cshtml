@@ -316,7 +316,7 @@
                     <label asp-for="CreatedDate" class="col-lg-2 col-form-label"></label>
                     <div class="col-lg-4">
 
-                        <input asp-for="CreatedDate" class="form-control" disabled />
+                        <input id="CreatedDateMain" asp-for="CreatedDate" class="form-control" readonly />
                         <span asp-validation-for="CreatedDate" class="text-danger"></span>
                     </div>
                 </div>
@@ -654,9 +654,11 @@
         }
 
         $action = String($(obj).attr('title'));
-        if ($action==='Add') {
+        if ($action === 'Add') {
+            $("#SMR").val("");
             $('#DetailId').val(0)
             $("#EquipmentId").val(0);
+            $("#LocationId").val(1).trigger('change');
             $("#CreatedDate").val(moment('@DateTime.Now').format("MM/DD/YYYY HH:mm"))
             $("#EquipmentId").select2({
                 dropdownParent: $('#modalEquipment .modal-content'),
@@ -752,6 +754,7 @@
 
 
         if ($("#ReferenceNo").val() == "") {
+          
             //initiateSelect2();
         } else {
             @*$("#EquipmentId").append(new Option("", ""));
@@ -973,7 +976,7 @@
             , data: { id: id }
             , async: false
             , success: function (responsedata) {
-                console.log(responsedata.data.length);
+
                 var $trr = '';
                 $('#p_Item > tr').remove();
                 if (responsedata.data.length > 0) {
@@ -1103,7 +1106,13 @@
 
 
     }
-     function saveForm() {
+    function saveForm() {
+       
+       
+      
+       
+
+
         var cnt = 0;
         var data = $("#frm").serializeArray();
 
@@ -1116,7 +1125,7 @@
                 if (responsedata.status == "success") {
                     toastr["success"]("Form saved!", "<b>Success</b> ")
                     $("#ReferenceNo").val(responsedata.message);
-                    $("#CreatedDate").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss"))
+                    $("#CreatedDateMain").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss"));
                     $("#FuelOilId").val(responsedata.refid);
 
 
@@ -1135,7 +1144,7 @@
     function saveItem() {
         var cnt = 0;
         var data = $("#frmItem").serializeArray();
-
+        
         $.ajax({
             url: "@Url.Action("SaveFormSubDetail")"
             , method: "POST"

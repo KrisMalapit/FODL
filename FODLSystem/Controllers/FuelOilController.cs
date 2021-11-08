@@ -293,7 +293,7 @@ namespace FODLSystem.Controllers
                 || a.No.ToUpper().Contains(q.ToUpper())).Select(b => new
                 {
                     id = b.Id,
-                    text = b.No + " | " + b.Description,
+                    text = b.No + " | " + (b.DescriptionLiquidation2==null ? "" : b.DescriptionLiquidation2.ToUpper())
 
                 });
 
@@ -1141,8 +1141,24 @@ namespace FODLSystem.Controllers
                 var d = _context.FuelOilSubDetails.Where(a => a.FuelOilDetailId == fvm.Id).Count();
                 if (d == 0)
                 {
-                    for (int i = 0; i < fvm.component.Length; i++)
+                    for (int i = 0; i < fvm.no.Length; i++)
                     {
+                        if (Convert.ToInt32(fvm.no[i]) != 1)
+                        {
+                            if (Convert.ToInt32(fvm.component[i]) == 1)
+                            {
+                                string itemcode = _context.Items.Where(a => a.Id == Convert.ToInt32(fvm.no[i])).FirstOrDefault().No;
+                                var model = new
+                                {
+                                    status = "fail",
+                                    message = "Item " + itemcode + " cannot used N/A component",
+                                    refid = 0
+                                };
+                                return Json(model);
+                            }
+                        }
+
+
                         if (Convert.ToInt32(fvm.no[i]) == 1)
                         {
                             fvm.component[i] = "1";
@@ -1174,8 +1190,47 @@ namespace FODLSystem.Controllers
                     //_context.SaveChanges();
 
 
-                    for (int i = 0; i < fvm.component.Length; i++)
+                    for (int i = 0; i < fvm.no.Length; i++)
                     {
+                      
+
+
+                        if (Convert.ToInt32(fvm.no[i]) != 1)
+                        {
+                            try
+                            {
+                                if (Convert.ToInt32(fvm.component[i]) == 1)
+                                {
+                                    string itemcode = _context.Items.Where(a => a.Id == Convert.ToInt32(fvm.no[i])).FirstOrDefault().No;
+                                    var model = new
+                                    {
+                                        status = "fail",
+                                        message = "Item " + itemcode + " cannot used N/A component"
+
+                                    };
+                                    return Json(model);
+                                }
+                            }
+                            catch (Exception)
+                            {
+
+                                string itemcode = _context.Items.Where(a => a.Id == Convert.ToInt32(fvm.no[i])).FirstOrDefault().No;
+                                var model = new
+                                {
+                                    status = "fail",
+                                    message = "Item " + itemcode + " cannot used blank component"
+
+                                };
+                                return Json(model);
+                            }
+                            
+                        }
+
+                        if (Convert.ToInt32(fvm.no[i]) == 1)
+                        {
+                            fvm.component[i] = "1";
+                        }
+
                         var sub = new FuelOilSubDetail();
                         sub.ItemId = Convert.ToInt32(fvm.no[i]);
                         sub.ComponentId = Convert.ToInt32(fvm.component[i]);
