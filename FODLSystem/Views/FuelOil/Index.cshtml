@@ -338,7 +338,7 @@
                     , success: function (responsedata) {
                        if (responsedata.status == "success") {
 
-                           if (confirm('This will download all data and will be move to archived. Continue?')) {
+                           if (confirm(responsedata.message)) {
                                
                                var newWindow = window.open('@Url.Action("DownloadExcel")');
                                

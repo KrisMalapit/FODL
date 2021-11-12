@@ -244,6 +244,9 @@
             return false;
         }
 
+        if (!confirm('Do you wish to proceed in uploading of data to Navision? This cannot be undone')) {
+            return false;
+        }
        
          $.ajax({
                         url: "@Url.Action("uploadNavision","Utilities")"

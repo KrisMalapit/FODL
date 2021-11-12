@@ -36,7 +36,15 @@ namespace FODLSystem.Controllers
             ViewData["RoleId"] = new SelectList(_context.Set<Role>(), "Id", "Name");
             ViewData["DepartmentId"] = new SelectList(_context.Set<Department>(), "ID", "Name");
 
-            ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");
+            ////custom select
+            //var lube = _context.LubeTrucks.Where(a => stat.Contains(a.Status)).Select(a => new
+            //{
+            //    a.Id,
+            //    Text = a.No + " - " + a.Description
+            //});
+            //ViewData["LubeTruckId"] = new SelectList(lube.OrderBy(a => a.Text), "ID", "Text");
+            //ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");
+
             ViewData["DispenserId"] = new SelectList(_context.Dispensers.Where(a => stat.Contains(a.Status)), "Id", "Name");
 
 
@@ -49,7 +57,14 @@ namespace FODLSystem.Controllers
             string[] stat = status.Split(',').Select(n => n).ToArray();
             ViewData["RoleId"] = new SelectList(_context.Set<Role>(), "Id", "Name");
             ViewData["DepartmentId"] = new SelectList(_context.Set<Department>(), "ID", "Name");
-            ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");
+            //ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");
+            //custom select
+            var lube = _context.LubeTrucks.Where(a => stat.Contains(a.Status)).Select(a => new
+            {
+                a.Id,
+                Text = a.No + " - " + a.Description
+            });
+            ViewData["LubeTruckId"] = new SelectList(lube.OrderBy(a => a.Text), "Id", "Text");
             ViewData["DispenserId"] = new SelectList(_context.Dispensers.Where(a => stat.Contains(a.Status)), "Id", "Name");
             return View();
         }
@@ -529,8 +544,14 @@ namespace FODLSystem.Controllers
             ViewData["Company"] = new SelectList(_context.Companies.Where(a => a.Status == "Active"), "ID", "Name", user.Departments.CompanyId);
             ViewData["Roles"] = new SelectList(_context.Roles, "Id", "Name", user.RoleId);
 
-
-            ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");
+            //custom select
+            var lube = _context.LubeTrucks.Where(a => stat.Contains(a.Status)).Select(a => new
+            {
+                a.Id,
+                Text = a.No + " - " + a.Description
+            });
+            ViewData["LubeTruckId"] = new SelectList(lube.OrderBy(a => a.Text), "Id", "Text");
+            //ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");
             ViewData["DispenserId"] = new SelectList(_context.Dispensers.Where(a => stat.Contains(a.Status)), "Id", "Name");
             return View(user);
         }

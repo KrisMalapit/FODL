@@ -47,7 +47,7 @@ namespace FODLSystem.Models
               .IsUnique();
 
             modelBuilder.Entity<FuelOil>()
-             .HasIndex(p => new { p.TransactionDate, p.Shift, p.Status, p.LubeTruckId })
+             .HasIndex(p => new { p.TransactionDate, p.Shift, p.Status, p.LubeTruckId, p.DispenserId })
              .IsUnique();
 
             modelBuilder.Entity<Company>().HasData(

@@ -287,10 +287,12 @@ namespace FODLSystem.Controllers
         {
             var model = _context.Items
                 .Where(a => a.Status == "Active")
-                .Where(a => a.Description.ToUpper().Contains(q.ToUpper())
-                || a.DescriptionLiquidation.ToUpper().Contains(q.ToUpper())
-                || a.DescriptionLiquidation2.ToUpper().Contains(q.ToUpper())
-                || a.No.ToUpper().Contains(q.ToUpper())).Select(b => new
+                 //.Where(a => a.Description.ToUpper().Contains(q.ToUpper())
+                 //|| a.DescriptionLiquidation.ToUpper().Contains(q.ToUpper())
+                 //|| a.DescriptionLiquidation2.ToUpper().Contains(q.ToUpper())
+                 //|| a.No.ToUpper().Contains(q.ToUpper())).Select(b => new
+                 .Where(a => a.DescriptionLiquidation2.ToUpper().Contains(q.ToUpper())
+                ).Select(b => new
                 {
                     id = b.Id,
                     text = b.No + " | " + (b.DescriptionLiquidation2==null ? "" : b.DescriptionLiquidation2.ToUpper())
@@ -797,7 +799,7 @@ namespace FODLSystem.Controllers
                _context.FuelOils
               .Where(a => stat.Contains(a.Status))
               .Where(strFilter)
-
+              .OrderByDescending(a=>a.Id)
               .Skip(skip).Take(pageSize)
               .Select(a => new
               {
@@ -1275,7 +1277,8 @@ namespace FODLSystem.Controllers
 
             string message = "";
             string status = "";
-            int cnt = _context.FuelOils.Where(a => a.TransactionDate == DateTime.Now.Date)
+            int cnt = 0;
+            cnt = _context.FuelOils.Where(a => a.TransactionDate == DateTime.Now.Date)
                     .Where(a => a.Status == "Active").Count();
 
             int cntPosted = _context.FuelOils.Where(a => a.TransactionDate == DateTime.Now.Date)
@@ -1283,8 +1286,8 @@ namespace FODLSystem.Controllers
 
             if (cnt > 0)
             {
-                message = "Not all input has been posted";
-                status = "fail";
+                message = "Not all input has been posted. Continue with downloading of posted data?";
+                status = "success";
             }
             else if (cntPosted == 0) 
             {
@@ -1293,6 +1296,8 @@ namespace FODLSystem.Controllers
             }
             else
             {
+                cnt = -1;
+                message = "This will download all data and will be move to archived. Continue?";
                 status = "success";
             }
 
