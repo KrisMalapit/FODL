@@ -1129,7 +1129,12 @@
 
 
                 } else {
-                    toastr["error"](responsedata.message)
+                    if (responsedata.messagenumber == '-2146232060' ) {
+                        toastr["error"]("Duplicate entry found for Lube Truck or Dispenser Entry")   
+                    } else {
+                        toastr["error"](responsedate.message)   
+                    }
+                    
                     toastr.options = {
                         "closeButton": true
                     }

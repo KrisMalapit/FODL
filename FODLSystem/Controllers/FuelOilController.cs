@@ -420,7 +420,7 @@ namespace FODLSystem.Controllers
             string refno = "";
             string refid = "0";
             string isNew = "true";
-
+            int messagenumber = 0;
 
 
             
@@ -580,6 +580,7 @@ namespace FODLSystem.Controllers
 
                 status = "fail";
                 message = ex.InnerException.Message;
+                messagenumber = ex.InnerException.HResult;
             }
 
             var modelItem = new
@@ -587,7 +588,8 @@ namespace FODLSystem.Controllers
                 status,
                 message,
                 refid,
-                isNew
+                isNew,
+                messagenumber
             };
             return Json(modelItem);
         }
