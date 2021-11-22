@@ -1045,7 +1045,7 @@ namespace FODLSystem.Controllers
                _context.FuelOilSubDetails
                   .Where(a=> fuelid.Contains(a.FuelOilDetails.FuelOilId))
                   .Where(a => a.Status == "Active")
-                .Where(a => a.FuelOilDetails.Status == "Active")
+                  .Where(a => a.FuelOilDetails.Status == "Active")
                   .Select(a => new
                   {
                       a.FuelOilDetails.FuelOils.ReferenceNo,

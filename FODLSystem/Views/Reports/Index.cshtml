@@ -7,7 +7,7 @@
     <div class="ibox float-e-margins">
         <div class="ibox-content">
             <button id="btnPrint" onclick="printForm();" class="btn btn-info"><i class="fa fa-print"></i>&nbsp;Print</button>
-            <button id="btnExportExcel" class="btn btn-primary"><i class="fa fa-file-excel-o"></i>&nbsp;Excel</button>
+            <button id="btnExportExcel" onclick="printFormExcel();" class="btn btn-primary"><i class="fa fa-file-excel-o"></i>&nbsp;Excel</button>
 
             <div style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; float: right">
                 <i class="fa fa-calendar"></i>&nbsp;
@@ -176,6 +176,8 @@
     function printForm() {
         window.open('@Url.Action("printReport", "Reports")?fromDate=' + $s + "&toDate=" + $e + "&lube=" + $("#cmblubetruckid").val() + "&disp=" + $("#cmbdispenserid").val() + '&rptType=PDF' + '&Report=rptLiquidationSummary');
     }
-
+    function printFormExcel() {
+        window.open('@Url.Action("printReport", "Reports")?fromDate=' + $s + "&toDate=" + $e + "&lube=" + $("#cmblubetruckid").val() + "&disp=" + $("#cmbdispenserid").val() + '&rptType=Excel' + '&Report=rptLiquidationSummary');
+    }
 </script>
 
