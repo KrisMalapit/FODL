@@ -1,7 +1,181 @@
 ﻿
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Summary";
 }
 
-<h2>Index</h2>
+<div class="col-lg-12">
+    <div class="ibox float-e-margins">
+        <div class="ibox-content">
+            <button id="btnPrint" onclick="printForm();" class="btn btn-info"><i class="fa fa-print"></i>&nbsp;Print</button>
+            <button id="btnExportExcel" class="btn btn-primary"><i class="fa fa-file-excel-o"></i>&nbsp;Excel</button>
+
+            <div style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; float: right">
+                <i class="fa fa-calendar"></i>&nbsp;
+                <span></span>  <input id="reportrange" type="text" name="daterange" style="border:none;" />
+            </div>
+            <div style="float: right" class="col-md-2">
+               
+                <select class="form-control" asp-items="ViewBag.LubeTruckId" id="cmblubetruckid"></select>
+            </div>
+            <div style="float: right" class="col-md-2">
+                <select class="form-control" asp-items="ViewBag.DispenserId" id="cmbdispenserid"></select>
+            </div>
+            <div class="scrollmenu">
+                <table id="tbl" class="table table-striped table-no-bordered table-hover dataTable" style="width: 100%!important">
+
+                    <thead>
+                        @*<tr>
+                        <th>Reference No</th>
+                        <th>Entry Type</th>
+                        <th>Item No.</th>
+                        <th>Posting Date</th>
+                        <th>Document Date</th>
+                        <th>Qty. to Request</th>
+                        <th>Equipment Nos. Code</th>
+                        <th>Office Code</th>
+                        <th>Fuel Code</th>
+                        <th>Location Code</th>
+                        <th>Dept. Code</th>
+                    </tr>*@
+                        <tr>
+                            <th>Reference No</th>
+
+                            <th>Shift</th>
+                            <th>Area / Lube</th>
+                            <th>Unit No</th>
+
+                            <th>Entry Type</th>
+                            <th>Item No.</th>
+                            <th>Posting Date</th>
+                            <th>Document Date</th>
+                            <th>Qty. to Request</th>
+                            <th>Equipment Nos. Code</th>
+                            <th>Office Code</th>
+                            <th>Fuel Code</th>
+                            <th>Location Code</th>
+                            <th>Dept. Code</th>
+                        </tr>
+                    </thead>
+
+                </table>
+            </div>
+            <br />
+            <br />
+        </div>
+    </div>
+</div>
+
+<script>
+    var strReference = '';
+    var sqlCommand = '';
+    var sdate = "";
+    var edate = "";
+    $(function () {
+        $from = moment().subtract(0, 'days').format('MM/DD/YYYY');
+        $to = moment().subtract(0, 'days').format('MM/DD/YYYY');
+        //$('#tbl thead tr:eq(1) th').each(function () {
+
+        //    var title = $(this).text();
+        //    if (title == "") {
+
+        //    } else {
+        //        $(this).html('<input type="search" class="form-control form-control-sm" placeholder="Search ' + title + '" />');
+        //    }
+        //});
+
+
+    })
+   
+    $(function () {
+        var start = moment().subtract(0, 'days');
+        var end = moment();
+
+
+
+        function cb(start, end) {
+            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            loadDatatable(start, end)
+            sdate = start;
+            edate = end;
+
+        }
+
+
+
+
+        $('#reportrange').daterangepicker({
+            opens: 'left'
+        }, cb);
+
+        cb(start, end);
+
+    })
+    function loadDatatable(start, end) {
+        var data = [];
+        $s = start.format('MM/DD/YYYY');
+        $e = end.format('MM/DD/YYYY');
+        $from = $s;
+        $to = $e;
+
+        
+
+        if ($.fn.DataTable.isDataTable('#tbl')) {
+            $('#tbl').DataTable().destroy();
+        }
+        $.ajax({
+            url: "@Url.Action("getDataSummary")?strStart=" + $s + " &end=" + $e + "&lube=" + $("#cmblubetruckid").val() + "&disp=" + $("#cmbdispenserid").val()
+                , method: "POST"
+                , dataType: 'json'
+                , success: function (responsedata) {
+                    
+                    if (responsedata.status == "success") {
+
+                        for (var i = 0; i < responsedata.data.length; i++) {
+                            data.push([
+                                responsedata.data[i].referenceNo
+                                , responsedata.data[i].shift
+                                , responsedata.data[i].sourceNo
+                               
+                                , responsedata.data[i].equipmentNo
+                                ,responsedata.data[i].entryType, responsedata.data[i].itemNo
+                                , moment(responsedata.data[i].postingDate).format("MM-DD-YYYY")
+                                , moment(responsedata.data[i].documentDate).format("MM-DD-YYYY")
+                                , responsedata.data[i].qty, responsedata.data[i].equipmentCode
+                                , responsedata.data[i].officeCode, responsedata.data[i].fuelCode
+                                , responsedata.data[i].locationCode, responsedata.data[i].departmentCode,
+                                ]);
+
+                        }
+
+                        $('#tbl').DataTable({
+                            "data": data,
+                            "responsive": true,
+                            "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                            "columnDefs": [
+
+                            ],
+                        });
+                    } else {
+                        toastr["error"](responsedata.message)
+                        toastr.options = {
+                            "closeButton": true
+                        }
+                    }
+
+                }
+        });
+        $("#tbl_filter").hide();
+    }
+
+    $("#cmblubetruckid").change(function () {
+        loadDatatable(sdate, edate);
+    })
+    $("#cmbdispenserid").change(function () {
+        loadDatatable(sdate, edate);
+    })
+    function printForm() {
+        window.open('@Url.Action("printReport", "Reports")?fromDate=' + $s + "&toDate=" + $e + "&lube=" + $("#cmblubetruckid").val() + "&disp=" + $("#cmbdispenserid").val() + '&rptType=PDF' + '&Report=rptLiquidationSummary');
+    }
+
+</script>
 

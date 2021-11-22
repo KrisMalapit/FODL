@@ -1109,7 +1109,7 @@
        
       
        
-
+      
 
         var cnt = 0;
         var data = $("#frm").serializeArray();
@@ -1126,13 +1126,14 @@
                     $("#CreatedDateMain").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss"));
                     $("#FuelOilId").val(responsedata.refid);
 
+                    document.getElementById('aPrint').setAttribute("onclick", "printForm('" + responsedata.refid +"','rptLiquidation');")
 
 
                 } else {
                     if (responsedata.messagenumber == '-2146232060' ) {
                         toastr["error"]("Duplicate entry found for Lube Truck or Dispenser Entry")   
                     } else {
-                        toastr["error"](responsedate.message)   
+                        toastr["error"](responsedata.message)   
                     }
                     
                     toastr.options = {

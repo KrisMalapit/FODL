@@ -16,5 +16,7 @@ namespace FODLSystem.Models.View_Model
         public string rptType { get; set; }
         public int ReferenceId { get; set; }
         public int Equipment { get; set; }
+        public int disp { get; set; }
+        public int lube { get; set; }
     }
 }

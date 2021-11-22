@@ -728,7 +728,7 @@ namespace FODLSystem.Controllers
             return Json(modelItem);
         }
         [HttpPost]
-        public ActionResult getData()
+        public ActionResult getData(int columnCount)
         {
             string strFilter = "";
             string status = "Active,Posted,Transferred";
@@ -750,7 +750,7 @@ namespace FODLSystem.Controllers
                 int recordsTotal = 0;
 
 
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < columnCount; i++)
                 {
                     string colval = Request.Form["columns[" + i + "][search][value]"];
                     if (colval != "")
@@ -808,11 +808,12 @@ namespace FODLSystem.Controllers
                   a.ReferenceNo,
                   a.CreatedDate,
                   a.Shift,
-                  LubeTruckName = a.LubeTrucks.Description,
+                  LubeTruckName = a.LubeTrucks.No + " | " + a.LubeTrucks.Description,
                   DispenserName = a.Dispensers.Name,
 
                   a.Id,
-                  a.Status
+                  a.Status,
+                  a.SourceReferenceNo
               });
 
 
@@ -1044,7 +1045,7 @@ namespace FODLSystem.Controllers
                _context.FuelOilSubDetails
                   .Where(a=> fuelid.Contains(a.FuelOilDetails.FuelOilId))
                   .Where(a => a.Status == "Active")
-                
+                .Where(a => a.FuelOilDetails.Status == "Active")
                   .Select(a => new
                   {
                       a.FuelOilDetails.FuelOils.ReferenceNo,
@@ -1147,7 +1148,7 @@ namespace FODLSystem.Controllers
                 {
                     for (int i = 0; i < fvm.no.Length; i++)
                     {
-                        if (Convert.ToInt32(fvm.no[i]) != 1)
+                        if (Convert.ToInt32(fvm.no[i]) != 1 && Convert.ToInt32(fvm.no[i]) != 106 && Convert.ToInt32(fvm.no[i]) != 280)
                         {
                             if (Convert.ToInt32(fvm.component[i]) == 1)
                             {
@@ -1163,7 +1164,7 @@ namespace FODLSystem.Controllers
                         }
 
 
-                        if (Convert.ToInt32(fvm.no[i]) == 1)
+                        if (Convert.ToInt32(fvm.no[i]) == 1 || Convert.ToInt32(fvm.no[i]) == 106 || Convert.ToInt32(fvm.no[i]) == 280)
                         {
                             fvm.component[i] = "1";
                         }
@@ -1196,10 +1197,10 @@ namespace FODLSystem.Controllers
 
                     for (int i = 0; i < fvm.no.Length; i++)
                     {
-                      
 
 
-                        if (Convert.ToInt32(fvm.no[i]) != 1)
+
+                        if (Convert.ToInt32(fvm.no[i]) != 1 && Convert.ToInt32(fvm.no[i]) != 106 && Convert.ToInt32(fvm.no[i]) != 280)
                         {
                             try
                             {
@@ -1230,7 +1231,7 @@ namespace FODLSystem.Controllers
                             
                         }
 
-                        if (Convert.ToInt32(fvm.no[i]) == 1)
+                        if (Convert.ToInt32(fvm.no[i]) == 1 || Convert.ToInt32(fvm.no[i]) == 106 || Convert.ToInt32(fvm.no[i]) == 280)
                         {
                             fvm.component[i] = "1";
                         }
@@ -1283,7 +1284,7 @@ namespace FODLSystem.Controllers
             cnt = _context.FuelOils.Where(a => a.TransactionDate == DateTime.Now.Date)
                     .Where(a => a.Status == "Active").Count();
 
-            int cntPosted = _context.FuelOils.Where(a => a.TransactionDate == DateTime.Now.Date)
+            int cntPosted = _context.FuelOils
                     .Where(a => a.Status == "Posted").Count();
 
             if (cnt > 0)
@@ -1421,9 +1422,13 @@ namespace FODLSystem.Controllers
 
 
 
+                    string dateticks = DateTime.Now.Ticks.ToString();
 
-                    _context.FuelOils.Where(a => a.Status == "Posted").ToList().ForEach(a => a.Status = "Archived");
+
+                    _context.FuelOils.Where(a => a.Status == "Posted").ToList().ForEach(a => a.Status = "Archived_" + dateticks);
+                    _context.SaveChanges();
                     _context.FuelOilDetails.Where(a => foid.Contains(a.FuelOilId)).Where(a => a.Status == "Archived").ToList().ForEach(a => a.Status = "Deleted");
+                    _context.SaveChanges();
                     _context.FuelOilSubDetails.Where(a => fodetailid.Contains(a.FuelOilDetailId)).Where(a => a.Status == "Archived").ToList().ForEach(a => a.Status = "Deleted");
                     _context.SaveChanges();
                    
