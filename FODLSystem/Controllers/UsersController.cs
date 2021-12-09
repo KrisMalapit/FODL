@@ -43,7 +43,7 @@ namespace FODLSystem.Controllers
             //    Text = a.No + " - " + a.Description
             //});
             //ViewData["LubeTruckId"] = new SelectList(lube.OrderBy(a => a.Text), "ID", "Text");
-            //ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");
+            ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");
 
             ViewData["DispenserId"] = new SelectList(_context.Dispensers.Where(a => stat.Contains(a.Status)), "Id", "Name");
 
@@ -452,7 +452,7 @@ namespace FODLSystem.Controllers
                         user.LubeAccess = "1";
                         user.RoleId = 2;
                         user.UserType = UserType;
-                        user.DateModified = DateTime.Now.Date;
+                        user.DateModified = DateTime.Now;
                         _context.Users.Add(user);
                         _context.SaveChanges();
                         status = "success";
@@ -467,7 +467,7 @@ namespace FODLSystem.Controllers
                     if (result != null)
                     {
                         result.Status = "0";
-                        result.DateModified = DateTime.Now.Date;
+                        result.DateModified = DateTime.Now;
                         _context.Entry(result).State = EntityState.Modified;
                         _context.SaveChanges();
 
@@ -485,7 +485,7 @@ namespace FODLSystem.Controllers
                         user.DispenserAccess = "1";
                         user.LubeAccess = "1";
                         user.UserType = UserType;
-                        user.DateModified = DateTime.Now.Date;
+                        user.DateModified = DateTime.Now;
                         _context.Users.Add(user);
                         _context.SaveChanges();
 
@@ -584,7 +584,7 @@ namespace FODLSystem.Controllers
                 user.UserType = u.UserType;
                 user.LubeAccess = lubeaccess;
                 user.DispenserAccess = dispenseraccess;
-                user.DateModified = DateTime.Now.Date;
+                user.DateModified = DateTime.Now;
                 _context.Entry(user).State = EntityState.Modified;
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
@@ -600,7 +600,7 @@ namespace FODLSystem.Controllers
             try
             {
                 User detail = _context.Users.Find(id);
-                detail.Status = "0" + DateTime.Now.Date.Ticks;
+                detail.Status = "0_" + DateTime.Now.Ticks;
                 _context.Entry(detail).State = EntityState.Modified;
                 _context.SaveChanges();
                 status = "success";
@@ -669,7 +669,7 @@ namespace FODLSystem.Controllers
                 item.CompanyAccess = "1";
                 item.LubeAccess = lubeaccess;
                 item.DispenserAccess = dispenseraccess;
-
+                item.DateModified = DateTime.Now;
                 _context.Entry(item).State = EntityState.Modified;
                 _context.SaveChanges();
                

@@ -100,17 +100,17 @@ namespace FODLSystem.Controllers
                     foreach (var item in users)
                     {
                         worksheet2.Cell(index + 1, 1).Value = item.Id;
-                        worksheet2.Cell(index + 1, 2).Value = item.Username;
+                        worksheet2.Cell(index + 1, 2).Value = "'" + item.Username;
                         worksheet2.Cell(index + 1, 3).Value = item.RoleId;
                         worksheet2.Cell(index + 1, 4).Value = "'" + item.Password;
-                        worksheet2.Cell(index + 1, 5).Value = item.FirstName;
-                        worksheet2.Cell(index + 1, 6).Value = item.LastName;
-                        worksheet2.Cell(index + 1, 7).Value = item.Name;
+                        worksheet2.Cell(index + 1, 5).Value = "'" + item.FirstName;
+                        worksheet2.Cell(index + 1, 6).Value = "'" + item.LastName;
+                        worksheet2.Cell(index + 1, 7).Value = "'" + item.Name;
                         worksheet2.Cell(index + 1, 8).Value = item.Status;
-                        worksheet2.Cell(index + 1, 9).Value = item.Email;
+                        worksheet2.Cell(index + 1, 9).Value = "'" + item.Email;
                         worksheet2.Cell(index + 1, 10).Value = item.Domain;
                         worksheet2.Cell(index + 1, 11).Value = "'" + item.CompanyAccess;
-                        worksheet2.Cell(index + 1, 12).Value = item.UserType;
+                        worksheet2.Cell(index + 1, 12).Value = "'" + item.UserType;
                         worksheet2.Cell(index + 1, 13).Value = item.DepartmentId;
                         worksheet2.Cell(index + 1, 14).Value = "'" + item.DispenserAccess;
                         worksheet2.Cell(index + 1, 15).Value = "'" + item.LubeAccess;
@@ -261,7 +261,8 @@ namespace FODLSystem.Controllers
             string message = "";
             string status = "";
             IFormFile file = Request.Form.Files[0];
-            
+            string transferExcel;
+
             try
             {
 
@@ -332,12 +333,23 @@ namespace FODLSystem.Controllers
                       
                        
 
-                        var transferExcel = UploadExcelFinal(sheet, sheet2, sheet3, sheet4, sheet5, sheet6, sheet7, fullPath);
+                        transferExcel = UploadExcelFinal(sheet, sheet2, sheet3, sheet4, sheet5, sheet6, sheet7, fullPath);
                         
                     }
+                    if (transferExcel == "success")
+                    {
+                        status = "success";
+                        message = "Uploaded successfully!";
+                    }
+                    else
+                    {
+                        status = "failed";
+                        message = transferExcel;
+                    }
+                    
+
                 }
-                status = "success";
-                message = "Uploaded successfully!";
+                
             }
             catch (Exception e)
             {
@@ -362,7 +374,7 @@ namespace FODLSystem.Controllers
         public string UploadExcelFinal(ISheet sheet, ISheet sheet2, ISheet sheet3, ISheet sheet4, ISheet sheet5, ISheet sheet6, ISheet sheet7,string fileName)
         {
 
-            
+            string status = "success";
             try
             {
                 try
@@ -375,7 +387,7 @@ namespace FODLSystem.Controllers
                     int componentCount = 0;
                     int lubetruckCount = 0;
                     int equipmentCount = 0;
-
+                    
 
                     //DEPARTMENT
                     deptCount = _context.Departments.Count();
@@ -501,9 +513,9 @@ namespace FODLSystem.Controllers
                                         DepartmentId = Convert.ToInt32(clc[12]),
                                         DispenserAccess = clc[13],
                                         LubeAccess = clc[14],
-                                        
+                                        DateModified = DateTime.Now
                                     };
-
+                                    string.Format("ID " + clc[0] + "UName " + clc[1] + "Status " + clc[7]).WriteLog();
                                     _context.Users.Add(sv);
 
 
@@ -514,6 +526,7 @@ namespace FODLSystem.Controllers
                             }
                             
                         }
+                        
                         _context.SaveChanges();
 
 
@@ -779,14 +792,14 @@ namespace FODLSystem.Controllers
                     var si = _context.SynchronizeInformations.Find(1);
                     if (si != null)
                     {
-                        si.LastModifiedDate = DateTime.Now.Date;
+                        si.LastModifiedDate = DateTime.Now;
                         si.ModifiedBy = User.Identity.GetFullName();
                         _context.SynchronizeInformations.Update(si); 
                     }
                     else
                     {
                         SynchronizeInformation sIn = new SynchronizeInformation();
-                        sIn.LastModifiedDate = DateTime.Now.Date;
+                        sIn.LastModifiedDate = DateTime.Now;
                         sIn.ModifiedBy = User.Identity.GetFullName();
                         _context.Add(sIn);
                         _context.SaveChanges();
@@ -816,18 +829,19 @@ namespace FODLSystem.Controllers
                     _context.Add(log);
                     _context.SaveChanges();
 
-                    return "Ok";
+                    return status;
                 }
                 catch (Exception e)
                 {
-
-                    return e.ToString();
+                    status = e.ToString();
+                    return status;
                 }
             }
             catch (Exception e)
             {
 
-                return e.ToString();
+                status = e.ToString();
+                return status;
             }
 
 
@@ -864,8 +878,8 @@ namespace FODLSystem.Controllers
                     item.DispenserAccess = dtexcel.Rows[i]["DispenserAccess"].ToString();
                     item.LubeAccess = dtexcel.Rows[i]["LubeAccess"].ToString();
                     
-                    item.DateModified = dtexcel.Rows[i]["DateModified"].ToString() == "" ? defdDate : Convert.ToDateTime(dtexcel.Rows[i]["DateModified"]);
-
+                    item.DateModified = string.IsNullOrEmpty(dtexcel.Rows[i]["DateModified"].ToString()) ? defdDate : Convert.ToDateTime(dtexcel.Rows[i]["DateModified"]);
+                    string.Format("ID " + item.Id + "UName " + item.Username + "Status " + item.Status).WriteLog();
                     items.Add(item);
                 }
                 var itemsToUpdate = items.Where(a => a.DateModified >= LastDateModified);
@@ -888,6 +902,7 @@ namespace FODLSystem.Controllers
                     it.DepartmentId = item.DepartmentId;
                     it.DispenserAccess = item.DispenserAccess;
                     it.LubeAccess = item.LubeAccess;
+                    it.DateModified = item.DateModified;
                     _context.Update(it);
                 }
 
