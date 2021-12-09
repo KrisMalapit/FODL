@@ -108,35 +108,37 @@
                             </li>
                             @if (User.Identity.GetRoleName() != "User")
                             {
-                                <li class="dropdown">
-                                    <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown">Maintenance</a>
-                                    <ul role="menu" class="dropdown-menu">
-                                        <li><a asp-area="" asp-controller="Companies" asp-action="Index">Company</a></li>
-                                        <li><a asp-area="" asp-controller="Departments" asp-action="Index">Department</a></li>
-                                        <li><a asp-area="" asp-controller="Users" asp-action="Index">User </a></li>
-                                        <li><a asp-area="" asp-controller="Items" asp-action="Index">Item </a></li>
-                                        <li><a asp-area="" asp-controller="Components" asp-action="Index">Components </a></li>
-                                        <li><a asp-area="" asp-controller="Dispensers" asp-action="Index">Dispensers </a></li>
-                                        <li><a asp-area="" asp-controller="Equipments" asp-action="Index">Equipments </a></li>
-                                        <li><a asp-area="" asp-controller="LubeTrucks" asp-action="Index">Lube Trucks </a></li>
 
-                                    </ul>
-                                </li>
-                                @*<li>
-                <a asp-area="" asp-controller="Reports" asp-action="Index" class="simple-text logo-normal">
-                    Reports
-                </a>
-            </li>*@
-                                <li class="dropdown">
-                                    <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown">Utilities</a>
-                                    <ul role="menu" class="dropdown-menu">
-                                        <li><a asp-area="" asp-controller="Utilities" asp-action="Synchronize">Synchronize</a></li>
-                                    </ul>
-                                </li>
-                                <li><a asp-area="" asp-controller="Reports" asp-action="Index"><i class="fa fa-line-chart"></i> <span class="nav-label">Reports</span></a></li>
-                            }
+                                @*//DISABLE IF OFFLINE
+                                @if (User.Identity.GetRoleName() == "Admin")
+                                {
+                                    <li class="dropdown">
+                                        <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown">Maintenance</a>
+                                        <ul role="menu" class="dropdown-menu">
+                                            <li><a asp-area="" asp-controller="Companies" asp-action="Index">Company</a></li>
+                                            <li><a asp-area="" asp-controller="Departments" asp-action="Index">Department</a></li>
+                                            <li><a asp-area="" asp-controller="Users" asp-action="Index">User </a></li>
+                                            <li><a asp-area="" asp-controller="Items" asp-action="Index">Item </a></li>
+                                            <li><a asp-area="" asp-controller="Components" asp-action="Index">Components </a></li>
+                                            <li><a asp-area="" asp-controller="Dispensers" asp-action="Index">Dispensers </a></li>
+                                            <li><a asp-area="" asp-controller="Equipments" asp-action="Index">Equipments </a></li>
+                                            <li><a asp-area="" asp-controller="LubeTrucks" asp-action="Index">Lube Trucks </a></li>
 
-                        </ul>
+                                        </ul>
+                                    </li>
+                                }*@
+
+
+                                    <li class="dropdown">
+                                        <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown">Utilities</a>
+                                        <ul role="menu" class="dropdown-menu">
+                                            <li><a asp-area="" asp-controller="Utilities" asp-action="Synchronize">Synchronize</a></li>
+                                        </ul>
+                                    </li>
+                                    <li><a asp-area="" asp-controller="Reports" asp-action="Index"><i class="fa fa-line-chart"></i> <span class="nav-label">Reports</span></a></li>
+                             }
+
+                            </ul>
                         <ul class="nav navbar-top-links navbar-right">
 
 

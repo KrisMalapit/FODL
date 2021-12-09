@@ -427,7 +427,7 @@ namespace FODLSystem.Controllers
             
 
 
-            if (fvm.LubeTruckId == 0 & fvm.DispenserId == 0)
+            if (fvm.LubeTruckId <= 1 & fvm.DispenserId <= 1)
             {
                 var model = new
                 {
@@ -436,8 +436,16 @@ namespace FODLSystem.Controllers
                 };
                 return Json(model);
             }
+            //if (fvm.LubeTruckId == 1 & fvm.DispenserId == 1)
+            //{
+            //    var model = new
+            //    {
+            //        status = "fail",
+            //        message = "Please choose Lube Truck or Dispenser Entry"
+            //    };
+            //    return Json(model);
+            //}
 
-           
 
 
 
@@ -466,6 +474,31 @@ namespace FODLSystem.Controllers
 
                 if (string.IsNullOrEmpty(fvm.ReferenceNo))
                 {
+
+           //         modelBuilder.Entity<FuelOil>()
+           //.HasIndex(p => new { p.TransactionDate, p.Shift, p.Status, p.LubeTruckId, p.DispenserId })
+           //.IsUnique();
+
+
+                    var fccount = _context.FuelOils
+                        .Where(a => a.Status != "Deleted")
+                        .Where(a => a.TransactionDate == DateTime.Now.Date)
+                        .Where(a => a.Shift == fvm.Shift)
+                        .Where(a => a.LubeTruckId == fvm.LubeTruckId)
+                        .Where(a => a.DispenserId == fvm.DispenserId)
+                        .Count();
+
+                    if (fccount>0)
+                    {
+                        var model1 = new
+                        {
+                            status = "fail",
+                            message = "Duplicate entry found for Lube Truck or Dispenser Entry"
+                        };
+                        return Json(model1);
+                    }
+
+
                     string series_code = "FuelOil";
                     series = new NoSeriesController(_context).GetNoSeries(series_code);
                     if (hasConnection)
@@ -602,7 +635,7 @@ namespace FODLSystem.Controllers
             try
             {
                 FuelOilDetail item = _context.FuelOilDetails.Find(id);
-                item.Status = "Deleted";
+                item.Status = "Deleted_" + DateTime.Now.ToString("yyyyMMddHHmmss");
                 _context.Entry(item).State = EntityState.Modified;
                 _context.SaveChanges();
 
@@ -629,7 +662,7 @@ namespace FODLSystem.Controllers
             try
             {
                 var items = _context.FuelOils.Find(id);
-                items.Status = "Delete_" + DateTime.Now.Date.Ticks;
+                items.Status = "Deleted";
                 _context.Entry(items).State = EntityState.Modified;
                 _context.SaveChanges();
 
@@ -780,31 +813,35 @@ namespace FODLSystem.Controllers
                     strFilter = "true";
                 }
 
+                var _fuel = _context.FuelOils
+                 //.Where(a => a.CreatedBy == User.Identity.GetFullName())
+                 .Where(a => stat.Contains(a.Status))
+                 .Where(strFilter);
+
+                int recCount = _fuel.Count();
+
+                if (User.Identity.GetRoleName() == "User")
+                {
+                    recCount = _fuel
+                                   .Where(a => a.CreatedBy == User.Identity.GetFullName())
+                                   .Count();
+                }
                
-
-
-                int recCount =
-
-                _context.FuelOils
-                .Where(a => stat.Contains(a.Status))
-
-                .Where(strFilter)
-                .Count();
 
                 recordsTotal = recCount;
                 int recFilter = recCount;
 
 
 
-                var v =
-
-               _context.FuelOils
+                var v = _context.FuelOils
+               //.Where(a => a.CreatedBy == User.Identity.GetFullName())
               .Where(a => stat.Contains(a.Status))
               .Where(strFilter)
-              .OrderByDescending(a=>a.Id)
-              .Skip(skip).Take(pageSize)
+              .OrderByDescending(a => a.Id)
+              //.Skip(skip).Take(pageSize)
               .Select(a => new
               {
+                  a.CreatedBy,
                   a.ReferenceNo,
                   a.CreatedDate,
                   a.Shift,
@@ -815,6 +852,14 @@ namespace FODLSystem.Controllers
                   a.Status,
                   a.SourceReferenceNo
               });
+                if (User.Identity.GetRoleName() == "User")
+                {
+                    v = v.Where(a => a.CreatedBy == User.Identity.GetFullName()).Skip(skip).Take(pageSize);
+                }
+                else
+                {
+                    v = v.Skip(skip).Take(pageSize);
+                }
 
 
 

@@ -359,16 +359,29 @@
 
     $("#btnExportExcel").click(function () {
         var table = $('#tbl').DataTable();
+        var tableA = $('#tblAdmin').DataTable();
         $rowCount = table.data().count();
-       
-        if ($rowCount == 0) {
-            toastr["error"]("No data to be posted")
-            toastr.options = {
-                "closeButton": true,
-                "showDuration": "3000",
+        $rowCountA = tableA.data().count();
+        if ('@User.Identity.GetRoleName()' == 'User') {
+            if ($rowCount == 0) {
+                toastr["error"]("No data to be posted")
+                toastr.options = {
+                    "closeButton": true,
+                    "showDuration": "3000",
+                }
+                return false;
             }
-            return false;
+        } else {
+            if ($rowCountA == 0) {
+                toastr["error"]("No data to be posted")
+                toastr.options = {
+                    "closeButton": true,
+                    "showDuration": "3000",
+                }
+                return false;
+            }
         }
+       
       
 
             $.ajax({
@@ -645,7 +658,7 @@
 
                    toastr["success"]("Item Deleted","<b>Success</b> ")
                    loadDatatable();
-
+                   loadDatatableAdmin();
 
                 } else {
 
