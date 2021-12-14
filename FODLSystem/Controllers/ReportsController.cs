@@ -104,7 +104,7 @@ namespace FODLSystem.Controllers
                       a.FuelOilDetails.Locations.OfficeCode,
                       FuelCode = a.Items.TypeFuel == "OIL-LUBE" ? a.FuelOilDetails.Equipments.FuelCodeOil : a.FuelOilDetails.Equipments.FuelCodeDiesel,
                       LocationCode = "SMPC-SITE",
-                      a.FuelOilDetails.Equipments.DepartmentCode,
+                      DepartmentCode  = a.Items.TypeFuel == "OIL-LUBE" ? "345" : a.FuelOilDetails.Equipments.DepartmentCode,
                       a.Id,
                       a.Status,
                       a.FuelOilDetailId
@@ -154,7 +154,7 @@ namespace FODLSystem.Controllers
                 string urilocal = "http://localhost:59455/api/printreport?rvm=";
                 string urilocalhost = "http://192.168.102.104/fodlapi/api/printreport?rvm=";
 
-                response = client.GetAsync(urilocalhost + xstring).Result;
+                response = client.GetAsync(uridevminesite + xstring).Result;
                 string byteToString = response.Content.ReadAsStringAsync().Result.Replace("\"", string.Empty);
                 bytes = Convert.FromBase64String(byteToString);
 

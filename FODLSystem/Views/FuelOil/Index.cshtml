@@ -64,7 +64,7 @@
     }
 </style>
 
-
+<link href="~/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
 
 <div id="itemsModal" class="modal inmodal in" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-lg">
@@ -256,7 +256,7 @@
         </div>
     </div>
 </div>
-
+<script src="~/js/plugins/sweetalert/sweetalert.min.js"></script>
 <script>
     $('#btnAdd').click(function () {
         $("#itemsModal").modal('show')
@@ -489,9 +489,9 @@
 
                          if (row.status == "Active") {
                              $actions =
-                                 '<a title="Edit" class="btn btn-white btn-bitbucket" href="' + linkEdit + '"><i class="fa fa-list"></i></a> ' +
+                                 '<a title="Edit" class="btn btn-white btn-bitbucket" href="' + linkEdit + '"><i class="fa fa-list"></i></a> ';
 
-                             '<a title="Delete" onclick="deleteItem(' + row.id + ')" class="btn btn-danger btn-bitbucket" href="#"><i class="fa fa-trash"></i></a>';
+                             //'<a title="Delete" onclick="deleteItem(' + row.id + ')" class="btn btn-danger btn-bitbucket" href="#"><i class="fa fa-trash"></i></a>';
 
 
 
@@ -582,9 +582,9 @@
 
                          if (row.status == "Active") {
                              $actions =
-                                 '<a title="Edit" class="btn btn-white btn-bitbucket" href="' + linkEdit + '"><i class="fa fa-list"></i></a> ' +
+                                 '<a title="Edit" class="btn btn-white btn-bitbucket" href="' + linkEdit + '"><i class="fa fa-list"></i></a> ';
 
-                             '<a title="Delete" onclick="deleteItem(' + row.id + ')" class="btn btn-danger btn-bitbucket" href="#"><i class="fa fa-trash"></i></a>';
+                             //'<a title="Delete" onclick="deleteItem(' + row.id + ')" class="btn btn-danger btn-bitbucket" href="#"><i class="fa fa-trash"></i></a>';
 
 
 
@@ -647,7 +647,7 @@
 
 
     function deleteItem(id) {
-         if (confirm('This will delete list. Continue?')) {
+         @*if (confirm('This will delete list. Continue?')) {
             $.ajax({
             url: "@Url.Action("Delete")"
             , method: "POST"
@@ -671,8 +671,48 @@
             }
         })
 
-        }
+        }*@
+        swal({
+                    title: "Delete Form",
+                    text: "This will delete form and any associated data. Proceed?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Proceed",
+                    closeOnConfirm: false
+                }, function () {
+                        $.ajax({
+                            url: "@Url.Action("Delete")",
+                            method: "POST",
+                            dataType: "json"
+                            , data: { id: id }
+                            , success: function (responsedata) {
+                                if (responsedata.status == "success") {
+                                    swal("Done!", "Form Deleted", "success");
+                                    loadDatatable();
+                                    loadDatatableAdmin();
+                                   
+                                } else {
+
+                                    toastr["error"](responsedata.message)
+                                    toastr.options = {
+                                        "closeButton": true,
+                                        "showDuration": "3000",
+                                    }
+                                };
+                            }, error: function ($xhr, textStatus, errorThrown) {
+                                toastr["error"](errorThrown, "Error")
+                                toastr.options = {
+                                    "closeButton": true,
+                                    "showDuration": "3000",
+                                }
+                            }
+                        });
+                });
     }
+
+
+  
 
 
 

@@ -26,15 +26,15 @@ namespace FODLSystem.Controllers
             this.SetCurrentBreadCrumbTitle("Equipment");
             return View();
         }
-        public JsonResult SearchEquipment(string q)
+        public JsonResult SearchEquipment()
         {
             var model = _context.Equipments
                 .Where(a => a.Status == "Active")
-                .Where(a => a.Name.ToUpper().Contains(q.ToUpper()) || a.No.ToUpper().Contains(q.ToUpper()))
+                //.Where(a => a.Name.ToUpper().Contains(q.ToUpper()) || a.No.ToUpper().Contains(q.ToUpper()))
                 .Select(b => new
                 {
                     id = b.Id,
-                    text = b.No + " | " + b.Name,
+                    text = b.No ,
 
                 });
 

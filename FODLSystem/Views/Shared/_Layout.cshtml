@@ -109,7 +109,7 @@
                             @if (User.Identity.GetRoleName() != "User")
                             {
 
-                                @*//DISABLE IF OFFLINE
+                                //DISABLE IF OFFLINE
                                 @if (User.Identity.GetRoleName() == "Admin")
                                 {
                                     <li class="dropdown">
@@ -126,7 +126,7 @@
 
                                         </ul>
                                     </li>
-                                }*@
+                                }
 
 
                                     <li class="dropdown">

@@ -40,7 +40,7 @@ namespace FODLSystem
 
 
             services.AddDbContext<FODLSystemContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("FODLContextOffline")
+            options.UseSqlServer(Configuration.GetConnectionString("FODLContextTestMinesite")
             , builder => builder.UseRowNumberForPaging() //add this for Incorrect syntax near 'OFFSET'. Invalid usage of the option NEXT in the FETCH statement
             ));
 
