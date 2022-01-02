@@ -36,7 +36,7 @@ namespace FODLSystem.Models
         public DbSet<FuelOilSubDetail> FuelOilSubDetails { get; set; }
         public DbSet<FileUpload> FileUploads { get; set; }
         public DbSet<SynchronizeInformation> SynchronizeInformations { get; set; }
-        
+        public DbSet<Driver> Drivers { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
@@ -45,7 +45,9 @@ namespace FODLSystem.Models
             modelBuilder.Entity<LubeTruck>()
               .HasIndex(p => new { p.No, p.Status })
               .IsUnique();
-
+            modelBuilder.Entity<Driver>()
+               .HasIndex(p => new { p.IdNumber })
+               .IsUnique();
             //modelBuilder.Entity<FuelOil>()
             // .HasIndex(p => new { p.TransactionDate, p.Shift, p.Status, p.LubeTruckId, p.DispenserId })
             // .IsUnique();
@@ -78,6 +80,10 @@ namespace FODLSystem.Models
             modelBuilder.Entity<Component>().HasData(
               new { Id = 1, Name = "N/A", Status = "Default", DateModified = DateTime.Now }
           );
+
+            modelBuilder.Entity<Driver>().HasData(
+              new { ID = 1, IdNumber = "00000", Name = "N/A",Position = "N/A", Status = "Enabled", DateModified = new DateTime(1900,01,01) }
+           );
         }
 
         internal object Include(Func<object, object> p)

@@ -16,7 +16,9 @@
     .modal-md {
         width: 60% !important
     }
-
+    .modal-lg {
+        width: 75% !important
+    }
     .modal-dialog {
         max-width: 100%;
         margin: 1.75rem auto;
@@ -32,19 +34,13 @@
 <link href="~/css/plugins/select2/select2-bootstrap.min.css" rel="stylesheet">
 
 <div class="modal inmodal in " id="modalEquipment" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content animated fadeIn">
             <div class="modal-header">
                 <h4 class="modal-title" id="modalSnapTitle">Equipment Information</h4>
                 <small class="font-bold">Modify details of this dispenser</small>
             </div>
             <div class="modal-body">
-
-             
-
-
-
-
                 <p>
                     @if (ViewBag.Status != "Posted" && ViewBag.Status != "Transferred")
                     {
@@ -66,26 +62,35 @@
 
                     <div class="form-group row">
                         <label class="col-md-2 col-form-label">Time</label>
-                        <div class="input-group col-md-4">
+                        <div class="input-group col-md-2">
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                             <input id="CreatedDate" name="CreatedDate" type="text" class="form-control datepicker">
                         </div>
                         <label class="col-md-2 col-form-label">SMR</label>
-                        <div class="input-group col-md-4">
+                        <div class="input-group col-md-2">
                             <input type="text" id="SMR" name="SMR" class="form-control" />
+                        </div>
+                        <label class="col-md-2 col-form-label">Driver</label>
+                        <div class="input-group col-md-2">
+                           
+                            @Html.DropDownList("DriverId")
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-md-2 col-form-label">Equipment</label>
-                        <div class="input-group col-md-4">
+                        <div class="input-group col-md-2">
                             @*<select class="form-control input-sm" id="EquipmentId" name="EquipmentId">
-            <option>Select Unit</option>
-        </select>*@
+                <option>Select Unit</option>
+            </select>*@
                             @Html.DropDownList("EquipmentId")
                         </div>
                         <label class="col-md-2 col-form-label">Location</label>
-                        <div class="input-group col-md-4">
+                        <div class="input-group col-md-2">
                             @Html.DropDownList("LocationId")
+                        </div>
+                        <label class="col-md-2 col-form-label"></label>
+                        <div class="input-group col-md-2">
+                            <button type="button" id="btnDigitalSign" class="btn btn-warning" style="width:100%;">Digital Sign</button>
                         </div>
                     </div>
 
@@ -506,6 +511,39 @@
         format: 'm/d/Y H:i',
         step: 5
     });
+
+    $("#btnDigitalSign").click(function () {
+
+        if (!$("#DriverId").val()) {
+            $("#DriverId").val(1);
+        } 
+        //alert($("#DriverId").val());
+        //return false;
+
+        if (confirm('This will replace actual signature with digital signature. Continue?')) {
+                $.ajax({
+                    url: "@Url.Action("DigitalSignature")"
+                    , dataType: "json"
+                    , type: "POST"
+                    , data: { id: $("#FuelOilId").val(), DriverId : $("#DriverId").val() }
+                    , success: function (responsedata) {
+                        if (responsedata.status == "success") {
+                          
+                            toastr["success"]("Signature saved!", "<b>Success</b> ")
+                            loadDatatable($("#FuelOilId").val(),"Edit");
+                           
+                        } else {
+                            toastr["error"](responsedata.message +'</br></br>'+ 'Something wrong with the creation of equipment.')
+                            toastr.options = {
+                                "closeButton": true
+                            }
+                        }
+                    }
+                })
+        }
+       
+
+    })
     //$('.datepickerDate').datetimepicker({
     //    format: 'm/d/Y',
     //    timepicker: false,
@@ -713,11 +751,15 @@
 
         $action = String($(obj).attr('title'));
         if ($action === 'Add') {
+           
             $("#SMR").val("");
             $('#DetailId').val(0)
             $("#EquipmentId").val(1).trigger('change');
+            $("#DriverId").val(1).trigger('change');
             $("#LocationId").val(1).trigger('change');
-            $("#CreatedDate").val(moment('@DateTime.Now').format("MM/DD/YYYY HH:mm"))
+            $("#CreatedDate").val(moment(new Date()).format("MM/DD/YYYY HH:mm"));
+          
+
             @*$("#EquipmentId").select2({
                 dropdownParent: $('#modalEquipment .modal-content'),
                 placeholder: '',
@@ -753,6 +795,7 @@
             $('#CreatedDate').val($cdate)
 
             $('#EquipmentId').val($(obj).attr('data-equipment')).trigger('change')
+            $('#DriverId').val($(obj).attr('data-driver')).trigger('change')
             $('#LocationId').val($(obj).attr('data-location')).trigger('change')
             $('#SMR').val($(obj).attr('data-smr'))
 
@@ -907,7 +950,7 @@
                         //if (xx == "Edit") {
                         //    console.log("E");
                             $actions =
-                                "<a title="+xx+" data-time=" + row.createdDate + " data-id=" + row.id + " data-equipment='" + row.equipmentId + "' data-equipmentname='" + row.equipmentName +
+                                "<a title=" + xx + " data-time=" + row.createdDate + " data-id=" + row.id + " data-equipment='" + row.equipmentId + "' data-equipmentname='" + row.equipmentName + "' data-driver='" + row.driverId + "' data-drivername='" + row.driverName +
                                 "' data-location='" + row.locationId + "' data-locationname='" + row.locationName + "' data-smr='" + row.smr +
                                 "' onclick='createNew(this);' >"+xx+"</a>  "; 
                         if (xx == "Edit") {
@@ -1201,6 +1244,28 @@
     }
     function saveItem() {
         var cnt = 0;
+
+        $('#frmItem').find('input').each(function () {
+            if ($(this).prop('required')) {
+                if (!$(this).val()) {
+                    cnt = 1;
+                    $(this).addClass("error-input");
+                } else {
+                    $(this).removeClass("error-input");
+                }
+            }
+        });
+
+        if (cnt > 0) {
+            toastr["error"]("Fill all required fields", "Error")
+            toastr.options = {
+                "closeButton": true,
+                "showDuration": "3000",
+            }
+            return false;
+        }
+
+
         var data = $("#frmItem").serializeArray();
         
         $.ajax({
@@ -1390,7 +1455,11 @@
         width: '100%',
         theme: 'bootstrap'
     });
-    
+    $("#DriverId").select2({
+        dropdownParent: $('#modalEquipment .modal-content'),
+        width: '100%',
+        theme: 'bootstrap'
+    });
 
 
     @*$("#LubeTruckId").select2({

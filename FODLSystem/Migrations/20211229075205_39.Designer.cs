@@ -4,14 +4,16 @@ using FODLSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FODLSystem.Migrations
 {
     [DbContext(typeof(FODLSystemContext))]
-    partial class FODLSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20211229075205_39")]
+    partial class _39
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,7 +64,7 @@ namespace FODLSystem.Migrations
                     b.ToTable("Components");
 
                     b.HasData(
-                        new { Id = 1, DateModified = new DateTime(2021, 12, 29, 16, 58, 1, 609, DateTimeKind.Local), Name = "N/A", Status = "Default" }
+                        new { Id = 1, DateModified = new DateTime(2021, 12, 29, 15, 52, 5, 36, DateTimeKind.Local), Name = "N/A", Status = "Default" }
                     );
                 });
 
@@ -151,7 +153,7 @@ namespace FODLSystem.Migrations
                     b.ToTable("Drivers");
 
                     b.HasData(
-                        new { ID = 1, DateModified = new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), IdNumber = "00000", Name = "N/A", Position = "N/A", Status = "Enabled" }
+                        new { ID = 1, IdNumber = "00000", Name = "N/A", Position = "N/A", Status = "Enabled" }
                     );
                 });
 
@@ -215,6 +217,8 @@ namespace FODLSystem.Migrations
 
                     b.Property<int>("DispenserId");
 
+                    b.Property<int?>("DriverId");
+
                     b.Property<int>("LubeTruckId");
 
                     b.Property<int>("OldId");
@@ -239,6 +243,8 @@ namespace FODLSystem.Migrations
 
                     b.HasIndex("DispenserId");
 
+                    b.HasIndex("DriverId");
+
                     b.HasIndex("LubeTruckId");
 
                     b.ToTable("FuelOils");
@@ -251,8 +257,6 @@ namespace FODLSystem.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("CreatedDate");
-
-                    b.Property<int?>("DriverId");
 
                     b.Property<int>("EquipmentId");
 
@@ -269,8 +273,6 @@ namespace FODLSystem.Migrations
                     b.Property<string>("Status");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DriverId");
 
                     b.HasIndex("EquipmentId");
 
@@ -546,6 +548,10 @@ namespace FODLSystem.Migrations
                         .HasForeignKey("DispenserId")
                         .OnDelete(DeleteBehavior.Cascade);
 
+                    b.HasOne("FODLSystem.Models.Driver", "Drivers")
+                        .WithMany()
+                        .HasForeignKey("DriverId");
+
                     b.HasOne("FODLSystem.Models.LubeTruck", "LubeTrucks")
                         .WithMany()
                         .HasForeignKey("LubeTruckId")
@@ -554,10 +560,6 @@ namespace FODLSystem.Migrations
 
             modelBuilder.Entity("FODLSystem.Models.FuelOilDetail", b =>
                 {
-                    b.HasOne("FODLSystem.Models.Driver", "Drivers")
-                        .WithMany()
-                        .HasForeignKey("DriverId");
-
                     b.HasOne("FODLSystem.Models.Equipment", "Equipments")
                         .WithMany()
                         .HasForeignKey("EquipmentId")

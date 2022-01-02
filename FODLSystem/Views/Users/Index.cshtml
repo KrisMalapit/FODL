@@ -65,7 +65,13 @@
                         <label class="control-label">Dispenser Access</label>
                         <select id="DispenserAccess" style="width:400px" name="dispensertags[]" class="form-control" asp-items="ViewBag.DispenserId"></select>
                     </div>
-
+                    <div class="form-group">
+                        <label class="control-label">Status</label>
+                        <select id="Status" name="Status" style="width:400px" class="form-control">
+                            <option value="1">Enabled</option>
+                            <option value="0">Disabled</option>
+                        </select>
+                    </div>
                 </form>
 
 
@@ -111,6 +117,7 @@
                             <th>Email</th>
                             <th>Domain</th>
                             <th>Username</th>
+                          
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -135,6 +142,7 @@
                             <th>Name</th>
                             <th>Department</th>
                             <th>Role</th>
+                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -193,12 +201,14 @@
         $role = $("#RoleId").val();
         $lube = $("#LubeAccess").val();
         $disp = $("#DispenserAccess").val();
+        $stat = $("#Status").val();
 
         $.ajax({
                 url: "@Url.Action("SaveLocal")"
                     , method: "POST"
             , data: {
                 id: $id, Username: $username, RoleId: $role, Lastname: $lname, Firstname: $fname, DepartmentId: $dept
+                , Status: $stat
                 , lubetags: $lube, dispensertags: $disp}
                     , dataType: 'json'
                     , success: function (responsedata) {
@@ -237,6 +247,7 @@
                             var $lname = responsedata.data[i].lastName
                             var $dept = responsedata.data[i].departmentId
                             var $role = responsedata.data[i].roleId
+                            var $stat = responsedata.data[i].status
                             $lube = responsedata.data[i].lubeAccess
                             $disp = responsedata.data[i].dispenserAccess
 
@@ -246,10 +257,11 @@
                             $actions =
                                 "<a title='Edit' data-id=" + $id + " data-username='" + $username +
                                 "' data-fname='" + $fname + "' data-lname='" + $lname +
-                            "' data-dept='" + $dept + "' data-role='" + $role +
-                            "' data-lube='" + $lube + "' data-disp='" + $disp +
-                                "' onclick='showmodal(this);'>Edit</a>  " + 
-                                '<a title="Delete" onclick="deleteItem(\'' + $id + '\',\'' + responsedata.data[i].name + '\')">Delete</a>';
+                            "' data-dept='" + $dept + "' data-status='" + $stat + "' data-role='" + $role +
+                                "' data-lube='" + $lube + "' data-disp='" + $disp +
+                                "' onclick='showmodal(this);'>Edit</a>";
+                            //+ 
+                            //    '<a title="Delete" onclick="deleteItem(\'' + $id + '\',\'' + responsedata.data[i].name + '\')">Delete</a>';
 
                             data.push([
                                   responsedata.data[i].id
@@ -260,6 +272,7 @@
                                 , responsedata.data[i].name
                                 , responsedata.data[i].department
                                 , responsedata.data[i].role
+                                , responsedata.data[i].statusName
 
 
                                 , $actions]);
@@ -428,6 +441,7 @@
 
         $lube = $(obj).attr('data-lube');
         $disp = $(obj).attr('data-disp');
+        $status = $(obj).attr('data-status');
 
         var lubeAccess = $lube
         var dispenserAccess = $disp
@@ -439,6 +453,7 @@
 
         $("#itemId").val($id);
         $("#Username").val($username);
+        $("#Status").val($status);
         $("#Firstname").val($fname);
         $("#Lastname").val($lname);
         $("#DepartmentId").val($dept);

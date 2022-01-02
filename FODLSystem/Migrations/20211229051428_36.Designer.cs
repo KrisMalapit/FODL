@@ -4,14 +4,16 @@ using FODLSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FODLSystem.Migrations
 {
     [DbContext(typeof(FODLSystemContext))]
-    partial class FODLSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20211229051428_36")]
+    partial class _36
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,7 +64,7 @@ namespace FODLSystem.Migrations
                     b.ToTable("Components");
 
                     b.HasData(
-                        new { Id = 1, DateModified = new DateTime(2021, 12, 29, 16, 58, 1, 609, DateTimeKind.Local), Name = "N/A", Status = "Default" }
+                        new { Id = 1, DateModified = new DateTime(2021, 12, 29, 13, 14, 28, 476, DateTimeKind.Local), Name = "N/A", Status = "Default" }
                     );
                 });
 
@@ -149,10 +151,6 @@ namespace FODLSystem.Migrations
                         .IsUnique();
 
                     b.ToTable("Drivers");
-
-                    b.HasData(
-                        new { ID = 1, DateModified = new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), IdNumber = "00000", Name = "N/A", Position = "N/A", Status = "Enabled" }
-                    );
                 });
 
             modelBuilder.Entity("FODLSystem.Models.Equipment", b =>
@@ -252,8 +250,6 @@ namespace FODLSystem.Migrations
 
                     b.Property<DateTime>("CreatedDate");
 
-                    b.Property<int?>("DriverId");
-
                     b.Property<int>("EquipmentId");
 
                     b.Property<int>("FuelOilId");
@@ -269,8 +265,6 @@ namespace FODLSystem.Migrations
                     b.Property<string>("Status");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DriverId");
 
                     b.HasIndex("EquipmentId");
 
@@ -554,10 +548,6 @@ namespace FODLSystem.Migrations
 
             modelBuilder.Entity("FODLSystem.Models.FuelOilDetail", b =>
                 {
-                    b.HasOne("FODLSystem.Models.Driver", "Drivers")
-                        .WithMany()
-                        .HasForeignKey("DriverId");
-
                     b.HasOne("FODLSystem.Models.Equipment", "Equipments")
                         .WithMany()
                         .HasForeignKey("EquipmentId")

@@ -69,7 +69,49 @@ namespace FODLSystem.Controllers
             return Json(model);
 
         }
+        [HttpPost]
+        public async Task<IActionResult> DigitalSignature(int id,int DriverId)
+        {
 
+            string filename = "";
+            string status = "";
+            string message = "";
+            string imageurl = "";
+
+
+            try
+            {
+
+                var fueloil = _context.FuelOilDetails
+                    .Where(a => a.FuelOilId == id)
+                    .FirstOrDefault();
+
+                fueloil.Signature = "SIGNED";
+                fueloil.DriverId = DriverId;
+                _context.Update(fueloil);
+                _context.SaveChanges();
+
+                status = "success";
+            }
+            catch (Exception e)
+            {
+
+                status = "fail";
+                message = e.Message;
+                e.Message.WriteLog();
+
+            }
+
+            var model = new
+            {
+
+                message,
+                status,
+                imageurl
+            };
+
+            return Json(model);
+        }
 
         [HttpPost]
         public async Task<IActionResult> saveSnapShot(int id, string imgData)
@@ -190,8 +232,8 @@ namespace FODLSystem.Controllers
                 ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List");
 
 
-                ViewData["EquipmentId"] = new SelectList(_context.Equipments.Where(a => a.Status == "Active"), "Id", "No"); 
-                
+                ViewData["EquipmentId"] = new SelectList(_context.Equipments.Where(a => a.Status == "Active"), "Id", "No");
+                ViewData["DriverId"] = new SelectList(_context.Drivers.Where(a => a.Status == "Enabled"), "ID", "Name");
 
 
                 //ViewData["Id"] = 0 ;
@@ -228,7 +270,7 @@ namespace FODLSystem.Controllers
 
             ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List");
             ViewData["EquipmentId"] = new SelectList(_context.Equipments.Where(a => a.Status == "Active"), "Id", "No");
-
+            ViewData["DriverId"] = new SelectList(_context.Drivers.Where(a => a.Status == "Enabled"), "ID", "Name");
             var disp = _context.Dispensers
                  .Where(a => dispenserId.Contains(a.Id))
                  .Where(a => a.Status != "Deleted");
@@ -361,6 +403,7 @@ namespace FODLSystem.Controllers
                         CreatedDate = fvm.CreatedDate
                         ,
                         SMR = fvm.SMR
+                        ,DriverId = fvm.DriverId
                         
                     };
                     _context.Add(fod);
@@ -376,6 +419,7 @@ namespace FODLSystem.Controllers
                     fod.FuelOilId = fvm.FuelOilId;
                     fod.CreatedDate = fvm.CreatedDate;
                     fod.SMR = fvm.SMR;
+                    fod.DriverId = fvm.DriverId;
                     _context.Update(fod);
                     _context.SaveChanges();
 
@@ -929,7 +973,8 @@ namespace FODLSystem.Controllers
                     a.CreatedDate,
                     a.Status,
                     SignStatus = a.Signature == "" ? "" : "Signed",
-                    a.Id
+                    a.Id,
+                    
                 })
                 .Where(strFilter)
                 .Count();
@@ -959,7 +1004,8 @@ namespace FODLSystem.Controllers
                       a.LocationId,
                       a.EquipmentId,
                       SignStatus = string.IsNullOrEmpty(a.Signature) ? "" : "Signed",
-                      DocumentStatus = a.FuelOils.Status
+                      DocumentStatus = a.FuelOils.Status,
+                      a.DriverId
 
                   });
 
@@ -1367,6 +1413,8 @@ namespace FODLSystem.Controllers
                     worksheet.Cell(1, 7).Value = "LubeTruckId";
                     worksheet.Cell(1, 8).Value = "TransactionDate";
                     worksheet.Cell(1, 9).Value = "Id";
+                    worksheet.Cell(1, 10).Value = "OriginalDate";
+                    worksheet.Cell(1, 11).Value = "OriginalDate";
                     int index = 1;
 
                     foreach (var item in fodlheader)
@@ -1380,6 +1428,7 @@ namespace FODLSystem.Controllers
                         worksheet.Cell(index + 1, 7).Value = item.LubeTruckId;
                         worksheet.Cell(index + 1, 8).Value = item.TransactionDate;
                         worksheet.Cell(index + 1, 9).Value = item.Id;
+                        worksheet.Cell(index + 1, 10).Value = item.OriginalDate;
                         index++;
                     }
 
@@ -1395,6 +1444,7 @@ namespace FODLSystem.Controllers
                     worksheet2.Cell(1, 7).Value = "Signature";
                     worksheet2.Cell(1, 8).Value = "Id";
                     worksheet2.Cell(1, 9).Value = "CreatedBy";
+                    worksheet2.Cell(1, 10).Value = "DriverId";
                     index = 1;
 
                     foreach (var item in fodldetail)
@@ -1408,6 +1458,7 @@ namespace FODLSystem.Controllers
                         worksheet2.Cell(index + 1, 7).Value = item.Signature;
                         worksheet2.Cell(index + 1, 8).Value = item.Id;
                         worksheet2.Cell(index + 1, 9).Value = item.FuelOils.CreatedBy;
+                        worksheet2.Cell(index + 1, 10).Value = item.DriverId;
                         index++;
                     }
 
@@ -1850,7 +1901,7 @@ namespace FODLSystem.Controllers
                         string[] clc = new string[cellCount];
                         for (int j = 0; j < (cellCount); j++)
                         {
-                            if (line > 9)
+                            if (line > 10)
                             {
                                 break;
                             }
@@ -1866,12 +1917,12 @@ namespace FODLSystem.Controllers
                             }
 
                             cnt += 1;
-                            if (cnt == 9)
+                            if (cnt == 10)
                             {
                                 int hId = _context.FuelOils.Where(a => a.OldId == Convert.ToInt32(clc[3]))
                                     .Where(a => a.CreatedBy == clc[8])
                                     .FirstOrDefault().Id;
-
+                                //kcms
                                 FuelOilDetail sv = new FuelOilDetail
                                 {
                                     CreatedDate = Convert.ToDateTime(clc[0]),
@@ -1881,7 +1932,8 @@ namespace FODLSystem.Controllers
                                     SMR = clc[5],
                                     Signature = clc[6],
                                     OldId = Convert.ToInt32(clc[7]), //FuelOilId
-                                    FuelOilId = hId
+                                    FuelOilId = hId,
+                                    DriverId = Convert.ToInt32(clc[10])
                                 };
                                 //svmDetail.Add(sv);
                                 _context.FuelOilDetails.Add(sv);
