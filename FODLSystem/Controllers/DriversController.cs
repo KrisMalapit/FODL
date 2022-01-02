@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -11,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FODLSystem.Controllers
 {
-    public class EquipmentsController : Controller
+    public class DriversController : Controller
     {
         private readonly FODLSystemContext _context;
 
-        public EquipmentsController(FODLSystemContext context)
+        public DriversController(FODLSystemContext context)
         {
             _context = context;
         }
@@ -23,58 +22,66 @@ namespace FODLSystem.Controllers
         [BreadCrumb(Title = "Index", Order = 1, IgnoreAjaxRequests = true)]
         public IActionResult Index()
         {
-            this.SetCurrentBreadCrumbTitle("Equipment");
+            this.SetCurrentBreadCrumbTitle("Item");
             return View();
         }
-        public JsonResult SearchEquipment()
-        {
-            var model = _context.Equipments
-                .Where(a => a.Status == "Active")
-                //.Where(a => a.Name.ToUpper().Contains(q.ToUpper()) || a.No.ToUpper().Contains(q.ToUpper()))
-                .Select(b => new
-                {
-                    id = b.Id,
-                    text = b.No ,
-
-                });
-
-            var modelItem = new
-            {
-                total_count = model.Count(),
-                incomplete_results = false,
-                items = model.ToList(),
-            };
-            return Json(modelItem);
-        }
+        
         [HttpPost]
-        public ActionResult SaveItem(int id, string DepartmentCode, string FuelCodeDiesel, string FuelCodeOil)
+        public ActionResult SaveItem(int ID,string IdNumber, string Name,string Position, string Status)
         {
             string status = "";
             string message = "";
+            int itemid = 0;
             try
             {
-                var item = _context.Equipments.Find(id);
-                item.DepartmentCode = DepartmentCode;
-                item.FuelCodeDiesel = FuelCodeDiesel;
-                item.FuelCodeOil = FuelCodeOil;
-                item.DateModified = DateTime.Now.Date;
+                if (ID == 0)
+                {
 
-                _context.Entry(item).State = EntityState.Modified;
-                _context.SaveChanges();
+                    var item = new Driver
+                    {
+                        IdNumber = IdNumber,
+                        Name = Name,
+                        Position = Position,
+                        Status = "Enabled",
+
+                    };
+                    
+                    _context.Add(item);
+                    _context.SaveChanges();
+                    itemid = item.ID;
+                }
+                else
+                {
+                    var item = _context.Drivers.Find(ID);
+                    item.IdNumber = IdNumber;
+                    item.Name = Name;
+                    item.Position = Position;
+                    item.Status = Status;
+                    item.DateModified = DateTime.Now;
+                    _context.Entry(item).State = EntityState.Modified;
+                    _context.SaveChanges();
+
+                    itemid = ID;
+                }
+
+
+               
 
                 status = "success";
             }
             catch (Exception ex)
             {
                 status = "fail";
-                message = ex.Message;
+                message = ex.InnerException.Message;
+                
             }
 
             var model = new
             {
                 status,
-                message
-            };
+                message,
+                itemid
+        };
 
             return Json(model);
         }
@@ -85,7 +92,7 @@ namespace FODLSystem.Controllers
             string strFilter = "";
             try
             {
-
+                
 
                 var draw = Request.Form["draw"].FirstOrDefault();
                 var start = Request.Form["start"].FirstOrDefault();
@@ -98,7 +105,7 @@ namespace FODLSystem.Controllers
                 int recordsTotal = 0;
 
 
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < 5; i++)
                 {
                     string colval = Request.Form["columns[" + i + "][search][value]"];
                     if (colval != "")
@@ -132,9 +139,9 @@ namespace FODLSystem.Controllers
 
                 int recCount =
 
-                _context.Equipments
-                .Where(a => a.Status == "Active")
-
+                _context.Drivers
+                //.Where(a => a.Status == "Active")
+               
                 .Where(strFilter)
                 .Count();
 
@@ -145,15 +152,22 @@ namespace FODLSystem.Controllers
 
                 var v =
 
-               _context.Equipments
-                .Where(a => a.Status == "Active")
+               _context.Drivers
+              //.Where(a => a.Status == "Active")
               .Where(strFilter)
+              
+              .Skip(skip).Take(pageSize)
+              .Select(a => new
+              {
+                  a.IdNumber,
+                  a.Name,
+                  a.Position,
+                  a.Status,
+                  a.ID
+              });
 
-              //.OrderBy(a => a.FileDate).ThenBy(a => a.Hour)
-              .Skip(skip).Take(pageSize);
 
-
-
+               
 
                 bool desc = false;
                 if (sortColumnDirection == "desc")
@@ -162,7 +176,7 @@ namespace FODLSystem.Controllers
                 }
                 v = v.OrderBy(sortColumn + (desc ? " descending" : ""));
 
-
+               
 
                 if (pageSize < 0)
                 {
@@ -171,7 +185,7 @@ namespace FODLSystem.Controllers
 
 
                 var data = v;
-                var jsonData = new { draw = draw, recordsFiltered = recFilter, recordsTotal = recordsTotal, data = data };
+                var jsonData = new { draw = draw, recordsFiltered = recFilter, recordsTotal = recordsTotal, data = data};
                 return Ok(jsonData);
             }
             catch (Exception ex)
@@ -180,5 +194,5 @@ namespace FODLSystem.Controllers
             }
         }
     }
+    
 }
-

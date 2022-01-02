@@ -54,6 +54,7 @@ namespace FODLSystem.Controllers
                 var dispensers = _context.Dispensers;
                 var equipments = _context.Equipments;
                 var lubetrucks = _context.LubeTrucks;
+                var drivers = _context.Drivers;
 
                 using (var workbook = new XLWorkbook())
                 {
@@ -239,12 +240,38 @@ namespace FODLSystem.Controllers
                         index++;
                     }
 
+
+                    IXLWorksheet wsDrivers =
+                    workbook.Worksheets.Add("Drivers");
+                    wsDrivers.Cell(1, 1).Value = "ID";
+                    wsDrivers.Cell(1, 2).Value = "IdNumber";
+                    wsDrivers.Cell(1, 3).Value = "Name";
+                    wsDrivers.Cell(1, 4).Value = "Position";
+                    wsDrivers.Cell(1, 5).Value = "Status";
+                    wsDrivers.Cell(1, 6).Value = "DateModified";
+                    index = 1;
+
+                    foreach (var item in drivers)
+                    {
+                        wsDrivers.Cell(index + 1, 1).Value = item.ID;
+                        wsDrivers.Cell(index + 1, 2).Value = "'" + item.IdNumber;
+                        wsDrivers.Cell(index + 1, 3).Value = "'" + item.Name;
+                        wsDrivers.Cell(index + 1, 4).Value = "'" + item.Position;
+                        wsDrivers.Cell(index + 1, 5).Value = "'" + item.Status;
+                        wsDrivers.Cell(index + 1, 6).Value = "'" + item.DateModified;
+                        index++;
+                    }
+
+
                     using (var stream = new MemoryStream())
                     {
                         workbook.SaveAs(stream);
                         var content = stream.ToArray();
                         return File(content, contentType, fileName);
                     }
+
+                    
+
                 }
 
 
@@ -293,6 +320,7 @@ namespace FODLSystem.Controllers
                     ISheet sheet5;
                     ISheet sheet6;
                     ISheet sheet7;
+                    ISheet sheet8;
 
 
 
@@ -312,7 +340,7 @@ namespace FODLSystem.Controllers
                             sheet5 = hssfwb.GetSheet("Dispensers");
                             sheet6 = hssfwb.GetSheet("Equipments");
                             sheet7 = hssfwb.GetSheet("Lubetrucks");
-
+                            sheet8 = hssfwb.GetSheet("Drivers");
 
 
                         }
@@ -327,13 +355,14 @@ namespace FODLSystem.Controllers
                             sheet5 = hssfwb.GetSheet("Dispensers");
                             sheet6 = hssfwb.GetSheet("Equipments");
                             sheet7 = hssfwb.GetSheet("Lubetrucks");
+                            sheet8 = hssfwb.GetSheet("Drivers");
 
                         }
 
                       
                        
 
-                        transferExcel = UploadExcelFinal(sheet, sheet2, sheet3, sheet4, sheet5, sheet6, sheet7, fullPath);
+                        transferExcel = UploadExcelFinal(sheet, sheet2, sheet3, sheet4, sheet5, sheet6, sheet7,sheet8, fullPath);
                         
                     }
                     if (transferExcel == "success")
@@ -371,7 +400,7 @@ namespace FODLSystem.Controllers
 
             return Json(model);
         }
-        public string UploadExcelFinal(ISheet sheet, ISheet sheet2, ISheet sheet3, ISheet sheet4, ISheet sheet5, ISheet sheet6, ISheet sheet7,string fileName)
+        public string UploadExcelFinal(ISheet sheet, ISheet sheet2, ISheet sheet3, ISheet sheet4, ISheet sheet5, ISheet sheet6, ISheet sheet7, ISheet sheet8, string fileName)
         {
 
             string status = "success";
@@ -387,7 +416,8 @@ namespace FODLSystem.Controllers
                     int componentCount = 0;
                     int lubetruckCount = 0;
                     int equipmentCount = 0;
-                    
+                    int driverCount = 0;
+
 
                     //DEPARTMENT
                     deptCount = _context.Departments.Count();
@@ -768,7 +798,53 @@ namespace FODLSystem.Controllers
                         _context.SaveChanges();
                     }
 
+                    //Drivers
+                    rowCount = sheet8.LastRowNum;
+                    driverCount = _context.Drivers.Count();
+                    if (rowCount == driverCount)
+                    {
 
+                    }
+                    else
+                    {
+                        int cnt = 0;
+                        //List<User> usr = new List<User>();
+                        for (int i = (driverCount + 1); i <= rowCount; i++)
+                        {
+                            cnt = 0;
+
+                            IRow headerRow = sheet8.GetRow(i); //Get Header Row
+                            int cellCount = headerRow.LastCellNum;
+                            string[] clc = new string[cellCount];
+
+                            for (int j = 0; j < (cellCount); j++)
+                            {
+                                clc[cnt] = headerRow.GetCell(j).ToString();
+                                cnt += 1;
+                                if (cnt == 6)
+                                {
+                                    var defdDate = new DateTime(1900, 01, 01);
+                                    DateTime dmodified = string.IsNullOrEmpty(clc[5].ToString()) ? defdDate : Convert.ToDateTime(clc[5]); 
+                                    Driver sv = new Driver
+                                    {
+                                        //Id = Convert.ToInt32(clc[0]),
+                                        IdNumber = clc[1],
+                                        Name = clc[2],
+                                        Position = clc[3],
+                                        Status = clc[4],
+                                        DateModified = dmodified,
+
+
+                                    };
+
+                                    _context.Drivers.Add(sv);
+                                }
+
+                            }
+
+                        }
+                        _context.SaveChanges();
+                    }
 
                     //var dtItems = ConvertToDatatable(sheet3);
                     //var importdata = from row in dtItems.AsEnumerable()
@@ -792,6 +868,7 @@ namespace FODLSystem.Controllers
                     var si = _context.SynchronizeInformations.Find(1);
                     if (si != null)
                     {
+                        lastDateModified = si.LastModifiedDate;
                         si.LastModifiedDate = DateTime.Now;
                         si.ModifiedBy = User.Identity.GetFullName();
                         _context.SynchronizeInformations.Update(si); 
@@ -814,7 +891,7 @@ namespace FODLSystem.Controllers
                     var dispensersStatus = UpdateDispensers(fileName, "Dispensers", lastDateModified); //Dispensers
                     var equipmentsStatus = UpdateEquipments(fileName, "Equipments", lastDateModified); //Equipments
                     var lubetrucksStatus = UpdateLubeTrucks(fileName, "Lubetrucks", lastDateModified); //Lubetrucks
-
+                    var driversStatus = UpdateDrivers(fileName, "Drivers", lastDateModified); //Lubetrucks
 
                     Log log = new Log
                     {
@@ -1147,7 +1224,52 @@ namespace FODLSystem.Controllers
                 return e.Message;
             }
         }
+        string UpdateDrivers(string fileName, string sheetName, DateTime LastDateModified)
+        {
 
+            try
+            {
+                FileInfo fs = new FileInfo(fileName);
+                ExcelPackage package = new ExcelPackage(fs);
+                DataTable dtexcel = new DataTable();
+                dtexcel = ExcelToDataTable(package, sheetName);
+                DateTime defdDate = new DateTime(1900, 01, 01);
+
+                int dtRows = dtexcel.Rows.Count;
+                List<Driver> items = new List<Driver>();
+                for (int i = 0; i < dtexcel.Rows.Count; i++)
+                {
+                    Driver item = new Driver();
+                    item.ID = Convert.ToInt32(dtexcel.Rows[i]["ID"]);
+                    item.IdNumber = dtexcel.Rows[i]["IdNumber"].ToString();
+                    item.Name = dtexcel.Rows[i]["Name"].ToString();
+                    item.Position = dtexcel.Rows[i]["Position"].ToString();
+                    item.DateModified = dtexcel.Rows[i]["DateModified"].ToString() == "" ? defdDate : Convert.ToDateTime(dtexcel.Rows[i]["DateModified"]);
+                    item.Status = dtexcel.Rows[i]["Status"].ToString();
+                    items.Add(item);
+                }
+                var itemsToUpdate = items.Where(a => a.DateModified >= LastDateModified);
+                int itemCount = itemsToUpdate.Count();
+                foreach (var item in itemsToUpdate)
+                {
+                    var it = _context.Drivers.Find(item.ID);
+                    it.IdNumber = item.IdNumber;
+                    it.Name = item.Name;
+                    it.Position = item.Position;
+                    it.Status = item.Status;
+                    it.DateModified = item.DateModified;
+                    _context.Update(it);
+                }
+
+                return "Ok";
+
+            }
+            catch (Exception e)
+            {
+
+                return e.Message;
+            }
+        }
         static DataTable ExcelToDataTable(ExcelPackage package,string sheetName)
         {
             ExcelWorksheet workSheet = package.Workbook.Worksheets[sheetName];

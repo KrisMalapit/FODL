@@ -69,7 +69,49 @@ namespace FODLSystem.Controllers
             return Json(model);
 
         }
+        [HttpPost]
+        public async Task<IActionResult> DigitalSignature(int id,int DriverId)
+        {
 
+            string filename = "";
+            string status = "";
+            string message = "";
+            string imageurl = "";
+
+
+            try
+            {
+
+                var fueloil = _context.FuelOilDetails
+                    .Where(a => a.FuelOilId == id)
+                    .FirstOrDefault();
+
+                fueloil.Signature = "SIGNED";
+                fueloil.DriverId = DriverId;
+                _context.Update(fueloil);
+                _context.SaveChanges();
+
+                status = "success";
+            }
+            catch (Exception e)
+            {
+
+                status = "fail";
+                message = e.Message;
+                e.Message.WriteLog();
+
+            }
+
+            var model = new
+            {
+
+                message,
+                status,
+                imageurl
+            };
+
+            return Json(model);
+        }
 
         [HttpPost]
         public async Task<IActionResult> saveSnapShot(int id, string imgData)
@@ -189,6 +231,12 @@ namespace FODLSystem.Controllers
 
                 ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List");
 
+
+                ViewData["EquipmentId"] = new SelectList(_context.Equipments.Where(a => a.Status == "Active"), "Id", "No");
+                ViewData["DriverId"] = new SelectList(_context.Drivers.Where(a => a.Status == "Enabled"), "ID", "Name");
+
+
+                //ViewData["Id"] = 0 ;
                 return View();
             }
             catch (Exception e)
@@ -219,9 +267,10 @@ namespace FODLSystem.Controllers
             ViewData["CreatedDate"] = model.CreatedDate;
             ViewData["Id"] = model.Id;
             ViewData["Status"] = model.Status;
+
             ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List");
-
-
+            ViewData["EquipmentId"] = new SelectList(_context.Equipments.Where(a => a.Status == "Active"), "Id", "No");
+            ViewData["DriverId"] = new SelectList(_context.Drivers.Where(a => a.Status == "Enabled"), "ID", "Name");
             var disp = _context.Dispensers
                  .Where(a => dispenserId.Contains(a.Id))
                  .Where(a => a.Status != "Deleted");
@@ -285,20 +334,19 @@ namespace FODLSystem.Controllers
         }
         public JsonResult SearchItem(string q)
         {
+
+            
             var model = _context.Items
                 .Where(a => a.Status == "Active")
-                 //.Where(a => a.Description.ToUpper().Contains(q.ToUpper())
-                 //|| a.DescriptionLiquidation.ToUpper().Contains(q.ToUpper())
-                 //|| a.DescriptionLiquidation2.ToUpper().Contains(q.ToUpper())
-                 //|| a.No.ToUpper().Contains(q.ToUpper())).Select(b => new
-                 .Where(a => a.DescriptionLiquidation2.ToUpper().Contains(q.ToUpper())
+                .Where(a => a.DescriptionLiquidation2.ToUpper().Contains(q.ToUpper())
                 ).Select(b => new
                 {
                     id = b.Id,
-                    text = b.No + " | " + (b.DescriptionLiquidation2==null ? "" : b.DescriptionLiquidation2.ToUpper())
+                    text = b.No + " | " + b.DescriptionLiquidation2.ToUpper()
 
                 });
 
+         
             var modelItem = new
             {
                 total_count = model.Count(),
@@ -355,6 +403,8 @@ namespace FODLSystem.Controllers
                         CreatedDate = fvm.CreatedDate
                         ,
                         SMR = fvm.SMR
+                        ,DriverId = fvm.DriverId
+                        
                     };
                     _context.Add(fod);
                     _context.SaveChanges();
@@ -369,6 +419,7 @@ namespace FODLSystem.Controllers
                     fod.FuelOilId = fvm.FuelOilId;
                     fod.CreatedDate = fvm.CreatedDate;
                     fod.SMR = fvm.SMR;
+                    fod.DriverId = fvm.DriverId;
                     _context.Update(fod);
                     _context.SaveChanges();
 
@@ -421,10 +472,10 @@ namespace FODLSystem.Controllers
             string refid = "0";
             string isNew = "true";
             int messagenumber = 0;
+            DateTime dt = new DateTime();
 
 
-            
-            
+
 
 
             if (fvm.LubeTruckId <= 1 & fvm.DispenserId <= 1)
@@ -436,23 +487,7 @@ namespace FODLSystem.Controllers
                 };
                 return Json(model);
             }
-            //if (fvm.LubeTruckId == 1 & fvm.DispenserId == 1)
-            //{
-            //    var model = new
-            //    {
-            //        status = "fail",
-            //        message = "Please choose Lube Truck or Dispenser Entry"
-            //    };
-            //    return Json(model);
-            //}
-
-
-
-
-
-
-
-
+           
             if (fvm.LubeTruckId == 0)
             {
                 fvm.LubeTruckId = 1;
@@ -469,6 +504,7 @@ namespace FODLSystem.Controllers
 
             try
             {
+                
                 var hasConnection = testNetworkConnection();
 
 
@@ -523,6 +559,8 @@ namespace FODLSystem.Controllers
                         ,
                         LubeTruckId = fvm.LubeTruckId
                         , SourceReferenceNo = refno
+                        ,
+                        OriginalDate = DateTime.Now
                     };
 
                     _context.Add(fo);
@@ -540,68 +578,35 @@ namespace FODLSystem.Controllers
 
                     status = "success";
 
-
+                    dt = DateTime.Now;
                 }
                 else
                 {
+                   
+
                     isNew = "false";
                     var fo = _context.FuelOils.Where(a => a.ReferenceNo == fvm.ReferenceNo).FirstOrDefault();
 
                     fo.Shift = fvm.Shift;
-                    //fo.EquipmentId = fvm.EquipmentId;
-                    //fo.LocationId = fvm.LocationId;
-                    //fo.SMR = fvm.SMR;
-                    fo.CreatedDate = DateTime.Now;
+                    
+                    fo.CreatedDate = fvm.CreatedDate;
                     fo.CreatedBy = User.Identity.GetFullName();
                     fo.DispenserId = fvm.DispenserId;
                     fo.LubeTruckId = fvm.LubeTruckId;
 
+                    if (fo.Status != "Posted")
+                    {
+                        fo.OriginalDate = fvm.CreatedDate;
+                    }
+                    
+
                     _context.Update(fo);
                     _context.SaveChanges();
-                    //_context.FuelOilDetails
-                    //      .Where(a => a.FuelOilId == fo.Id)
-                    //      .ToList().ForEach(a => a.Status = "Deleted");
-
-                    //_context.SaveChanges();
+                   
 
                     refid = fo.Id.ToString();
-                    //for (int i = 0; i < fvm.component.Length; i++)
-                    //{
-                    //    var d = _context.FuelOilDetails
-                    //        .Where(a => a.FuelOilId == fo.Id)
-                    //        //.Where(a => a.ItemId == Convert.ToInt32(fvm.no[i]))
-                    //        .FirstOrDefault();
 
-                    //    if (d == null)
-                    //    {
-                    //        var _detail = new FuelOilDetail
-                    //        {
-                    //            EquipmentId = Convert.ToInt32(fvm.no[i]),
-                    //            LocationId = Convert.ToInt32(fvm.component[i]),
-                    //            SMR = fvm.volume[i],
-                    //            CreatedDate = DateTime.Now
-                    //        };
-                    //        _context.Add(_detail);
-                    //    }
-                    //    else
-                    //    {
-                    //        //d.ItemId = Convert.ToInt32(fvm.no[i]);
-                    //        //d.ComponentId = Convert.ToInt32(fvm.component[i]);
-                    //        //d.VolumeQty = Convert.ToInt32(fvm.volume[i]);
-                    //        //d.TimeInput = DateTime.Now;
-                    //        d.EquipmentId = Convert.ToInt32(fvm.no[i]);
-                    //        d.LocationId = Convert.ToInt32(fvm.component[i]);
-                    //        d.SMR = fvm.volume[i];
-                    //        d.CreatedDate = DateTime.Now;
-
-
-                    //        d.Status = "Active";
-                    //        _context.Update(d);
-
-                    //    }
-
-                    //}
-
+                    dt = fvm.CreatedDate;
 
                     status = "success";
                     message = fo.ReferenceNo;
@@ -622,7 +627,8 @@ namespace FODLSystem.Controllers
                 message,
                 refid,
                 isNew,
-                messagenumber
+                messagenumber,
+                dt
             };
             return Json(modelItem);
         }
@@ -662,6 +668,18 @@ namespace FODLSystem.Controllers
             try
             {
                 var items = _context.FuelOils.Find(id);
+
+                if (items.Status != "Active")
+                {
+                    var model1 = new
+                    {
+
+                        status = "fail",
+                        message = "Only item with Active status can be deleted"
+                    };
+                    return Json(model1);
+                }
+
                 items.Status = "Deleted";
                 _context.Entry(items).State = EntityState.Modified;
                 _context.SaveChanges();
@@ -949,13 +967,14 @@ namespace FODLSystem.Controllers
                 .Where(a => a.Status == "Active")
                 .Select(a => new
                 {
-                    EquipmentName = a.Equipments.No + " | " + a.Equipments.Name,
+                    EquipmentName = a.Equipments.No ,
                     LocationName = a.Locations.List,
                     a.SMR,
                     a.CreatedDate,
                     a.Status,
                     SignStatus = a.Signature == "" ? "" : "Signed",
-                    a.Id
+                    a.Id,
+                    
                 })
                 .Where(strFilter)
                 .Count();
@@ -976,7 +995,7 @@ namespace FODLSystem.Controllers
                   .Select(a => new
                   {
 
-                      EquipmentName = a.Equipments.No + " | " + a.Equipments.Name,
+                      EquipmentName = a.Equipments.No,
                       LocationName = a.Locations.List,
                       a.SMR,
                       a.CreatedDate,
@@ -985,7 +1004,8 @@ namespace FODLSystem.Controllers
                       a.LocationId,
                       a.EquipmentId,
                       SignStatus = string.IsNullOrEmpty(a.Signature) ? "" : "Signed",
-                      DocumentStatus = a.FuelOils.Status
+                      DocumentStatus = a.FuelOils.Status,
+                      a.DriverId
 
                   });
 
@@ -1103,7 +1123,8 @@ namespace FODLSystem.Controllers
                       a.FuelOilDetails.Locations.OfficeCode,
                       FuelCode = a.Items.TypeFuel == "OIL-LUBE" ? a.FuelOilDetails.Equipments.FuelCodeOil : a.FuelOilDetails.Equipments.FuelCodeDiesel,
                       LocationCode = "SMPC-SITE",
-                      a.FuelOilDetails.Equipments.DepartmentCode,
+                      //a.FuelOilDetails.Equipments.DepartmentCode,
+                      DepartmentCode = a.Items.TypeFuel == "OIL-LUBE" ? "345" : a.FuelOilDetails.Equipments.DepartmentCode,
                       a.Id,
                       a.Status,
                       a.FuelOilDetailId
@@ -1392,6 +1413,8 @@ namespace FODLSystem.Controllers
                     worksheet.Cell(1, 7).Value = "LubeTruckId";
                     worksheet.Cell(1, 8).Value = "TransactionDate";
                     worksheet.Cell(1, 9).Value = "Id";
+                    worksheet.Cell(1, 10).Value = "OriginalDate";
+                    worksheet.Cell(1, 11).Value = "OriginalDate";
                     int index = 1;
 
                     foreach (var item in fodlheader)
@@ -1405,6 +1428,7 @@ namespace FODLSystem.Controllers
                         worksheet.Cell(index + 1, 7).Value = item.LubeTruckId;
                         worksheet.Cell(index + 1, 8).Value = item.TransactionDate;
                         worksheet.Cell(index + 1, 9).Value = item.Id;
+                        worksheet.Cell(index + 1, 10).Value = item.OriginalDate;
                         index++;
                     }
 
@@ -1420,6 +1444,7 @@ namespace FODLSystem.Controllers
                     worksheet2.Cell(1, 7).Value = "Signature";
                     worksheet2.Cell(1, 8).Value = "Id";
                     worksheet2.Cell(1, 9).Value = "CreatedBy";
+                    worksheet2.Cell(1, 10).Value = "DriverId";
                     index = 1;
 
                     foreach (var item in fodldetail)
@@ -1433,6 +1458,7 @@ namespace FODLSystem.Controllers
                         worksheet2.Cell(index + 1, 7).Value = item.Signature;
                         worksheet2.Cell(index + 1, 8).Value = item.Id;
                         worksheet2.Cell(index + 1, 9).Value = item.FuelOils.CreatedBy;
+                        worksheet2.Cell(index + 1, 10).Value = item.DriverId;
                         index++;
                     }
 
@@ -1658,7 +1684,9 @@ namespace FODLSystem.Controllers
                                     LubeTruckId = Convert.ToInt32(clc[6]),
                                     TransactionDate = Convert.ToDateTime(clc[7]),
                                     Status = clc[4],
-                               
+                                  
+                                    OriginalDate = Convert.ToDateTime(clc[9])
+
                                 };
                                 svm.Add(sv);
 
@@ -1844,7 +1872,9 @@ namespace FODLSystem.Controllers
                                     TransferDate = DateTime.Now,
                                     TransferredBy = User.Identity.GetFullName(),
                                     OldId = Convert.ToInt32(clc[8]),
-                                    SourceReferenceNo = clc[0]
+                                   
+                                    SourceReferenceNo = clc[0],
+                                        OriginalDate = Convert.ToDateTime(clc[9])
 
                                     };
                                 //svm.Add(sv);
@@ -1871,7 +1901,7 @@ namespace FODLSystem.Controllers
                         string[] clc = new string[cellCount];
                         for (int j = 0; j < (cellCount); j++)
                         {
-                            if (line > 9)
+                            if (line > 10)
                             {
                                 break;
                             }
@@ -1887,12 +1917,12 @@ namespace FODLSystem.Controllers
                             }
 
                             cnt += 1;
-                            if (cnt == 9)
+                            if (cnt == 10)
                             {
                                 int hId = _context.FuelOils.Where(a => a.OldId == Convert.ToInt32(clc[3]))
                                     .Where(a => a.CreatedBy == clc[8])
                                     .FirstOrDefault().Id;
-
+                                //kcms
                                 FuelOilDetail sv = new FuelOilDetail
                                 {
                                     CreatedDate = Convert.ToDateTime(clc[0]),
@@ -1902,7 +1932,8 @@ namespace FODLSystem.Controllers
                                     SMR = clc[5],
                                     Signature = clc[6],
                                     OldId = Convert.ToInt32(clc[7]), //FuelOilId
-                                    FuelOilId = hId
+                                    FuelOilId = hId,
+                                    DriverId = Convert.ToInt32(clc[10])
                                 };
                                 //svmDetail.Add(sv);
                                 _context.FuelOilDetails.Add(sv);

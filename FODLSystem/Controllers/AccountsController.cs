@@ -92,18 +92,18 @@ namespace FODLSystem.Controllers
             }
 
             string loginresult;
-            //if (model.LogInType == "AD")
-            //{
-            //    loginresult = CallAPI("http://aluminum/ADAPI/api/values", model.Domain, model.Username, model.Password);
-            //    //loginresult = "OK";
-            //}
-            //else
-            //{
-            //    loginresult = LocalLogIn(model);
-            //}
+            if (model.LogInType == "AD")
+            {
+                loginresult = CallAPI("http://aluminum/ADAPI/api/values", model.Domain, model.Username, model.Password);
+                //loginresult = "OK";
+            }
+            else
+            {
+                loginresult = LocalLogIn(model);
+            }
 
 
-            loginresult = "OK";
+            //loginresult = "OK";
             if (loginresult == "OK")
             {
                 User user = new User() { Username = model.Username, Domain = model.Domain };

@@ -24,6 +24,7 @@ namespace FODLSystem.Models.View_Model
         public string[] volume { get; set; }
         public string Signature { get; set; }
         public DateTime CreatedDate { get; set; }
+        public int DriverId { get; set; }
 
     }
 }

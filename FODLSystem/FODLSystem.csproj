@@ -24,4 +24,10 @@
     <Folder Include="wwwroot\snapshots\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Views\Drivers\Index.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+  </ItemGroup>
+
 </Project>

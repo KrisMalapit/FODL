@@ -16,7 +16,9 @@
     .modal-md {
         width: 60% !important
     }
-
+    .modal-lg {
+        width: 75% !important
+    }
     .modal-dialog {
         max-width: 100%;
         margin: 1.75rem auto;
@@ -28,22 +30,17 @@
         pointer-events: none;
     }
 </style>
+<link href="~/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
 <link href="~/css/plugins/select2/select2-bootstrap.min.css" rel="stylesheet">
 
 <div class="modal inmodal in " id="modalEquipment" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content animated fadeIn">
             <div class="modal-header">
                 <h4 class="modal-title" id="modalSnapTitle">Equipment Information</h4>
                 <small class="font-bold">Modify details of this dispenser</small>
             </div>
             <div class="modal-body">
-
-             
-
-
-
-
                 <p>
                     @if (ViewBag.Status != "Posted" && ViewBag.Status != "Transferred")
                     {
@@ -65,25 +62,35 @@
 
                     <div class="form-group row">
                         <label class="col-md-2 col-form-label">Time</label>
-                        <div class="input-group col-md-4">
+                        <div class="input-group col-md-2">
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                             <input id="CreatedDate" name="CreatedDate" type="text" class="form-control datepicker">
                         </div>
                         <label class="col-md-2 col-form-label">SMR</label>
-                        <div class="input-group col-md-4">
+                        <div class="input-group col-md-2">
                             <input type="text" id="SMR" name="SMR" class="form-control" />
+                        </div>
+                        <label class="col-md-2 col-form-label">Driver</label>
+                        <div class="input-group col-md-2">
+                           
+                            @Html.DropDownList("DriverId")
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-md-2 col-form-label">Equipment</label>
-                        <div class="input-group col-md-4">
-                            <select class="form-control input-sm" id="EquipmentId" name="EquipmentId">
-                                <option>Select Unit</option>
-                            </select>
+                        <div class="input-group col-md-2">
+                            @*<select class="form-control input-sm" id="EquipmentId" name="EquipmentId">
+                <option>Select Unit</option>
+            </select>*@
+                            @Html.DropDownList("EquipmentId")
                         </div>
                         <label class="col-md-2 col-form-label">Location</label>
-                        <div class="input-group col-md-4">
+                        <div class="input-group col-md-2">
                             @Html.DropDownList("LocationId")
+                        </div>
+                        <label class="col-md-2 col-form-label"></label>
+                        <div class="input-group col-md-2">
+                            <button type="button" id="btnDigitalSign" class="btn btn-warning" style="width:100%;">Digital Sign</button>
                         </div>
                     </div>
 
@@ -303,7 +310,8 @@
                         <i class="fa fa-book"></i>
                         <span class="email-text">&nbsp;Post</span>
                     </a>
-
+                    |
+                    <input type="button" class="btn btn-danger" onclick="deleteForm();" value="Delete">
                 </p>
 
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -316,7 +324,7 @@
                     <label asp-for="CreatedDate" class="col-lg-2 col-form-label"></label>
                     <div class="col-lg-4">
 
-                        <input id="CreatedDateMain" asp-for="CreatedDate" class="form-control" readonly />
+                        <input id="CreatedDateMain" asp-for="CreatedDate" class="form-control"  />
                         <span asp-validation-for="CreatedDate" class="text-danger"></span>
                     </div>
                 </div>
@@ -489,6 +497,7 @@
         </div>
     </div>
 </div>
+<script src="~/js/plugins/sweetalert/sweetalert.min.js"></script>
 <script src="~/js/plugins/signature/signature_pad.min.js"></script>
 <script>
 
@@ -502,6 +511,39 @@
         format: 'm/d/Y H:i',
         step: 5
     });
+
+    $("#btnDigitalSign").click(function () {
+
+        if (!$("#DriverId").val()) {
+            $("#DriverId").val(1);
+        } 
+        //alert($("#DriverId").val());
+        //return false;
+
+        if (confirm('This will replace actual signature with digital signature. Continue?')) {
+                $.ajax({
+                    url: "@Url.Action("DigitalSignature")"
+                    , dataType: "json"
+                    , type: "POST"
+                    , data: { id: $("#FuelOilId").val(), DriverId : $("#DriverId").val() }
+                    , success: function (responsedata) {
+                        if (responsedata.status == "success") {
+                          
+                            toastr["success"]("Signature saved!", "<b>Success</b> ")
+                            loadDatatable($("#FuelOilId").val(),"Edit");
+                           
+                        } else {
+                            toastr["error"](responsedata.message +'</br></br>'+ 'Something wrong with the creation of equipment.')
+                            toastr.options = {
+                                "closeButton": true
+                            }
+                        }
+                    }
+                })
+        }
+       
+
+    })
     //$('.datepickerDate').datetimepicker({
     //    format: 'm/d/Y',
     //    timepicker: false,
@@ -603,8 +645,64 @@
         $("#modalSignature").modal("hide");
         $("#modalEquipment").modal("show");
     })
+
+    function deleteForm() {
+
+
+
+        if ($("#FuelOilId").val() == "0") {
+            toastr["error"]("No data to be deleted")
+            toastr.options = {
+                "closeButton": true,
+                "showDuration": "3000",
+            }
+            return false;
+        } 
+        $formid = $("#FuelOilId").val();
+
+        swal({
+                    title: "Delete Form",
+                    text: "This will delete form and any associated data. Proceed?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Proceed",
+                    closeOnConfirm: false
+                }, function () {
+                        $.ajax({
+                            url: "@Url.Action("Delete")",
+                            method: "POST",
+                            dataType: "json"
+                            , data: { id: $formid }
+                            , success: function (responsedata) {
+                                if (responsedata.status == "success") {
+                                    swal("Done!", "Form Deleted", "success");
+
+
+                                    setTimeout("window.open('@Url.Action("Index")')", 3000);
+                                   
+                                } else {
+
+                                    toastr["error"](responsedata.message)
+                                    toastr.options = {
+                                        "closeButton": true,
+                                        "showDuration": "3000",
+                                    }
+                                };
+                            }, error: function ($xhr, textStatus, errorThrown) {
+                                toastr["error"](errorThrown, "Error")
+                                toastr.options = {
+                                    "closeButton": true,
+                                    "showDuration": "3000",
+                                }
+                            }
+                        });
+                });
+ 
+ 
+    }
     function printForm($refid,$rpt) {
-        window.open('@Url.Action("printReport", "Reports")?ReferenceId=' + $refid+ '&Report=' + $rpt + '&rptType=PDF');
+        window.open('@Url.Action("printReport", "Reports")?ReferenceId=' + $refid + '&Report=' + $rpt + '&rptType=PDF');
     }
 
     function saveEquipment() {
@@ -653,12 +751,16 @@
 
         $action = String($(obj).attr('title'));
         if ($action === 'Add') {
+           
             $("#SMR").val("");
             $('#DetailId').val(0)
-            $("#EquipmentId").val(0);
+            $("#EquipmentId").val(1).trigger('change');
+            $("#DriverId").val(1).trigger('change');
             $("#LocationId").val(1).trigger('change');
-            $("#CreatedDate").val(moment('@DateTime.Now').format("MM/DD/YYYY HH:mm"))
-            $("#EquipmentId").select2({
+            $("#CreatedDate").val(moment(new Date()).format("MM/DD/YYYY HH:mm"));
+          
+
+            @*$("#EquipmentId").select2({
                 dropdownParent: $('#modalEquipment .modal-content'),
                 placeholder: '',
                 allowClear: true,
@@ -683,20 +785,21 @@
 
                         cache: false
                 },
-                minimumInputLength: 2,
-            });
+                //minimumInputLength: 2,
+            });*@
         } else {
-
+           
             $cdate = moment($(obj).attr('data-time')).format("MM/DD/YYYY HH:mm");
             $('#DetailId').val($(obj).attr('data-id'))
             $('#SubDetailId').val($(obj).attr('data-id'))
             $('#CreatedDate').val($cdate)
 
-
+            $('#EquipmentId').val($(obj).attr('data-equipment')).trigger('change')
+            $('#DriverId').val($(obj).attr('data-driver')).trigger('change')
             $('#LocationId').val($(obj).attr('data-location')).trigger('change')
             $('#SMR').val($(obj).attr('data-smr'))
 
-            $equipid = $(obj).attr('data-equipment');
+            @*$equipid = $(obj).attr('data-equipment');
             $equipname = $(obj).attr('data-equipmentname');
 
             $("#EquipmentId").append(new Option("", ""));
@@ -724,9 +827,9 @@
                     },
                     cache: false
                 },
-                minimumInputLength: 2,
+                //minimumInputLength: 2,
 
-            }).val($equipid).trigger('change');
+            }).val($equipid).trigger('change');*@
         }
         showItem($(obj).attr('data-id'));
         $("#modalEquipment").modal("show");
@@ -847,7 +950,7 @@
                         //if (xx == "Edit") {
                         //    console.log("E");
                             $actions =
-                                "<a title="+xx+" data-time=" + row.createdDate + " data-id=" + row.id + " data-equipment='" + row.equipmentId + "' data-equipmentname='" + row.equipmentName +
+                                "<a title=" + xx + " data-time=" + row.createdDate + " data-id=" + row.id + " data-equipment='" + row.equipmentId + "' data-equipmentname='" + row.equipmentName + "' data-driver='" + row.driverId + "' data-drivername='" + row.driverName +
                                 "' data-location='" + row.locationId + "' data-locationname='" + row.locationName + "' data-smr='" + row.smr +
                                 "' onclick='createNew(this);' >"+xx+"</a>  "; 
                         if (xx == "Edit") {
@@ -1105,12 +1208,6 @@
 
     }
     function saveForm() {
-       
-       
-      
-       
-      
-
         var cnt = 0;
         var data = $("#frm").serializeArray();
 
@@ -1123,7 +1220,7 @@
                 if (responsedata.status == "success") {
                     toastr["success"]("Form saved!", "<b>Success</b> ")
                     $("#ReferenceNo").val(responsedata.message);
-                    $("#CreatedDateMain").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss"));
+                    $("#CreatedDateMain").val(moment(responsedata.dt).format("YYYY-MM-DD HH:mm:ss"));
                     $("#FuelOilId").val(responsedata.refid);
 
                     document.getElementById('aPrint').setAttribute("onclick", "printForm('" + responsedata.refid +"','rptLiquidation');")
@@ -1147,6 +1244,28 @@
     }
     function saveItem() {
         var cnt = 0;
+
+        $('#frmItem').find('input').each(function () {
+            if ($(this).prop('required')) {
+                if (!$(this).val()) {
+                    cnt = 1;
+                    $(this).addClass("error-input");
+                } else {
+                    $(this).removeClass("error-input");
+                }
+            }
+        });
+
+        if (cnt > 0) {
+            toastr["error"]("Fill all required fields", "Error")
+            toastr.options = {
+                "closeButton": true,
+                "showDuration": "3000",
+            }
+            return false;
+        }
+
+
         var data = $("#frmItem").serializeArray();
         
         $.ajax({
@@ -1206,7 +1325,7 @@
             return false;
         }
 
-        if (confirm('Are you sure you want to post this form? Posting form will disable you from editing input values.')) {
+        @*if (confirm('Are you sure you want to post this form? Posting form will disable you from editing input values.')) {
             
         } else {
             return false;
@@ -1231,9 +1350,47 @@
                     }
                 }
             }
-        })
+        })*@
+        var data = $('#ReferenceNo').val();
+       swal({
+                    title: "Post Form",
+                    text: "This will post form and any associated data. Posting form cannot be undone. Proceed?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Proceed",
+                    closeOnConfirm: false
+                }, function () {
+                        $.ajax({
+                            url: "@Url.Action("PostForm")",
+                            method: "POST",
+                            dataType: "json"
+                            , data: { referenceNo: data }
+                            , success: function (responsedata) {
+                                if (responsedata.status == "success") {
+                                    swal("Done!", "Form posted!", "success");
 
-       
+
+                                   disableForm();
+                                    loadDatatable('@ViewBag.Id',"View");
+                                   
+                                } else {
+
+                                    toastr["error"](responsedata.message)
+                                    toastr.options = {
+                                        "closeButton": true,
+                                        "showDuration": "3000",
+                                    }
+                                };
+                            }, error: function ($xhr, textStatus, errorThrown) {
+                                toastr["error"](errorThrown, "Error")
+                                toastr.options = {
+                                    "closeButton": true,
+                                    "showDuration": "3000",
+                                }
+                            }
+                        });
+                });
     }
     function disableForm() {
         $('#frm').find('input, select, button').each(function () {
@@ -1245,6 +1402,15 @@
         $(".anchorAction").attr("style", "pointer-events: none");
         $("#aPrint").attr("style", "pointer-events: true");
         $(".hidePost").hide();
+
+
+        
+        if ('@User.Identity.GetRoleName()' === 'Admin') {
+            $("#CreatedDateMain").prop("disabled", false);
+            $(".anchorAction").attr("style", "pointer-events: true");
+        }
+        
+
 
         @*console.log('@ViewBag.Status');
         $("#frm select").each(
@@ -1284,7 +1450,16 @@
         width: '100%',
         theme: 'bootstrap'
     });
-
+    $("#EquipmentId").select2({
+        dropdownParent: $('#modalEquipment .modal-content'),
+        width: '100%',
+        theme: 'bootstrap'
+    });
+    $("#DriverId").select2({
+        dropdownParent: $('#modalEquipment .modal-content'),
+        width: '100%',
+        theme: 'bootstrap'
+    });
 
 
     @*$("#LubeTruckId").select2({

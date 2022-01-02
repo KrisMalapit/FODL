@@ -375,7 +375,7 @@ namespace FODLSystem.Controllers
             string status = "";
             var v =
 
-                _context.Users.Where(a => a.Status == "1").Where(a=>a.Domain == "Local").Select(a => new {
+                _context.Users.Where(a=>a.Domain == "Local").Select(a => new {
 
 
                     a.Username
@@ -385,6 +385,7 @@ namespace FODLSystem.Controllers
                         ,
 
                     a.Id
+                    ,a.Status
                     , a.DepartmentId
                     , Department = a.Departments.Name
                     , Role = a.Roles.Name
@@ -397,7 +398,7 @@ namespace FODLSystem.Controllers
                     ,
                     DispenserAccess = a.DispenserAccess
 
-
+                    , StatusName = a.Status == "1" ? "Enabled" : "Disabled"
                 });
             status = "success";
 
@@ -670,6 +671,7 @@ namespace FODLSystem.Controllers
                 item.LubeAccess = lubeaccess;
                 item.DispenserAccess = dispenseraccess;
                 item.DateModified = DateTime.Now;
+                item.Status = luser.Status;
                 _context.Entry(item).State = EntityState.Modified;
                 _context.SaveChanges();
                
