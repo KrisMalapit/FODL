@@ -1454,7 +1454,7 @@ namespace FODLSystem.Controllers
                         worksheet2.Cell(index + 1, 3).Value = item.LocationId;
                         worksheet2.Cell(index + 1, 4).Value = item.FuelOilId;
                         worksheet2.Cell(index + 1, 5).Value = item.Status;
-                        worksheet2.Cell(index + 1, 6).Value = item.SMR;
+                        worksheet2.Cell(index + 1, 6).Value = "'" + item.SMR;
                         worksheet2.Cell(index + 1, 7).Value = item.Signature;
                         worksheet2.Cell(index + 1, 8).Value = item.Id;
                         worksheet2.Cell(index + 1, 9).Value = item.FuelOils.CreatedBy;
@@ -1709,7 +1709,7 @@ namespace FODLSystem.Controllers
                         string[] clc = new string[cellCount];
                         for (int j = 0; j < (cellCount); j++)
                         {
-                            if (line > 7)
+                            if (line > 9)
                             {
                                 break;
                             }
@@ -1725,7 +1725,7 @@ namespace FODLSystem.Controllers
                             }
 
                             cnt += 1;
-                            if (cnt == 7)
+                            if (cnt == 10)
                             {
 
                                 FuelOilDetail sv = new FuelOilDetail
@@ -1737,6 +1737,8 @@ namespace FODLSystem.Controllers
                                     Status = clc[4],
                                     SMR = clc[5],
                                     Signature = clc[6],
+                                    //OldId = Convert.ToInt32(clc[8]),
+                                    //DriverId = Convert.ToInt32(clc[9]),
                                 };
                                 svmDetail.Add(sv);
                                 line += 1;
@@ -1933,7 +1935,7 @@ namespace FODLSystem.Controllers
                                     Signature = clc[6],
                                     OldId = Convert.ToInt32(clc[7]), //FuelOilId
                                     FuelOilId = hId,
-                                    DriverId = Convert.ToInt32(clc[10])
+                                    DriverId = Convert.ToInt32(clc[9])
                                 };
                                 //svmDetail.Add(sv);
                                 _context.FuelOilDetails.Add(sv);
