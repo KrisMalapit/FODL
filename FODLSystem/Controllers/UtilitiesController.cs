@@ -14,6 +14,7 @@ using FODLSystem.Models.View_Model;
 using LinqToExcel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
@@ -214,7 +215,7 @@ namespace FODLSystem.Controllers
                         wsEquipments.Cell(index + 1, 6).Value = "'" + item.DepartmentCode;
                         wsEquipments.Cell(index + 1, 7).Value = "'" + item.FuelCodeDiesel;
                         wsEquipments.Cell(index + 1, 8).Value = "'" + item.FuelCodeOil;
-                        wsEquipments.Cell(index + 1, 9).Value = "'" + item.FuelCodeOil;
+                        wsEquipments.Cell(index + 1, 9).Value = "'" + item.DateModified;
                         index++;
                     }
 
@@ -886,7 +887,11 @@ namespace FODLSystem.Controllers
 
 
                     var userStatus = UpdateUsers(fileName, "Users", lastDateModified); //Users
+                    
+
                     var itemStatus = UpdateItems(fileName, "Items", lastDateModified); //Items
+           
+
                     var componentsStatus = UpdateComponents(fileName, "Components", lastDateModified); //Components
                     var dispensersStatus = UpdateDispensers(fileName, "Dispensers", lastDateModified); //Dispensers
                     var equipmentsStatus = UpdateEquipments(fileName, "Equipments", lastDateModified); //Equipments
@@ -959,28 +964,49 @@ namespace FODLSystem.Controllers
                     string.Format("ID " + item.Id + "UName " + item.Username + "Status " + item.Status).WriteLog();
                     items.Add(item);
                 }
+              
                 var itemsToUpdate = items.Where(a => a.DateModified >= LastDateModified);
 
                 int itemCount = itemsToUpdate.Count();
+
                 foreach (var item in itemsToUpdate)
                 {
-                    var it = _context.Users.Find(item.Id);
-                    it.Username = item.Username;
-                    it.RoleId = item.RoleId;
-                    it.Password = item.Password;
-                    it.FirstName = item.FirstName;
-                    it.LastName = item.LastName;
-                    it.Name = item.Name;
-                    it.Status = item.Status;
-                    it.Email = item.Email;
-                    it.Domain = item.Domain;
-                    it.CompanyAccess = item.CompanyAccess;
-                    it.UserType = item.UserType;
-                    it.DepartmentId = item.DepartmentId;
-                    it.DispenserAccess = item.DispenserAccess;
-                    it.LubeAccess = item.LubeAccess;
-                    it.DateModified = item.DateModified;
-                    _context.Update(it);
+                    int _id = item.Id;
+
+                    //if (item.Id == 10)
+                    //{
+                    //     _id = item.Id;
+                    //}
+                    
+                    try
+                    {
+                        var it = _context.Users.Find(item.Id);
+                        it.Username = item.Username;
+                        it.RoleId = item.RoleId;
+                        it.Password = item.Password;
+                        it.FirstName = item.FirstName;
+                        it.LastName = item.LastName;
+                        it.Name = item.Name;
+                        it.Status = item.Status;
+                        it.Email = item.Email;
+                        it.Domain = item.Domain;
+                        it.CompanyAccess = item.CompanyAccess;
+                        it.UserType = item.UserType;
+                        it.DepartmentId = item.DepartmentId;
+                        it.DispenserAccess = item.DispenserAccess;
+                        it.LubeAccess = item.LubeAccess;
+                        it.DateModified = item.DateModified;
+                        //_context.Update(it);
+                        _context.Entry(it).State = EntityState.Modified;
+                        _context.SaveChanges();
+                    }
+                    catch (Exception)
+                    {
+
+                        var err = _id;
+                        string s;
+                    }
+                    
                 }
 
                 return "Ok";
@@ -1030,7 +1056,9 @@ namespace FODLSystem.Controllers
                     it.TypeFuel = item.TypeFuel;
                     it.No = item.No;
                     it.Status = item.Status;
-                    _context.Update(it);
+                    //_context.Update(it);
+                    _context.Entry(it).State = EntityState.Modified;
+                    _context.SaveChanges();
                 }
 
                 return "Ok";
@@ -1072,7 +1100,9 @@ namespace FODLSystem.Controllers
                     var it = _context.Components.Find(item.Id);
                     it.Name = item.Name;
                     it.Status = item.Status;
-                    _context.Update(it);
+                    //_context.Update(it);
+                    _context.Entry(it).State = EntityState.Modified;
+                    _context.SaveChanges();
                 }
 
                 return "Ok";
@@ -1114,7 +1144,9 @@ namespace FODLSystem.Controllers
                     var it = _context.Dispensers.Find(item.Id);
                     it.Name = item.Name;
                     it.Status = item.Status;
-                    _context.Update(it);
+                    //_context.Update(it);
+                    _context.Entry(it).State = EntityState.Modified;
+                    _context.SaveChanges();
                 }
 
                 return "Ok";
@@ -1166,7 +1198,9 @@ namespace FODLSystem.Controllers
                     it.FuelCodeOil = item.FuelCodeOil;
                     it.No = item.No;
                     it.Status = item.Status;
-                    _context.Update(it);
+                    //_context.Update(it);
+                    _context.Entry(it).State = EntityState.Modified;
+                    _context.SaveChanges();
                 }
 
                 return "Ok";
@@ -1212,7 +1246,9 @@ namespace FODLSystem.Controllers
                     it.OldId = item.OldId;
                     it.Description = item.Description;
                     it.Status = item.Status;
-                    _context.Update(it);
+                    //_context.Update(it);
+                    _context.Entry(it).State = EntityState.Modified;
+                    _context.SaveChanges();
                 }
 
                 return "Ok";
@@ -1258,7 +1294,9 @@ namespace FODLSystem.Controllers
                     it.Position = item.Position;
                     it.Status = item.Status;
                     it.DateModified = item.DateModified;
-                    _context.Update(it);
+                    //_context.Update(it);
+                    _context.Entry(it).State = EntityState.Modified;
+                    _context.SaveChanges();
                 }
 
                 return "Ok";
