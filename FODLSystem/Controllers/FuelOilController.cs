@@ -77,13 +77,33 @@ namespace FODLSystem.Controllers
             string status = "";
             string message = "";
             string imageurl = "";
+            int cnt = 0;
 
 
             try
             {
 
+                cnt = _context.FuelOilSubDetails.Where(a => a.FuelOilDetailId == id).Count();
+                if (cnt < 1)
+                {
+                    message = "Items should be added first before signing. If items has been added, try saving it first before signing";
+                    status = "fail";
+
+                    var modelErr = new
+                    {
+
+                        message,
+                        status,
+                        imageurl = ""
+                    };
+
+                    return Json(modelErr);
+
+
+                }
+
                 var fueloil = _context.FuelOilDetails
-                    .Where(a => a.FuelOilId == id)
+                    .Where(a => a.Id == id)
                     .FirstOrDefault();
 
                 fueloil.Signature = "SIGNED";
@@ -121,10 +141,30 @@ namespace FODLSystem.Controllers
             string status = "";
             string message = "";
             string imageurl = "";
-
+            int cnt = 0;
 
             try
             {
+                cnt = _context.FuelOilSubDetails.Where(a => a.FuelOilDetailId == id).Count();
+                if (cnt < 1)
+                {
+                    message = "Items should be added first before signing. If items has been added, try saving it first before signing";
+                    status = "fail";
+
+                    var modelErr = new
+                    {
+
+                        message,
+                        status,
+                        imageurl = ""
+                    };
+
+                    return Json(modelErr);
+
+
+                }
+
+
 
                 var fueloil = _context.FuelOilDetails.Where(a => a.Id == id).FirstOrDefault();
                 fueloil.Signature = imgData;
@@ -233,7 +273,23 @@ namespace FODLSystem.Controllers
 
 
                 ViewData["EquipmentId"] = new SelectList(_context.Equipments.Where(a => a.Status == "Active"), "Id", "No");
-                ViewData["DriverId"] = new SelectList(_context.Drivers.Where(a => a.Status == "Enabled"), "ID", "Name");
+
+
+
+
+
+                var drivers = _context.Drivers.Where(a => a.Status == "Enabled");
+                List<CustomList> lstDrivers = new List<CustomList>();
+                foreach (var item in drivers)
+                {
+                    CustomList tag = new CustomList()
+                    {
+                        Id = item.ID,
+                        Text = item.IdNumber + " | " + item.Name
+                    };
+                    lstDrivers.Add(tag);
+                }
+                ViewData["DriverId"] = new SelectList(lstDrivers.AsQueryable().OrderBy(c => c.Id), "Id", "Text");
 
 
                 //ViewData["Id"] = 0 ;
@@ -270,7 +326,22 @@ namespace FODLSystem.Controllers
 
             ViewData["LocationId"] = new SelectList(_context.Locations.Where(a => a.Status == "Active"), "Id", "List");
             ViewData["EquipmentId"] = new SelectList(_context.Equipments.Where(a => a.Status == "Active"), "Id", "No");
-            ViewData["DriverId"] = new SelectList(_context.Drivers.Where(a => a.Status == "Enabled"), "ID", "Name");
+
+
+            var drivers = _context.Drivers.Where(a => a.Status == "Enabled");
+            List<CustomList> lstDrivers = new List<CustomList>();
+            foreach (var item in drivers)
+            {
+                CustomList tag = new CustomList()
+                {
+                    Id = item.ID,
+                    Text = item.IdNumber + " | " + item.Name
+                };
+                lstDrivers.Add(tag);
+            }
+            ViewData["DriverId"] = new SelectList(lstDrivers.AsQueryable().OrderBy(c => c.Id), "Id", "Text");
+
+            //ViewData["DriverId"] = new SelectList(_context.Drivers.Where(a => a.Status == "Enabled"), "ID", "Name");
             var disp = _context.Dispensers
                  .Where(a => dispenserId.Contains(a.Id))
                  .Where(a => a.Status != "Deleted");

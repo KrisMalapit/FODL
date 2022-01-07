@@ -25,7 +25,7 @@ namespace FODLSystem.Models
         public int FuelOilId { get; set; }
         public virtual FuelOil FuelOils { get; set; }
         public int OldId { get; set; }
-        public int? DriverId { get; set; }
+        public int DriverId { get; set; }
         public virtual Driver Drivers { get; set; }
 
     }

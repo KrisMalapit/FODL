@@ -79,19 +79,17 @@
                     <div class="form-group row">
                         <label class="col-md-2 col-form-label">Equipment</label>
                         <div class="input-group col-md-2">
-                            @*<select class="form-control input-sm" id="EquipmentId" name="EquipmentId">
-                <option>Select Unit</option>
-            </select>*@
+                           
                             @Html.DropDownList("EquipmentId")
                         </div>
                         <label class="col-md-2 col-form-label">Location</label>
                         <div class="input-group col-md-2">
                             @Html.DropDownList("LocationId")
                         </div>
-                        <label class="col-md-2 col-form-label"></label>
+                        @*<label class="col-md-2 col-form-label"></label>
                         <div class="input-group col-md-2">
                             <button type="button" id="btnDigitalSign" class="btn btn-warning" style="width:100%;">Digital Sign</button>
-                        </div>
+                        </div>*@
                     </div>
 
                 </form>
@@ -279,7 +277,10 @@
 
                     <button id="save" class="btn btn-primary signValue">Save</button>
                     <button id="close" class="btn btn-primary">Close</button>
-
+                    @*<label class="col-md-2 col-form-label"></label>
+                    <div class="input-group col-md-2">*@
+                        <button type="button" id="btnDigitalSign" class="btn btn-warning" >Digital Sign</button>
+                    @*</div>*@
                 </p>
 
             </div>
@@ -525,7 +526,7 @@
                     url: "@Url.Action("DigitalSignature")"
                     , dataType: "json"
                     , type: "POST"
-                    , data: { id: $("#FuelOilId").val(), DriverId : $("#DriverId").val() }
+                    , data: { id: $("#DetailId").val(), DriverId : $("#DriverId").val() }
                     , success: function (responsedata) {
                         if (responsedata.status == "success") {
                           
@@ -533,6 +534,13 @@
                             loadDatatable($("#FuelOilId").val(),"Edit");
                            
                         } else {
+                            toastr.options = {
+                                "closeButton": true,
+                                timeOut: 10000,
+                                //extendedTimeOut: 0
+                            };
+
+
                             toastr["error"](responsedata.message +'</br></br>'+ 'Something wrong with the creation of equipment.')
                             toastr.options = {
                                 "closeButton": true
@@ -605,6 +613,12 @@
                             loadDatatable($("#FuelOilId").val(),"Edit");
                             $('#savetarget').attr('src', data);
                         } else {
+
+                            toastr.options = {
+                                "closeButton": true,
+                                timeOut: 10000,
+                                //extendedTimeOut: 0
+                            };
                             toastr["error"](responsedata.message +'</br></br>'+ 'Something wrong with the creation of equipment.')
                             toastr.options = {
                                 "closeButton": true

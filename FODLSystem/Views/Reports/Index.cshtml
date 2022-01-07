@@ -54,6 +54,7 @@
                             <th>Fuel Code</th>
                             <th>Location Code</th>
                             <th>Dept. Code</th>
+                            <th>Driver</th>
                         </tr>
                     </thead>
 
@@ -142,7 +143,8 @@
                                 , moment(responsedata.data[i].documentDate).format("MM-DD-YYYY")
                                 , responsedata.data[i].qty, responsedata.data[i].equipmentCode
                                 , responsedata.data[i].officeCode, responsedata.data[i].fuelCode
-                                , responsedata.data[i].locationCode, responsedata.data[i].departmentCode,
+                                , responsedata.data[i].locationCode, responsedata.data[i].departmentCode
+                                ,responsedata.data[i].drivers,
                                 ]);
 
                         }
