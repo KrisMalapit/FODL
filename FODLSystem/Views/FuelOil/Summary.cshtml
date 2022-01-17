@@ -252,7 +252,7 @@
                         url: "@Url.Action("uploadNavision","Utilities")"
                             , method: "POST"
                             , dataType: 'json'
-             , data: { batchno: $("#txtBatchNo").val(), refid: strReference}
+                            , data: { batchno: $("#txtBatchNo").val(), refid: strReference}
                             , success: function (responsedata) {
                                 console.log(responsedata);
                                 if (responsedata.status == "success") {

@@ -43,7 +43,24 @@ namespace FODLSystem.Controllers
             //    Text = a.No + " - " + a.Description
             //});
             //ViewData["LubeTruckId"] = new SelectList(lube.OrderBy(a => a.Text), "ID", "Text");
-            ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");
+
+
+
+            //ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");
+
+
+
+            var lube = _context.LubeTrucks.Where(a => stat.Contains(a.Status)).Select(a => new
+            {
+                a.Id,
+                Text = a.No + " | " + a.Description
+            });
+            ViewData["LubeTruckId"] = new SelectList(lube.OrderBy(a => a.Text), "Id", "Text");
+
+
+
+
+
 
             ViewData["DispenserId"] = new SelectList(_context.Dispensers.Where(a => stat.Contains(a.Status)), "Id", "Name");
 
@@ -62,7 +79,7 @@ namespace FODLSystem.Controllers
             var lube = _context.LubeTrucks.Where(a => stat.Contains(a.Status)).Select(a => new
             {
                 a.Id,
-                Text = a.No + " - " + a.Description
+                Text = a.No + " | " + a.Description
             });
             ViewData["LubeTruckId"] = new SelectList(lube.OrderBy(a => a.Text), "Id", "Text");
             ViewData["DispenserId"] = new SelectList(_context.Dispensers.Where(a => stat.Contains(a.Status)), "Id", "Name");
@@ -549,7 +566,7 @@ namespace FODLSystem.Controllers
             var lube = _context.LubeTrucks.Where(a => stat.Contains(a.Status)).Select(a => new
             {
                 a.Id,
-                Text = a.No + " - " + a.Description
+                Text = a.No + " | " + a.Description
             });
             ViewData["LubeTruckId"] = new SelectList(lube.OrderBy(a => a.Text), "Id", "Text");
             //ViewData["LubeTruckId"] = new SelectList(_context.LubeTrucks.Where(a => stat.Contains(a.Status)), "Id", "Description");

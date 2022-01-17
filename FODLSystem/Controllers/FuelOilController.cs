@@ -939,7 +939,8 @@ namespace FODLSystem.Controllers
 
                   a.Id,
                   a.Status,
-                  a.SourceReferenceNo
+                  a.SourceReferenceNo,
+                  a.BatchName
               });
                 if (User.Identity.GetRoleName() == "User")
                 {

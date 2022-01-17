@@ -28,6 +28,7 @@ namespace FODLSystem.Models
         public int OldId { get; set; }
         public string SourceReferenceNo { get; set; }
         public DateTime OriginalDate { get; set; }
-       
+        public string BatchName { get; set; }
+
     }
 }

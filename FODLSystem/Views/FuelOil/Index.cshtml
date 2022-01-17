@@ -223,6 +223,7 @@
                         <th>LubeTruck</th>
                         <th>Dispenser</th>
                         <th>Old Reference No</th>
+                        <th>BatchNo</th>
                         <th>Status</th>
                         <th style="width:8%">Action</th>
 
@@ -234,6 +235,7 @@
                         <th>LubeTruck</th>
                         <th>Dispenser</th>
                         <th>Old Reference No</th>
+                        <th>BatchNo</th>
                         <th>Status</th>
 
                         <th></th>
@@ -248,6 +250,7 @@
                         <th>LubeTruck</th>
                         <th>Dispenser</th>
                         <th>Old Reference No</th>
+                        <th>BatchNo</th>
                         <th>Status</th>
                         <th></th>
                     </tr>
@@ -555,7 +558,7 @@
             "fixedHeader": true,
             "order": [[1, "desc"]],
             "ajax": {
-                "url": "@Url.Action("getData")?columnCount=" + 7,
+                "url": "@Url.Action("getData")?columnCount=" + 8,
                 "type": "POST",
                 "datatype": "json"
             },
@@ -574,6 +577,7 @@
                 { "data": "lubeTruckName", "name": "LubeTruckName", "autoWidth": true },
                 { "data": "dispenserName", "name": "DispenserName", "autoWidth": true },
                 { "data": "sourceReferenceNo", "name": "SourceReferenceNo", "autoWidth": true },
+                { "data": "batchName", "name": "BatchName", "autoWidth": true },
                 { "data": "status", "name": "Status", "autoWidth": true },
                 {
                      render: function (data, type, row) {
