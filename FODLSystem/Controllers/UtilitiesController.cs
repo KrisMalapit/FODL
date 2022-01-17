@@ -108,9 +108,9 @@ namespace FODLSystem.Controllers
                         worksheet2.Cell(index + 1, 5).Value = "'" + item.FirstName;
                         worksheet2.Cell(index + 1, 6).Value = "'" + item.LastName;
                         worksheet2.Cell(index + 1, 7).Value = "'" + item.Name;
-                        worksheet2.Cell(index + 1, 8).Value = item.Status;
+                        worksheet2.Cell(index + 1, 8).Value = "'" + item.Status;
                         worksheet2.Cell(index + 1, 9).Value = "'" + item.Email;
-                        worksheet2.Cell(index + 1, 10).Value = item.Domain;
+                        worksheet2.Cell(index + 1, 10).Value = "'" + item.Domain;
                         worksheet2.Cell(index + 1, 11).Value = "'" + item.CompanyAccess;
                         worksheet2.Cell(index + 1, 12).Value = "'" + item.UserType;
                         worksheet2.Cell(index + 1, 13).Value = item.DepartmentId;
@@ -137,13 +137,13 @@ namespace FODLSystem.Controllers
                     foreach (var item in items)
                     {
                         wsItem.Cell(index + 1, 1).Value = item.Id;
-                        wsItem.Cell(index + 1, 2).Value = item.No;
+                        wsItem.Cell(index + 1, 2).Value = "'" + item.No;
                         wsItem.Cell(index + 1, 3).Value = "'" + item.Description;
                         wsItem.Cell(index + 1, 4).Value = "'" + item.Description2;
-                        wsItem.Cell(index + 1, 5).Value = item.TypeFuel;
+                        wsItem.Cell(index + 1, 5).Value = "'" + item.TypeFuel;
                         wsItem.Cell(index + 1, 6).Value = "'" + item.DescriptionLiquidation;
-                        wsItem.Cell(index + 1, 7).Value = item.Status;
-                        wsItem.Cell(index + 1, 8).Value = item.DateModified;
+                        wsItem.Cell(index + 1, 7).Value = "'" + item.Status;
+                        wsItem.Cell(index + 1, 8).Value = "'" + item.DateModified;
                         index++;
                     }
 
@@ -182,9 +182,9 @@ namespace FODLSystem.Controllers
                     foreach (var item in dispensers)
                     {
                         wsDispensers.Cell(index + 1, 1).Value = item.Id;
-                        wsDispensers.Cell(index + 1, 2).Value = item.Name;
-                        wsDispensers.Cell(index + 1, 3).Value = item.Status;
-                        wsDispensers.Cell(index + 1, 4).Value = item.DateModified;
+                        wsDispensers.Cell(index + 1, 2).Value = "'" + item.Name;
+                        wsDispensers.Cell(index + 1, 3).Value = "'" + item.Status;
+                        wsDispensers.Cell(index + 1, 4).Value = "'" + item.DateModified;
                         index++;
                     }
 
@@ -208,10 +208,10 @@ namespace FODLSystem.Controllers
                     foreach (var item in equipments)
                     {
                         wsEquipments.Cell(index + 1, 1).Value = item.Id;
-                        wsEquipments.Cell(index + 1, 2).Value = item.No;
-                        wsEquipments.Cell(index + 1, 3).Value = item.Name;
+                        wsEquipments.Cell(index + 1, 2).Value = "'" + item.No;
+                        wsEquipments.Cell(index + 1, 3).Value = "'" + item.Name;
                         wsEquipments.Cell(index + 1, 4).Value = "'" + item.ModelNo;
-                        wsEquipments.Cell(index + 1, 5).Value = item.Status;
+                        wsEquipments.Cell(index + 1, 5).Value = "'" + item.Status;
                         wsEquipments.Cell(index + 1, 6).Value = "'" + item.DepartmentCode;
                         wsEquipments.Cell(index + 1, 7).Value = "'" + item.FuelCodeDiesel;
                         wsEquipments.Cell(index + 1, 8).Value = "'" + item.FuelCodeOil;
