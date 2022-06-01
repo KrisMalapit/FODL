@@ -174,7 +174,7 @@ namespace FODLSystem.Controllers
                     wsDispensers.Cell(1, 2).Value = "Name";
                     wsDispensers.Cell(1, 3).Value = "Status";
                     wsDispensers.Cell(1, 4).Value = "DateModified";
-
+                    wsDispensers.Cell(1, 5).Value = "No";
 
                     index = 1;
 
@@ -185,6 +185,7 @@ namespace FODLSystem.Controllers
                         wsDispensers.Cell(index + 1, 2).Value = "'" + item.Name;
                         wsDispensers.Cell(index + 1, 3).Value = "'" + item.Status;
                         wsDispensers.Cell(index + 1, 4).Value = "'" + item.DateModified;
+                        wsDispensers.Cell(index + 1, 5).Value = "'" + item.No;
                         index++;
                     }
 
@@ -503,7 +504,7 @@ namespace FODLSystem.Controllers
                         int cnt = 0;
                         int line = 1;
                        
-                        //List<User> usr = new List<User>();
+                       
                         for (int i = (userCount + 1); i <= rowCount; i++)
                         {
 
@@ -546,7 +547,7 @@ namespace FODLSystem.Controllers
                                         LubeAccess = clc[14],
                                         DateModified = DateTime.Now
                                     };
-                                    string.Format("ID " + clc[0] + "UName " + clc[1] + "Status " + clc[7]).WriteLog();
+                                   
                                     _context.Users.Add(sv);
 
 
@@ -602,6 +603,7 @@ namespace FODLSystem.Controllers
                                         TypeFuel = clc[4],
                                         DescriptionLiquidation = clc[5],
                                         Status = clc[6],
+                                        DateModified = DateTime.Now
                                     };
 
                                     _context.Items.Add(sv);
@@ -686,15 +688,17 @@ namespace FODLSystem.Controllers
                             {
                                 clc[cnt] = headerRow.GetCell(j).ToString();
                                 cnt += 1;
-                                if (cnt == 4)
+                                if (cnt == 5)
                                 {
 
                                     Dispenser sv = new Dispenser
                                     {
                                         //Id = Convert.ToInt32(clc[0]),
+                                        No = clc[4],
                                         Name = clc[1],
 
                                         Status = clc[2],
+                                        DateModified = DateTime.Now
                                     };
 
                                     _context.Dispensers.Add(sv);
@@ -864,7 +868,7 @@ namespace FODLSystem.Controllers
                     //IQueryable<IImportRow> data = importdata as IQueryable<IImportRow>;
 
 
-                    DateTime lastDateModified = DateTime.Now.Date;
+                    DateTime lastDateModified = DateTime.Now;
 
                     var si = _context.SynchronizeInformations.Find(1);
                     if (si != null)
@@ -893,7 +897,9 @@ namespace FODLSystem.Controllers
            
 
                     var componentsStatus = UpdateComponents(fileName, "Components", lastDateModified); //Components
+
                     var dispensersStatus = UpdateDispensers(fileName, "Dispensers", lastDateModified); //Dispensers
+
                     var equipmentsStatus = UpdateEquipments(fileName, "Equipments", lastDateModified); //Equipments
                     var lubetrucksStatus = UpdateLubeTrucks(fileName, "Lubetrucks", lastDateModified); //Lubetrucks
                     var driversStatus = UpdateDrivers(fileName, "Drivers", lastDateModified); //Lubetrucks
@@ -930,7 +936,7 @@ namespace FODLSystem.Controllers
         }
         string UpdateUsers(string fileName, string sheetName, DateTime LastDateModified)
         {
-
+            string.Format("Update users started..");
             try
             {
                 FileInfo fs = new FileInfo(fileName);
@@ -943,6 +949,9 @@ namespace FODLSystem.Controllers
                 List<User> items = new List<User>();
                 for (int i = 0; i < dtexcel.Rows.Count; i++)
                 {
+                    var dmodified = string.IsNullOrEmpty(dtexcel.Rows[i]["DateModified"].ToString()) ? defdDate : Convert.ToDateTime(dtexcel.Rows[i]["DateModified"]);
+                    string.Format("Row : " + (i+1) + " DateModified " + dmodified);
+
                     User item = new User();
                     item.Id = Convert.ToInt32(dtexcel.Rows[i]["Id"]);
                     item.Username = dtexcel.Rows[i]["Username"].ToString();
@@ -959,9 +968,9 @@ namespace FODLSystem.Controllers
                     item.DepartmentId = Convert.ToInt32(dtexcel.Rows[i]["DepartmentId"]);
                     item.DispenserAccess = dtexcel.Rows[i]["DispenserAccess"].ToString();
                     item.LubeAccess = dtexcel.Rows[i]["LubeAccess"].ToString();
-                    
-                    item.DateModified = string.IsNullOrEmpty(dtexcel.Rows[i]["DateModified"].ToString()) ? defdDate : Convert.ToDateTime(dtexcel.Rows[i]["DateModified"]);
-                    string.Format("ID " + item.Id + "UName " + item.Username + "Status " + item.Status).WriteLog();
+
+                    item.DateModified = dmodified;
+                   
                     items.Add(item);
                 }
               
@@ -969,18 +978,24 @@ namespace FODLSystem.Controllers
 
                 int itemCount = itemsToUpdate.Count();
 
+
+                string.Format("User to be modified Count " + itemCount);
+
+
                 foreach (var item in itemsToUpdate)
                 {
                     int _id = item.Id;
+                    string.Format("User Id : " + _id);
 
                     //if (item.Id == 10)
                     //{
                     //     _id = item.Id;
                     //}
-                    
+
                     try
                     {
-                        var it = _context.Users.Find(item.Id);
+                        //var it = _context.Users.Find(item.Id);
+                        var it = _context.Users.Where(a=>a.Username == item.Username).FirstOrDefault();
                         it.Username = item.Username;
                         it.RoleId = item.RoleId;
                         it.Password = item.Password;
@@ -1014,7 +1029,7 @@ namespace FODLSystem.Controllers
             }
             catch (Exception e)
             {
-
+                string.Format("User update error " + e.Message);
                 return e.Message;
             }
         }
@@ -1116,10 +1131,12 @@ namespace FODLSystem.Controllers
         }
 
         string UpdateDispensers(string fileName, string sheetName, DateTime LastDateModified)
-        {
+        {   
 
             try
             {
+               
+
                 FileInfo fs = new FileInfo(fileName);
                 ExcelPackage package = new ExcelPackage(fs);
                 DataTable dtexcel = new DataTable();
@@ -1127,24 +1144,35 @@ namespace FODLSystem.Controllers
                 DateTime defdDate = new DateTime(1900, 01, 01);
 
                 int dtRows = dtexcel.Rows.Count;
+                
+
                 List<Dispenser> items = new List<Dispenser>();
                 for (int i = 0; i < dtexcel.Rows.Count; i++)
                 {
+                   
+                    var dm =  dtexcel.Rows[i]["DateModified"].ToString() == "" ? defdDate.ToString() : Convert.ToDateTime(dtexcel.Rows[i]["DateModified"].ToString()).ToString();
+                    string.Format("Date Formatted : " + dm).WriteLog();
                     Dispenser item = new Dispenser();
                     item.Id = Convert.ToInt32(dtexcel.Rows[i]["Id"]);
+                    item.No = dtexcel.Rows[i]["No"].ToString();
                     item.Name = dtexcel.Rows[i]["Name"].ToString();
-                    item.DateModified = dtexcel.Rows[i]["DateModified"].ToString() == "" ? defdDate : Convert.ToDateTime(dtexcel.Rows[i]["DateModified"]);
+                    item.DateModified = Convert.ToDateTime(dm);
                     item.Status = dtexcel.Rows[i]["Status"].ToString();
                     items.Add(item);
                 }
+
+              
                 var itemsToUpdate = items.Where(a => a.DateModified >= LastDateModified);
                 int itemCount = itemsToUpdate.Count();
+             
+
                 foreach (var item in itemsToUpdate)
                 {
                     var it = _context.Dispensers.Find(item.Id);
+                    it.No = item.No;
                     it.Name = item.Name;
                     it.Status = item.Status;
-                    //_context.Update(it);
+                    it.DateModified = DateTime.Now;
                     _context.Entry(it).State = EntityState.Modified;
                     _context.SaveChanges();
                 }
@@ -1154,7 +1182,7 @@ namespace FODLSystem.Controllers
             }
             catch (Exception e)
             {
-
+                string.Format("Error Dispenser : " + e.Message).WriteLog();
                 return e.Message;
             }
         }
@@ -1379,7 +1407,8 @@ namespace FODLSystem.Controllers
             string message = "";
             try
             {
-                string apiUrl = @"http://192.168.0.199/FODLApi/api/"; //SMPC DEV
+                //string apiUrl = @"http://192.168.0.199/FODLApi/api/"; //SMPC DEV
+                string apiUrl = @"http://localhost/fodlapi/api/"; //SMPC Live
                 //string apiUrl = @"http://sodium2/FODLApi/api/"; //SMPC DEV
                 //string apiUrl = @"http://localhost:59455/api/"; //LOCAL
 
@@ -1397,23 +1426,41 @@ namespace FODLSystem.Controllers
 
                         var readTask = response.Content.ReadAsAsync<NavisionViewModel>();
 
-                        //var readTask = response.Content.ReadAsAsync<IList<ContractorModel>>();
+                      
 
                         try
                         {
                             readTask.Wait();
 
                             nvm = readTask.Result;
-                            if (nvm.message != "success")
+                            //if (nvm.message != "success")
+                            //{
+                            //    status = "failed";
+                            //    message = nvm.message;
+                            //}
+                            //else
+                            //{
+                            //    status = "success";
+                            //    message = "Uploaded to Navision Successfully";
+                            //}
+                            if (nvm.status == "success")
+                            {
+                                status = "success";
+                                message = "Uploaded to Navision Successfully";
+                               
+                            }
+                            if (nvm.status == "partial_success")
+                            {
+                                status = "warning";
+                                message = nvm.message;
+
+                            }
+                            else
                             {
                                 status = "failed";
                                 message = nvm.message;
                             }
-                            else
-                            {
-                                status = "success";
-                                message = "Uploaded to Navision Successfully";
-                            }
+
 
                         }
                         catch (Exception e)

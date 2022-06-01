@@ -723,8 +723,16 @@
         var cnt = 0;
         var data = $("#frmEquipment").serializeArray();
 
+
+
+        $cdate = moment($("#CreatedDate").val()).format("MM/DD/YYYY HH:mm")
+
+        //console.log($cdate);
+        //return false;
+
+
         $.ajax({
-            url: "@Url.Action("SaveFormDetail")"
+            url: "@Url.Action("SaveFormDetail")?CDate=" + $cdate
             , method: "POST"
             , data: data
             , dataType: 'json'

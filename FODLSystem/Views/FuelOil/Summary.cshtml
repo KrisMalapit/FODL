@@ -264,13 +264,38 @@
 
                                     loadDatatable("0");
                                     loadDatatableReference();
-
-                                } else {
-                                    toastr["error"](responsedata.message)
+                                }
+                                else if (responsedata.status == "warning") {
+                                    toastr.options = {
+                                        closeButton: true,
+                                        extendedTimeOut: 0,
+                                        timeOut: 0,
+                                        tapToDismiss: false
+                                    };
+                                    
+                                    toastr["warning"]("Some of the items were partially uploaded to Navision. Please see details : <br /><br />" + responsedata.message)
                                     toastr.options = {
                                         "closeButton": true
                                     }
 
+                                    loadDatatable("0");
+                                    loadDatatableReference();
+
+                                
+                                } else {
+                                   
+                                    toastr.options = {
+                                        closeButton: true,
+                                        extendedTimeOut: 0,
+                                        timeOut: 0,
+                                        tapToDismiss: false
+                                    };
+                                  
+                                    toastr["error"](responsedata.message)
+                                    toastr.options = {
+                                        "closeButton": true
+                                    }
+                                  
                                     //loadDatatable("");
                                     //loadDatatableReference();
                                 }

@@ -321,7 +321,7 @@
             if (response.status == "success") {
                 el.addClass("success_response").html(response.message);
             } else {
-                el.addClass("error_response").html(response.message + "\r\n Please check file type or filename.");
+                el.addClass("error_response").html(response.message + "\r\n");
             }
            
             console.log(response); //kcm
@@ -336,7 +336,7 @@
 
 
 
-            el.addClass("error_response").html(response.message + "\r\n Please check file type or filename.");
+            el.addClass("error_response").html(response.message + "\r\n");
 
 
 

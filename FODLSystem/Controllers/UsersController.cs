@@ -93,6 +93,23 @@ namespace FODLSystem.Controllers
         {
             string lubeaccess = string.Join(",", lubetags);
             string dispenseraccess = string.Join(",", dispensertags);
+
+
+
+            int cnt = _context.Users.Where(a => a.Username == userView.Username).Count();
+            if (cnt > 0)
+            {
+
+                ModelState.AddModelError("", "UserName already existing");
+                return View(userView);
+            }
+
+
+
+
+
+
+
             if (ModelState.IsValid)
             {
                 try
@@ -110,7 +127,7 @@ namespace FODLSystem.Controllers
                     user.CompanyAccess = "1";
                     user.LubeAccess = lubeaccess;
                     user.DispenserAccess = dispenseraccess;
-                    user.DateModified = DateTime.Now.Date;
+                    user.DateModified = DateTime.Now;
                     _context.Add(user);
                     await _context.SaveChangesAsync();
 

@@ -109,7 +109,7 @@
                             @if (User.Identity.GetRoleName() != "User")
                             {
 
-                                @*//DISABLE IF OFFLINE
+                                //DISABLE IF OFFLINE
                                 @if (User.Identity.GetRoleName() == "Admin")
                                 {
                                     <li class="dropdown">
@@ -126,8 +126,8 @@
                                             <li><a asp-area="" asp-controller="Drivers" asp-action="Index">Drivers </a></li>
                                         </ul>
                                     </li>
-                                }*@
-
+                                }
+                                //
 
                                     <li class="dropdown">
                                         <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown">Utilities</a>
@@ -135,9 +135,11 @@
                                             <li><a asp-area="" asp-controller="Utilities" asp-action="Synchronize">Synchronize</a></li>
                                         </ul>
                                     </li>
-                                    @*<li>
+                                //DISABLE IF OFFLINE
+                                    <li>
                                         <a asp-area="" asp-controller="Reports" asp-action="Index"><i class="fa fa-line-chart"></i> <span class="nav-label">Reports</span></a>
-                                    </li>*@
+                                    </li>
+                                //
                              }
 
                             </ul>

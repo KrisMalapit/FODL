@@ -49,6 +49,8 @@ namespace FODLSystem
                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://192.168.70.231");
                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://sodium2");
                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://192.168.0.199");
+                   policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:59455");
+                   policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost");
                })
            );
 
