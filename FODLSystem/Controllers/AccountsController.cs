@@ -36,6 +36,8 @@ namespace FODLSystem.Controllers
 
         public ActionResult Login(string returnUrl)
         {
+
+            //new updates
     
             ViewBag.ReturnUrl = returnUrl;
             if (User.Identity.IsAuthenticated)
