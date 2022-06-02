@@ -168,9 +168,6 @@ namespace FODLSystem.Controllers
                 data["Password"] = Password;
 
 
-
-
-
                 var response = wb.UploadValues(url, "POST", data);
                 string responseInString = Encoding.UTF8.GetString(response);
                 var str2 = JsonConvert.DeserializeObject(responseInString);
